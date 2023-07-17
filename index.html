@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>fuel calc</title>
+  <style>
+    /* CSS-Stile für die Eingabefelder */
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    
+    input[type="text"] {
+      padding: 5px;
+      width: 200px;
+    }
+    
+    .markiert {
+      color: red;
+    }
+    
+    .fuel-ergebnis {
+      font-weight: bold;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>fuel calc for iracing</h1>
+  
+  <form>
+    <label for="rundenzeit">Rundenzeit:</label>
+    <input type="text" id="rundenzeit" name="rundenzeit" placeholder="Format: 01:30.500">
+    <button type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
+    <button type="button" onclick="verringereRundenzeit()">- 0.5s</button>
+    <p id="rundenzeit-in-sekunden"></p>
+    
+    <label for="verbrauch">Verbrauch:</label>
+    <input type="text" id="verbrauch" name="verbrauch" placeholder="Wert von 0 bis 100 mit zwei Dezimalstellen">
+    
+    <h2>Renndauer</h2>
+    
+    <table>
+      <tr>
+        <th>Eingabe</th>
+        <th>Runden</th>
+        <th>Pfeil nach rechts</th>
+        <th>Aufgerundete Runden</th>
+        <th>Fuel</th>
+      </tr>
+      <tr>
+        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="Zeit in Minuten"></td>
+        <td><span id="ergebnis1"></span></td>
+        <td>&rarr;</td>
+        <td><span id="aufgerundeteRunden1"></span></td>
+        <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="Zeit in Minuten"></td>
+        <td><span id="ergebnis2"></span></td>
+        <td>&rarr;</td>
+        <td><span id="aufgerundeteRunden2"></span></td>
+        <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="Zeit in Minuten"></td>
+        <td><span id="ergebnis3"></span></td>
+        <td>&rarr;</td>
+        <td><span id="aufgerundeteRunden3"></span></td>
+        <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="Zeit in Minuten"></td>
+        <td><span id="ergebnis4"></span></td>
+        <td>&rarr;</td>
+        <td><span id="aufgerundeteRunden4"></span></td>
+        <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="Zeit in Minuten"></td>
+        <td><span id="ergebnis5"></span></td>
+        <td>&rarr;</td>
+        <td><span id="aufgerundeteRunden5"></span></td>
+        <td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis"></span></td>
+      </tr>
+    </table>
+    
+    <button type="button" onclick="berechnen()">Berechnen</button>
+    
+    <h2>Set Amount of Laps</h2>
+    
+    <table>
+      <tr>
+        <th>Eingabe</th>
+        <th>Fuel</th>
+      </tr>
+      <tr>
+        <td><input type="number" id="setLaps1" name="setLaps1" placeholder="Ganzzahlige Rundenanzahl"></td>
+        <td><span id="setFuel1" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="setLaps2" name="setLaps2" placeholder="Ganzzahlige Rundenanzahl"></td>
+        <td><span id="setFuel2" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="setLaps3" name="setLaps3" placeholder="Ganzzahlige Rundenanzahl"></td>
+        <td><span id="setFuel3" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="setLaps4" name="setLaps4" placeholder="Ganzzahlige Rundenanzahl"></td>
+        <td><span id="setFuel4" class="fuel-ergebnis"></span></td>
+      </tr>
+      <tr>
+        <td><input type="number" id="setLaps5" name="setLaps5" placeholder="Ganzzahlige Rundenanzahl"></td>
+        <td><span id="setFuel5" class="fuel-ergebnis"></span></td>
+      </tr>
+    </table>
+  </form>
+  
+  <div id="ergebnis"></div>
+
+  <script>
+    function erhoeheRundenzeit() {
+      var rundenzeitInput = document.getElementById('rundenzeit').value;
+      if (rundenzeitInput) {
+        var rundenzeit = umwandelnInSekunden(rundenzeitInput);
+        rundenzeit += 0.5;
+        document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
+        berechnen();
+      }
+    }
+    
+    function verringereRundenzeit() {
+      var rundenzeitInput = document.getElementById('rundenzeit').value;
+      if (rundenzeitInput) {
+        var rundenzeit = umwandelnInSekunden(rundenzeitInput);
+        rundenzeit -= 0.5;
+        document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
+        berechnen();
+      }
+    }
+    
+    function formatiereRundenzeit(rundenzeit) {
+      var minuten = Math.floor(rundenzeit / 60);
+      var sekunden = Math.floor(rundenzeit % 60);
+      var millisekunden = Math.round((rundenzeit % 1) * 1000);
+      return ('0' + minuten).slice(-2) + ':' + ('0' + sekunden).slice(-2) + '.' + ('00' + millisekunden).slice(-3);
+    }
+    
+    function berechnen() {
+      var rundenzeitInput = document.getElementById('rundenzeit').value;
+      var rundenzeit = umwandelnInSekunden(rundenzeitInput);
+      
+      // Verbrauch mit Komma oder Punkt akzeptieren
+      var verbrauchInput = document.getElementById('verbrauch').value;
+      var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
+      
+      var renndauer1 = parseFloat(document.getElementById('renndauer1').value);
+      var renndauer2 = parseFloat(document.getElementById('renndauer2').value);
+      var renndauer3 = parseFloat(document.getElementById('renndauer3').value);
+      var renndauer4 = parseFloat(document.getElementById('renndauer4').value);
+      var renndauer5 = parseFloat(document.getElementById('renndauer5').value);
+      
+      var ergebnis1 = berechneErgebnis(renndauer1, rundenzeit);
+      var ergebnis2 = berechneErgebnis(renndauer2, rundenzeit);
+      var ergebnis3 = berechneErgebnis(renndauer3, rundenzeit);
+      var ergebnis4 = berechneErgebnis(renndauer4, rundenzeit);
+      var ergebnis5 = berechneErgebnis(renndauer5, rundenzeit);
+      
+      document.getElementById('ergebnis1').textContent = ergebnis1.toFixed(2);
+      document.getElementById('ergebnis2').textContent = ergebnis2.toFixed(2);
+      document.getElementById('ergebnis3').textContent = ergebnis3.toFixed(2);
+      document.getElementById('ergebnis4').textContent = ergebnis4.toFixed(2);
+      document.getElementById('ergebnis5').textContent = ergebnis5.toFixed(2);
+      
+      var aufgerundeteRunden1 = Math.ceil(ergebnis1);
+      var aufgerundeteRunden2 = Math.ceil(ergebnis2);
+      var aufgerundeteRunden3 = Math.ceil(ergebnis3);
+      var aufgerundeteRunden4 = Math.ceil(ergebnis4);
+      var aufgerundeteRunden5 = Math.ceil(ergebnis5);
+      
+      document.getElementById('aufgerundeteRunden1').textContent = aufgerundeteRunden1;
+      document.getElementById('aufgerundeteRunden2').textContent = aufgerundeteRunden2;
+      document.getElementById('aufgerundeteRunden3').textContent = aufgerundeteRunden3;
+      document.getElementById('aufgerundeteRunden4').textContent = aufgerundeteRunden4;
+      document.getElementById('aufgerundeteRunden5').textContent = aufgerundeteRunden5;
+      
+      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.5);
+      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.5);
+      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.5);
+      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.5);
+      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.5);
+      
+      document.getElementById('fuel1').textContent = fuel1;
+      document.getElementById('fuel2').textContent = fuel2;
+      document.getElementById('fuel3').textContent = fuel3;
+      document.getElementById('fuel4').textContent = fuel4;
+      document.getElementById('fuel5').textContent = fuel5;
+      
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.5) + ')' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.5) + ')' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.5) + ')' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.5) + ')' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.5) + ')' : '';
+      
+      document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
+      document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
+      document.getElementById('fuel3-zusatz').textContent = fuel3Zusatz;
+      document.getElementById('fuel4-zusatz').textContent = fuel4Zusatz;
+      document.getElementById('fuel5-zusatz').textContent = fuel5Zusatz;
+      
+      markiereRunden();
+      
+      var setLaps1 = parseInt(document.getElementById('setLaps1').value);
+      var setLaps2 = parseInt(document.getElementById('setLaps2').value);
+      var setLaps3 = parseInt(document.getElementById('setLaps3').value);
+      var setLaps4 = parseInt(document.getElementById('setLaps4').value);
+      var setLaps5 = parseInt(document.getElementById('setLaps5').value);
+      
+      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.5);
+      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.5);
+      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.5);
+      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.5);
+      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.5);
+    }
+    
+    function umwandelnInSekunden(rundenzeitInput) {
+      var parts = rundenzeitInput.split(':');
+      var minuten = parseInt(parts[0]);
+      var sekundenMillisekunden = parts[1].split('.');
+      var sekunden = parseInt(sekundenMillisekunden[0]);
+      var millisekunden = parseInt(sekundenMillisekunden[1]);
+      return minuten * 60 + sekunden + millisekunden / 1000;
+    }
+    
+    function berechneErgebnis(renndauer, rundenzeit) {
+      return renndauer * 60 / rundenzeit;
+    }
+    
+    function markiereRunden() {
+      var aufgerundeteRunden1 = parseFloat(document.getElementById('aufgerundeteRunden1').textContent);
+      var aufgerundeteRunden2 = parseFloat(document.getElementById('aufgerundeteRunden2').textContent);
+      var aufgerundeteRunden3 = parseFloat(document.getElementById('aufgerundeteRunden3').textContent);
+      var aufgerundeteRunden4 = parseFloat(document.getElementById('aufgerundeteRunden4').textContent);
+      var aufgerundeteRunden5 = parseFloat(document.getElementById('aufgerundeteRunden5').textContent);
+      
+      var runden1 = parseFloat(document.getElementById('ergebnis1').textContent);
+      var runden2 = parseFloat(document.getElementById('ergebnis2').textContent);
+      var runden3 = parseFloat(document.getElementById('ergebnis3').textContent);
+      var runden4 = parseFloat(document.getElementById('ergebnis4').textContent);
+      var runden5 = parseFloat(document.getElementById('ergebnis5').textContent);
+      
+      if (Math.abs(aufgerundeteRunden1 - runden1) < 0.1) {
+        document.getElementById('aufgerundeteRunden1').classList.add('markiert');
+      } else {
+        document.getElementById('aufgerundeteRunden1').classList.remove('markiert');
+      }
+      
+      if (Math.abs(aufgerundeteRunden2 - runden2) < 0.1) {
+        document.getElementById('aufgerundeteRunden2').classList.add('markiert');
+      } else {
+        document.getElementById('aufgerundeteRunden2').classList.remove('markiert');
+      }
+      
+      if (Math.abs(aufgerundeteRunden3 - runden3) < 0.1) {
+        document.getElementById('aufgerundeteRunden3').classList.add('markiert');
+      } else {
+        document.getElementById('aufgerundeteRunden3').classList.remove('markiert');
+      }
+      
+      if (Math.abs(aufgerundeteRunden4 - runden4) < 0.1) {
+        document.getElementById('aufgerundeteRunden4').classList.add('markiert');
+      } else {
+        document.getElementById('aufgerundeteRunden4').classList.remove('markiert');
+      }
+      
+      if (Math.abs(aufgerundeteRunden5 - runden5) < 0.1) {
+        document.getElementById('aufgerundeteRunden5').classList.add('markiert');
+      } else {
+        document.getElementById('aufgerundeteRunden5').classList.remove('markiert');
+      }
+    }
+  </script>
+</body>
+</html>
