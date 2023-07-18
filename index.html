@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Meine Webseite</title>
+  <title>fuel calc</title>
   <style>
     /* Reset für die Standardstile */
 * {
@@ -11,11 +11,26 @@
 }
 
 /* Allgemeine Stile für den Seiteninhalt */
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f2f2f2;
-  padding: 20px;
-}
+    font-family: Arial, sans-serif;
+  }
+
+:root {
+    --background-color: #f2f2f2;
+    --text-color: #000;
+  }
+
+  body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+
+  .dark-mode {
+    --background-color: #222;
+    --text-color: #fff;
+  }
+
 
 .container {
   max-width: 960px;
@@ -39,14 +54,10 @@ form {
 input[type="text"],
 input[type="number"] {
   padding: 8px;
-  width: 200px;
+  width: 130px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
-}
-
-input[type="number"] {
-  width: 100px;
 }
 
 button {
@@ -59,7 +70,7 @@ button {
 }
 
 button:hover {
-  background-color: #45a049;
+  background-color: #6C1F60;
 }
 
 table {
@@ -76,7 +87,7 @@ td {
 }
 
 th {
-  background-color: #4CAF50;
+  background-color: #088F90;
   color: #fff;
 }
 
@@ -112,17 +123,21 @@ th {
   </style>
 </head>
 <body>
-  <h1>fuel calculator for iracing</h1>
+  <h1 id="toggleDarkMode">fuel calculator</h1>
   
   <form>
     <label for="rundenzeit">average lap time of leader:</label>
     <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
     <button type="button" onclick="verringereRundenzeit()">- 0.5s</button>
     <button type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
+
     <p id="rundenzeit-in-sekunden"></p>
     
     <label for="verbrauch">average consumption:</label>
     <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
+    <button type="button" onclick="verringereVerbrauch()">- 0,05</button>
+    <button type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
+
     
     <br/>
     <br/>
@@ -135,7 +150,7 @@ th {
         <th></th>
         <th></th>
         <th></th>
-        <th>predicted laps</th>
+        <th>laps</th>
         <th>fuel</th>
       </tr>
       <tr>
@@ -188,6 +203,8 @@ th {
     <th></th>
     <th>fuel</th>
     <th>race time (hh:mm:ss)</th>
+    <th></th>
+    <th></th>
   </tr>
   <tr>
     <td><input type="text" id="setLaps1" name="setLaps1" placeholder="laps"></td>
@@ -244,6 +261,27 @@ th {
       }
     }
     
+    function erhoeheVerbrauch() {
+      var verbrauchInput = document.getElementById('verbrauch').value;
+      if (verbrauchInput) {
+        var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
+        verbrauch += 0.05;
+        document.getElementById('verbrauch').value = verbrauch.toFixed(2);
+        berechnen();
+      }
+    }
+
+    function verringereVerbrauch() {
+      var verbrauchInput = document.getElementById('verbrauch').value;
+      if (verbrauchInput) {
+        var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
+        verbrauch -= 0.05;
+        document.getElementById('verbrauch').value = verbrauch.toFixed(2);
+        berechnen();
+      }
+    }
+
+
     function formatiereRundenzeit(rundenzeit) {
       var minuten = Math.floor(rundenzeit / 60);
       var sekunden = Math.floor(rundenzeit % 60);
@@ -336,11 +374,11 @@ th {
   document.getElementById('aufgerundeteRunden5').textContent = predictedLaps5;
 
 
-      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.5) + ')' + ' Race may get an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.5) + ')' + ' Race may get an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.5) + ')' + ' Race may get an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.5) + ')' + ' Race may get an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.5) + ')' + ' Race may get an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
       
       document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
       document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
@@ -433,6 +471,29 @@ th {
         document.getElementById('aufgerundeteRunden5').classList.remove('markiert');
       }
     }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var toggleDarkMode = document.getElementById('toggleDarkMode');
+
+    // Überprüfe, ob der Dark Mode-Status im Local Storage vorhanden ist und setze ihn entsprechend
+    var isDarkMode = localStorage.getItem('darkMode');
+    if (isDarkMode === 'true') {
+      document.body.classList.add('dark-mode');
+    }
+
+    toggleDarkMode.addEventListener('click', function() {
+      // Wechsle den Dark Mode, indem du dem <body>-Element die CSS-Klasse "dark-mode" hinzufügst oder entfernst
+      document.body.classList.toggle('dark-mode');
+
+      // Speichere den Dark Mode-Status im Local Storage
+      if (document.body.classList.contains('dark-mode')) {
+        localStorage.setItem('darkMode', 'true');
+      } else {
+        localStorage.setItem('darkMode', 'false');
+      }
+    });
+  });
+
   </script>
 </body>
 </html>
