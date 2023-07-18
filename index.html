@@ -53,7 +53,7 @@ form {
 input[type="text"],
 input[type="number"] {
   padding: 8px;
-  width: 130px;
+  width: 110px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
@@ -126,20 +126,18 @@ th {
   <h1 id="toggleDarkMode">fuel calculator</h1>
   
   <form>
-    <label for="rundenzeit">average lap time of leader:</label>
+    <label for="rundenzeit">average lap time (of leader):</label>
     <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
     <button type="button" onclick="verringereRundenzeit()">- 0.5s</button>
     <button type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
 
     <p id="rundenzeit-in-sekunden"></p>
-    
-    <label for="verbrauch">average consumption:</label>
+    <label for="verbrauch">average fuel consumption per lap:</label>
     <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
     <button type="button" onclick="verringereVerbrauch()">- 0,05</button>
     <button type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
 
-    
-    <br/>
+    <br>
     <br/>
     <br/>
 
@@ -154,35 +152,35 @@ th {
         <th>fuel</th>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="race time in minutes"></td>
+        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="time in minutes"></td>
         <td><span id="ergebnis1"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden1"></span></td>
         <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="race time in minutes"></td>
+        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="time in minutes"></td>
         <td><span id="ergebnis2"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden2"></span></td>
         <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="race time in minutes"></td>
+        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="time in minutes"></td>
         <td><span id="ergebnis3"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden3"></span></td>
         <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="race time in minutes"></td>
+        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="time in minutes"></td>
         <td><span id="ergebnis4"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden4"></span></td>
         <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="race time in minutes"></td>
+        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="time in minutes"></td>
         <td><span id="ergebnis5"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden5"></span></td>
@@ -196,7 +194,7 @@ th {
     <br/>
     <br/>
 
-    <h2>set amount of laps</h2>
+    <h2>fixed amount of laps</h2>
 
 <table>
   <tr>
@@ -329,11 +327,11 @@ th {
       document.getElementById('aufgerundeteRunden4').textContent = aufgerundeteRunden4;
       document.getElementById('aufgerundeteRunden5').textContent = aufgerundeteRunden5;
       
-      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.5);
-      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.5);
-      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.5);
-      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.5);
-      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.5);
+      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.4);
+      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.4);
+      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.4);
+      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.4);
+      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.4);
       
       document.getElementById('fuel1').textContent = fuel1;
       document.getElementById('fuel2').textContent = fuel2;
@@ -374,11 +372,11 @@ th {
   document.getElementById('aufgerundeteRunden5').textContent = predictedLaps5;
 
 
-      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.5) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
       
       document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
       document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
@@ -394,11 +392,11 @@ th {
       var setLaps4 = parseInt(document.getElementById('setLaps4').value);
       var setLaps5 = parseInt(document.getElementById('setLaps5').value);
       
-      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.5);
-      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.5);
-      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.5);
-      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.5);
-      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.5);
+      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.4);
+      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.4);
+      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.4);
+      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.4);
+      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.4);
 
       document.getElementById('setRaceTime1').textContent = berechneRacetime(setLaps1, rundenzeit);
       document.getElementById('setRaceTime2').textContent = berechneRacetime(setLaps2, rundenzeit);
