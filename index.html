@@ -53,7 +53,7 @@ form {
 input[type="text"],
 input[type="number"] {
   padding: 8px;
-  width: 110px;
+  width: 130px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
@@ -61,7 +61,7 @@ input[type="number"] {
 
 button {
   padding: 8px 16px;
-  background-color: #0C0F90;
+  background-color: #256CB0;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -106,6 +106,11 @@ th {
   padding: 20px;
 }
 
+#hinweisText {
+  display: none;
+  color: red;
+}
+
 /* Medienabfragen für responsive Darstellung */
 @media (max-width: 600px) {
   input[type="text"],
@@ -142,10 +147,10 @@ th {
     <br/>
 
     <h2>timed race</h2>
-    
+    <small id="hinweisText" style="display: none;">There may be an extra lap. Use fuel in brackets to be safe.</small>
     <table>
       <tr>
-        <th></th>
+        <th>time</th>
         <th></th>
         <th></th>
         <th>laps</th>
@@ -156,35 +161,35 @@ th {
         <td><span id="ergebnis1"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden1"></span></td>
-        <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis"></span></td>
+        <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
         <td><input type="text" id="renndauer2" name="renndauer2" placeholder="time in minutes"></td>
         <td><span id="ergebnis2"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden2"></span></td>
-        <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis"></span></td>
+        <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
         <td><input type="text" id="renndauer3" name="renndauer3" placeholder="time in minutes"></td>
         <td><span id="ergebnis3"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden3"></span></td>
-        <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis"></span></td>
+        <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
         <td><input type="text" id="renndauer4" name="renndauer4" placeholder="time in minutes"></td>
         <td><span id="ergebnis4"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden4"></span></td>
-        <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis"></span></td>
+        <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
         <td><input type="text" id="renndauer5" name="renndauer5" placeholder="time in minutes"></td>
         <td><span id="ergebnis5"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden5"></span></td>
-        <td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis"></span></td>
+        <td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
     </table>
     
@@ -198,7 +203,7 @@ th {
 
 <table>
   <tr>
-    <th></th>
+    <th>laps</th>
     <th>fuel</th>
     <th>race time (hh:mm:ss)</th>
     <th></th>
@@ -287,6 +292,7 @@ th {
       return ('0' + minuten).slice(-2) + ':' + ('0' + sekunden).slice(-2) + '.' + ('00' + millisekunden).slice(-3);
     }
     
+    
     function berechnen() {
       var rundenzeitInput = document.getElementById('rundenzeit').value;
       var rundenzeit = umwandelnInSekunden(rundenzeitInput);
@@ -372,11 +378,11 @@ th {
   document.getElementById('aufgerundeteRunden5').textContent = predictedLaps5;
 
 
-      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
-      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.4) + ')' + ' There may be an extra lap. Use fuel in brackets to be safe.' : '';
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.4) + ')' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.4) + ')' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.4) + ')' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.4) + ')' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.4) + ')' : '';
       
       document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
       document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
@@ -385,6 +391,8 @@ th {
       document.getElementById('fuel5-zusatz').textContent = fuel5Zusatz;
       
       markiereRunden();
+
+      einblendenBeiBedingung();
       
       var setLaps1 = parseInt(document.getElementById('setLaps1').value);
       var setLaps2 = parseInt(document.getElementById('setLaps2').value);
@@ -403,7 +411,25 @@ th {
       document.getElementById('setRaceTime3').textContent = berechneRacetime(setLaps3, rundenzeit);
       document.getElementById('setRaceTime4').textContent = berechneRacetime(setLaps4, rundenzeit);
       document.getElementById('setRaceTime5').textContent = berechneRacetime(setLaps5, rundenzeit);
+    
+      function einblendenBeiBedingung() {
+      var bedingung1 = (aufgerundeteRunden1 - ergebnis1) < 0.1;
+      var bedingung2 = (aufgerundeteRunden2 - ergebnis2) < 0.1;
+      var bedingung3 = (aufgerundeteRunden3 - ergebnis3) < 0.1;
+      var bedingung4 = (aufgerundeteRunden4 - ergebnis4) < 0.1;
+      var bedingung5 = (aufgerundeteRunden5 - ergebnis5) < 0.1;
+      
+      var textElement = document.getElementById('hinweisText');
+
+      
+      if (bedingung1 || bedingung2 || bedingung3 || bedingung4 || bedingung5) {
+        textElement.style.display = 'block';
+      } else {
+        textElement.style.display = 'none';
+      }
     }
+
+  }
     
     function umwandelnInSekunden(rundenzeitInput) {
       var parts = rundenzeitInput.split(':');
@@ -439,35 +465,6 @@ th {
       var runden4 = parseFloat(document.getElementById('ergebnis4').textContent);
       var runden5 = parseFloat(document.getElementById('ergebnis5').textContent);
       
-      if (Math.abs(aufgerundeteRunden1 - runden1) < 0.1) {
-        document.getElementById('aufgerundeteRunden1').classList.add('markiert');
-      } else {
-        document.getElementById('aufgerundeteRunden1').classList.remove('markiert');
-      }
-      
-      if (Math.abs(aufgerundeteRunden2 - runden2) < 0.1) {
-        document.getElementById('aufgerundeteRunden2').classList.add('markiert');
-      } else {
-        document.getElementById('aufgerundeteRunden2').classList.remove('markiert');
-      }
-      
-      if (Math.abs(aufgerundeteRunden3 - runden3) < 0.1) {
-        document.getElementById('aufgerundeteRunden3').classList.add('markiert');
-      } else {
-        document.getElementById('aufgerundeteRunden3').classList.remove('markiert');
-      }
-      
-      if (Math.abs(aufgerundeteRunden4 - runden4) < 0.1) {
-        document.getElementById('aufgerundeteRunden4').classList.add('markiert');
-      } else {
-        document.getElementById('aufgerundeteRunden4').classList.remove('markiert');
-      }
-      
-      if (Math.abs(aufgerundeteRunden5 - runden5) < 0.1) {
-        document.getElementById('aufgerundeteRunden5').classList.add('markiert');
-      } else {
-        document.getElementById('aufgerundeteRunden5').classList.remove('markiert');
-      }
     }
 
   document.addEventListener('DOMContentLoaded', function() {
