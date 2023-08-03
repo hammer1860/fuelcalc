@@ -111,6 +111,7 @@ th {
   color: red;
 }
 
+
 /* Medienabfragen für responsive Darstellung */
 @media (max-width: 600px) {
   input[type="text"],
@@ -127,8 +128,22 @@ th {
   </style>
 </head>
 <body>
+
  <div class="container">
-  <h1 id="toggleDarkMode">fuel calculator</h1>
+
+  <div style="position: relative; max-width: 560px; margin: 0 auto;">
+    <div style="position: absolute; top: 10px; right: 0px;">
+      <a href="https://www.twitch.tv/hammer1860"><img src="./docs/assets/twitch.png" alt="Symbol"></a>
+    </div>
+  </div>
+
+  <div style="position: absolute; top: 10px; right: 60px;">
+    <a href="#" onclick="toggleDarkMode(); return false;">
+      <img src="./docs/assets/dn.png" alt="Dark Mode">
+    </a>
+  </div>
+
+  <h1>fuel calculator</h1>
   
   <form>
     <label for="rundenzeit">average lap time (of leader):</label>
@@ -467,27 +482,16 @@ th {
       
     }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var toggleDarkMode = document.getElementById('toggleDarkMode');
+    function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
 
-    // Überprüfe, ob der Dark Mode-Status im Local Storage vorhanden ist und setze ihn entsprechend
-    var isDarkMode = localStorage.getItem('darkMode');
-    if (isDarkMode === 'true') {
-      document.body.classList.add('dark-mode');
+    // Speichere den Dark Mode-Status im Local Storage
+    if (document.body.classList.contains('dark-mode')) {
+      localStorage.setItem('darkMode', 'true');
+    } else {
+      localStorage.setItem('darkMode', 'false');
     }
-
-    toggleDarkMode.addEventListener('click', function() {
-      // Wechsle den Dark Mode, indem du dem <body>-Element die CSS-Klasse "dark-mode" hinzufügst oder entfernst
-      document.body.classList.toggle('dark-mode');
-
-      // Speichere den Dark Mode-Status im Local Storage
-      if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('darkMode', 'true');
-      } else {
-        localStorage.setItem('darkMode', 'false');
-      }
-    });
-  });
+  }
 
   </script>
   <div>
