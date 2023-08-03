@@ -495,7 +495,7 @@ th {
   // Bildwechsel für Dark Mode
   var darkModeIcon = document.getElementById('darkModeIcon');
   if (isDarkMode) {
-    darkModeIcon.src = "./docs/assets/pn_w.png"; // Pfad zum alternativen Bild im Dark Mode
+    darkModeIcon.src = "./docs/assets/dn_w.png"; // Pfad zum alternativen Bild im Dark Mode
   } else {
     darkModeIcon.src = "./docs/assets/dn.png"; // Pfad zum ursprünglichen Bild
   }
@@ -513,7 +513,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var isDarkMode = localStorage.getItem('darkMode') === 'true';
   if (isDarkMode) {
     document.body.classList.add('dark-mode');
-    document.getElementById('darkModeIcon').src = "./docs/assets/pn_w.png"; // Bild setzen, wenn Dark Mode aktiviert ist
+    document.getElementById('darkModeIcon').src = "./docs/assets/dn_w.png"; // Bild setzen, wenn Dark Mode aktiviert ist
     document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
   }
 });
