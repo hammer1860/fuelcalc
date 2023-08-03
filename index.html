@@ -137,7 +137,7 @@ th {
 
     <div style="position: absolute; top: 0px; right: 0px;">
       <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;">
-        <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24">
+        <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
       </a>
     </div>
 
@@ -487,18 +487,25 @@ th {
     }
 
     function toggleDarkMode() {
-      document.body.classList.toggle('dark-mode');
+    var isDarkMode = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
 
-      var isDarkMode = document.body.classList.contains('dark-mode');
-      localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+    // Bildwechsel
+    var twitchIcon = document.getElementById('twitchIcon');
+    if (isDarkMode) {
+      twitchIcon.src = "./docs/assets/twitch_dark.png"; // Pfad zum alternativen Bild im Dark Mode
+    } else {
+      twitchIcon.src = "./docs/assets/twitch.png"; // Pfad zum ursprünglichen Bild
     }
+  }
 
-    document.addEventListener('DOMContentLoaded', function() {
-      var isDarkMode = localStorage.getItem('darkMode') === 'true';
-      if (isDarkMode) {
-        document.body.classList.add('dark-mode');
-      }
-    });
+  document.addEventListener('DOMContentLoaded', function() {
+    var isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+      document.body.classList.add('dark-mode');
+      document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
+    }
+  });
 
   </script>
   <div>
