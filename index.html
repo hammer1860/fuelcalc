@@ -143,7 +143,7 @@ th {
 
     <div style="position: absolute; top: 0px; right: 25px;">
      <a href="#" onclick="toggleDarkMode(); return false;">
-      <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22">
+      <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22" id="darkModeIcon">
      </a>
    </div>
 
@@ -486,26 +486,37 @@ th {
       
     }
 
-    function toggleDarkMode() {
-    var isDarkMode = document.body.classList.toggle('dark-mode');
-    localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
+  
+  
+  function toggleDarkMode() {
+  var isDarkMode = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
 
-    // Bildwechsel
-    var twitchIcon = document.getElementById('twitchIcon');
-    if (isDarkMode) {
-      twitchIcon.src = "./docs/assets/twitch_dark.png"; // Pfad zum alternativen Bild im Dark Mode
-    } else {
-      twitchIcon.src = "./docs/assets/twitch.png"; // Pfad zum ursprünglichen Bild
-    }
+  // Bildwechsel für Dark Mode
+  var darkModeIcon = document.getElementById('darkModeIcon');
+  if (isDarkMode) {
+    darkModeIcon.src = "./docs/assets/pn_w.png"; // Pfad zum alternativen Bild im Dark Mode
+  } else {
+    darkModeIcon.src = "./docs/assets/dn.png"; // Pfad zum ursprünglichen Bild
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
-    var isDarkMode = localStorage.getItem('darkMode') === 'true';
-    if (isDarkMode) {
-      document.body.classList.add('dark-mode');
-      document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
-    }
-  });
+  // Bildwechsel für Twitch-Symbol
+  var twitchIcon = document.getElementById('twitchIcon');
+  if (isDarkMode) {
+    twitchIcon.src = "./docs/assets/twitch_dark.png"; // Pfad zum alternativen Bild im Dark Mode
+  } else {
+    twitchIcon.src = "./docs/assets/twitch.png"; // Pfad zum ursprünglichen Bild
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var isDarkMode = localStorage.getItem('darkMode') === 'true';
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeIcon').src = "./docs/assets/pn_w.png"; // Bild setzen, wenn Dark Mode aktiviert ist
+    document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
+  }
+});
 
   </script>
   <div>
