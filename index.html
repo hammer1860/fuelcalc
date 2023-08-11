@@ -46,7 +46,7 @@ h2 {
 }
 
 label {
-  font-size: 15px;
+  font-size: 16px;
 }
 
 form {
@@ -63,7 +63,7 @@ input[type="number"] {
 }
 
 input[type="text"][name="verbrauch"] {
-  width: 100px;
+  width: 130px;
 }
 
 .small-button {
@@ -72,7 +72,8 @@ input[type="text"][name="verbrauch"] {
 }
 
 button {
-  padding: 8px 50px;
+  padding: 8px 40px;
+  font-size: 12px;
   background-color: #256CB0;
   color: #fff;
   border: none;
@@ -154,8 +155,9 @@ th {
     <button class="small-button" type="button" onclick="verringereRundenzeit()">- 0.5s</button>
     <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
 
-    <p id="rundenzeit-in-sekunden"></p>
-    <label for="verbrauch">average fuel consumption per lap:</label>
+    <p>
+
+    <label for="verbrauch">fuel consumption per lap:</label>
     <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
     <button class="small-button" type="button" onclick="verringereVerbrauch()">- 0,05</button>
     <button class="small-button" type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
