@@ -9,7 +9,7 @@
   padding: 0;
   box-sizing: border-box;
 }
- 
+
 body {
     font-family: Arial, sans-serif;
   }
@@ -45,6 +45,10 @@ h2 {
   margin-bottom: 10px;
 }
 
+label {
+  font-size: 15px;
+}
+
 form {
   margin-bottom: 20px;
 }
@@ -60,10 +64,15 @@ input[type="number"] {
 
 input[type="text"][name="verbrauch"] {
   width: 100px;
-}    
-    
+}
+
+.small-button {
+  padding: 8px 8px;
+  font-size: 10px;
+}
+
 button {
-  padding: 8px 16px;
+  padding: 8px 50px;
   background-color: #256CB0;
   color: #fff;
   border: none;
@@ -115,19 +124,6 @@ th {
 }
 
 
-/* Medienabfragen für responsive Darstellung */
-@media (max-width: 600px) {
-  input[type="text"],
-  input[type="number"] {
-    width: 100%;
-    margin-bottom: 10px;
-  }
-
-  button {
-    width: 100%;
-  }
-}
-
   </style>
 </head>
 <body>
@@ -136,7 +132,7 @@ th {
 
 
 
-  <div style="position: relative; max-width: 600px; margin: 0 auto;">
+  <div style="position: relative; max-width: 560px; margin: 0 auto;">
 
     <div style="position: absolute; top: 0px; right: 0px;">
       <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;">
@@ -155,14 +151,14 @@ th {
   <form>
     <label for="rundenzeit">average lap time (of leader):</label>
     <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
-    <button type="button" onclick="verringereRundenzeit()">- 0.5s</button>
-    <button type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
+    <button class="small-button" type="button" onclick="verringereRundenzeit()">- 0.5s</button>
+    <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
 
     <p id="rundenzeit-in-sekunden"></p>
     <label for="verbrauch">average fuel consumption per lap:</label>
     <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
-    <button type="button" onclick="verringereVerbrauch()">- 0,05</button>
-    <button type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
+    <button class="small-button" type="button" onclick="verringereVerbrauch()">- 0,05</button>
+    <button class="small-button" type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
 
     <br>
     <br/>
@@ -355,11 +351,11 @@ th {
       document.getElementById('aufgerundeteRunden4').textContent = aufgerundeteRunden4;
       document.getElementById('aufgerundeteRunden5').textContent = aufgerundeteRunden5;
       
-      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.4);
-      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.4);
-      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.4);
-      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.4);
-      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.4);
+      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.45);
+      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.45);
+      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.45);
+      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.45);
+      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.45);
       
       document.getElementById('fuel1').textContent = fuel1;
       document.getElementById('fuel2').textContent = fuel2;
@@ -400,11 +396,11 @@ th {
   document.getElementById('aufgerundeteRunden5').textContent = predictedLaps5;
 
 
-      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.4) + ')' : '';
-      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.4) + ')' : '';
-      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.4) + ')' : '';
-      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.4) + ')' : '';
-      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.4) + ')' : '';
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.45) + ')' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.45) + ')' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.45) + ')' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.45) + ')' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.45) + ')' : '';
       
       document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
       document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
@@ -422,11 +418,11 @@ th {
       var setLaps4 = parseInt(document.getElementById('setLaps4').value);
       var setLaps5 = parseInt(document.getElementById('setLaps5').value);
       
-      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.4);
-      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.4);
-      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.4);
-      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.4);
-      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.4);
+      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.45);
+      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.45);
+      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.45);
+      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.45);
+      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.45);
 
       document.getElementById('setRaceTime1').textContent = berechneRacetime(setLaps1, rundenzeit);
       document.getElementById('setRaceTime2').textContent = berechneRacetime(setLaps2, rundenzeit);
