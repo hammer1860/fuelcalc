@@ -275,6 +275,10 @@ th {
   <div id="ergebnis"></div>
 
   <script>
+
+    var zusatzFaktor = 0.5;
+    // Auto fängt bei 0.3 zum Stottern an, +0.2 Sicherheit
+    
     function erhoeheRundenzeit() {
       var rundenzeitInput = document.getElementById('rundenzeit').value;
       if (rundenzeitInput) {
@@ -364,11 +368,11 @@ th {
       document.getElementById('aufgerundeteRunden4').textContent = aufgerundeteRunden4;
       document.getElementById('aufgerundeteRunden5').textContent = aufgerundeteRunden5;
       
-      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + 0.45);
-      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + 0.45);
-      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + 0.45);
-      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + 0.45);
-      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + 0.45);
+      var fuel1 = Math.ceil((aufgerundeteRunden1 * verbrauch) + zusatzFaktor);
+      var fuel2 = Math.ceil((aufgerundeteRunden2 * verbrauch) + zusatzFaktor);
+      var fuel3 = Math.ceil((aufgerundeteRunden3 * verbrauch) + zusatzFaktor);
+      var fuel4 = Math.ceil((aufgerundeteRunden4 * verbrauch) + zusatzFaktor);
+      var fuel5 = Math.ceil((aufgerundeteRunden5 * verbrauch) + zusatzFaktor);
       
       document.getElementById('fuel1').textContent = fuel1;
       document.getElementById('fuel2').textContent = fuel2;
@@ -409,11 +413,11 @@ th {
   document.getElementById('aufgerundeteRunden5').textContent = predictedLaps5;
 
 
-      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + 0.45) + ')' : '';
-      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + 0.45) + ')' : '';
-      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + 0.45) + ')' : '';
-      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + 0.45) + ')' : '';
-      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + 0.45) + ')' : '';
+      var fuel1Zusatz = (aufgerundeteRunden1 - ergebnis1) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden1 + 1) * verbrauch) + zusatzFaktor) + ')' : '';
+      var fuel2Zusatz = (aufgerundeteRunden2 - ergebnis2) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden2 + 1) * verbrauch) + zusatzFaktor) + ')' : '';
+      var fuel3Zusatz = (aufgerundeteRunden3 - ergebnis3) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden3 + 1) * verbrauch) + zusatzFaktor) + ')' : '';
+      var fuel4Zusatz = (aufgerundeteRunden4 - ergebnis4) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden4 + 1) * verbrauch) + zusatzFaktor) + ')' : '';
+      var fuel5Zusatz = (aufgerundeteRunden5 - ergebnis5) < 0.1 ? '(' + Math.ceil(((aufgerundeteRunden5 + 1) * verbrauch) + zusatzFaktor) + ')' : '';
       
       document.getElementById('fuel1-zusatz').textContent = fuel1Zusatz;
       document.getElementById('fuel2-zusatz').textContent = fuel2Zusatz;
@@ -431,11 +435,11 @@ th {
       var setLaps4 = parseInt(document.getElementById('setLaps4').value);
       var setLaps5 = parseInt(document.getElementById('setLaps5').value);
       
-      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + 0.45);
-      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + 0.45);
-      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + 0.45);
-      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + 0.45);
-      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + 0.45);
+      document.getElementById('setFuel1').textContent = Math.ceil((setLaps1 * verbrauch) + zusatzFaktor);
+      document.getElementById('setFuel2').textContent = Math.ceil((setLaps2 * verbrauch) + zusatzFaktor);
+      document.getElementById('setFuel3').textContent = Math.ceil((setLaps3 * verbrauch) + zusatzFaktor);
+      document.getElementById('setFuel4').textContent = Math.ceil((setLaps4 * verbrauch) + zusatzFaktor);
+      document.getElementById('setFuel5').textContent = Math.ceil((setLaps5 * verbrauch) + zusatzFaktor);
 
       document.getElementById('setRaceTime1').textContent = berechneRacetime(setLaps1, rundenzeit);
       document.getElementById('setRaceTime2').textContent = berechneRacetime(setLaps2, rundenzeit);
