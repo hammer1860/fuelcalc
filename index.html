@@ -19,17 +19,26 @@ body {
   :root {
   --background-color: #f2f2f2;
   --text-color: #000;
+  --text-color-results: #202020;
   --border-color: #ddd;
   --special-column-bg-timed: #CDCDCD; /* Beispiel für timed race Tabelle */
   --special-column-bg-fixed: #CDCDCD; /* Beispiel für fixed amount of laps Tabelle */
+  --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Light Mode */
+  --gradient-end: rgba(242, 242, 242, 1); /* Endfarbe für Light Mode */
+  --text-color-exact-column: #999999; /* Schriftfarbe für Light Mode resultsTable*/
 }
+
 
 .dark-mode {
   --background-color: #333;
   --text-color: #fff;
+  --text-color-results: #fff;
   --border-color: #bbb;
   --special-column-bg-timed: #272727; /* Dunklere Farbe für Dark Mode */
   --special-column-bg-fixed: #272727; /* Dunklere Farbe für Dark Mode */
+  --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Dark Mode */
+  --gradient-end: rgba(52, 51, 51, 1); /* Endfarbe für Dark Mode */
+  --text-color-exact-column: #CDCDCD; /* Schriftfarbe für Dark Mode resultsTable*/
 }
 
 /* Für "laps" Spalte in der timed race Tabelle */
@@ -74,6 +83,7 @@ input[type="text"],
 input[type="number"] {
   padding: 8px;
   width: 130px;
+  height: 30px;
   border: 1px solid #ccc;
   border-radius: 4px;
   margin-right: 10px;
@@ -104,15 +114,21 @@ button:hover {
 
 table {
   width: 100%;
+  outline: 1px solid var(--border-color);
+  outline-offset: 2px;
   border-collapse: collapse;
   margin-bottom: 20px;
+  border:solid 1px var(--border-color);
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 th,
 td {
-  padding: 8px;
+  padding: 6px;
   text-align: left;
   border-bottom: 1px solid #ddd;
+  height: 20px;
 }
 
 th {
@@ -161,10 +177,6 @@ th {
   border-right: 1px solid var(--border-color);
 }
 
-#timedRaceTable {
-  border-top: 1px solid var(--border-color);
-}
-
 /* Vertikaler Strich für die 'fixed number of laps' Tabelle */
 #fixedLapsTable td:nth-child(1),
 #fixedLapsTable th:nth-child(1) {
@@ -182,10 +194,6 @@ th {
 #fixedLapsTable td:nth-child(7),
 #fixedLapsTable th:nth-child(7) {
   border-right: 1px solid var(--border-color);
-}
-
-#fixedLapsTable {
-  border-top: 1px solid var(--border-color);
 }
 
 #timedRaceTable td:nth-child(2),
@@ -214,6 +222,181 @@ th {
   text-align: center;
 }
 
+#timedRaceTable td:nth-child(2),
+#timedRaceTable td:nth-child(5) {
+    color: var(--text-color-exact-column);
+}
+
+#fixedLapsTable td:nth-child(2){
+    color: var(--text-color-exact-column);
+}
+
+
+/* Stil für den Toggle-Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 40px; /* Kleinere Breite */
+  height: 20px; /* Kleinere Höhe */
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #bbb;
+  transition: 0.4s;
+  border-radius: 20px; /* Abgerundete Ecken */
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; /* Kleinere Höhe */
+  width: 16px; /* Kleinere Breite */
+  left: 2px; /* Positionierung nach links */
+  bottom: 2px;
+  background-color: #408D8F;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px); /* Bewegung nach rechts */
+}
+
+/* Stil für die Labels (Sprint und Endu) */
+.toggle-labels {
+  font-size: 14px; /* Gleiche Schriftgröße */
+  color: #333; /* Gleiche Farbe */
+}
+
+
+#resultsTable {
+  width: 100%;
+  border-collapse: separate;
+  outline: 1px solid var(--border-color);
+  outline-offset: 2px;
+  border-spacing: 0;
+  margin-bottom: 20px;
+  border:solid 0px var(--border-color);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#resultsTable td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+#resultsTable tr:last-child td {
+  border-bottom: none; /* Entfernt den unteren Rand der letzten Zeile */
+}
+
+
+
+#resultsTable td:first-child {
+/*  background-color: #088F90; /* Farbe für die erste Spalte */
+  white-space: nowrap; /* Verhindert Umbrüche im Text */
+  width: 50%; /* Erzwingt minimale Breite */
+}
+
+#resultsTable td:nth-child(2) {
+    color: #B3B3B3;
+}
+
+#resultsTable td:nth-child(2),
+#resultsTable td:nth-child(3),
+#resultsTable td:nth-child(4) {
+  text-align: center; /* Exakte und gerundete Werte zentrieren */
+}
+
+
+.input-container {
+  display: flex; /* Container als Flexbox */
+  align-items: center; /* Elemente vertikal zentrieren */
+  margin-bottom: 20px; /* Abstand nach unten */
+}
+
+.input-container label {
+  margin-right: 10px; /* Abstand zwischen Label und Eingabegruppe */
+}
+
+.input-group {
+  display: flex; /* Eingabegruppe als Flexbox */
+  align-items: center; /* Elemente vertikal zentrieren */
+}
+
+.input-group input {
+  margin-right: 10px;
+  border: 1px solid #ccc; /* Rahmen hinzufügen */
+  border-radius: 4px; /* Abgerundete Ecken */
+  height: 30px;
+}
+
+.input-group select {
+  font-size: 13px; /* Schriftgröße des Dropdown-Menüs anpassen */
+  padding: 4px; /* Innenabstand des Dropdown-Menüs anpassen */
+  height: 30px; /* Höhe des Dropdown-Menüs anpassen */
+  width: 100px; /* Breite des Dropdown-Menüs anpassen */
+  border: 1px solid #ccc; /* Rahmen hinzufügen */
+  border-radius: 4px; /* Abgerundete Ecken */
+}
+
+#resultsTable td:nth-child(1) {
+  background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+  padding: 5px 10px; /* Etwas Abstand für bessere Darstellung */
+  color: var(--text-color-results);
+  font-size: 14px;
+}
+
+#resultsTable td:nth-child(2) {
+  color: var(--text-color-exact-column); /* Schriftfarbe anwenden */
+}
+
+#resultsTable td[colspan="3"] {
+  text-align: center; /* Text in der zusammengeführten Zelle zentrieren */
+}
+
+.tables-container {
+  display: flex;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: flex-start; /* Tabellen haben unabhängige Höhen */
+}
+
+#pitstopWindowTable th {
+  font-size: 14px; /* Schriftgröße anpassen */
+  font-weight: normal; /* Schriftstärke auf normal setzen */
+  padding: 6px; /* Padding anpassen */
+}
+
+#pitstopWindowTable {
+  outline: 1px solid var(--border-color); /* Rahmen für die gesamte Tabelle */
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+#pitstopWindowTable th,
+#pitstopWindowTable td {
+  border: 1px solid var(--border-color); /* Rahmen für jede Zelle */
+  border-spacing: 0;
+  font-size: 14px; /* Schriftgröße anpassen */
+  text-align: center; /* Text in allen Zellen zentrieren */
+}
+
   </style>
 
   <!-- Google tag (gtag.js) -->
@@ -229,25 +412,41 @@ th {
 </head>
 <body>
 
+
  <div class="container">
+   
 
+<div style="position: relative; max-width: 560px; margin: 0 auto;">
+  <!-- Twitch-Icon -->
+  <div style="position: absolute; top: 0px; right: 0px;">
+    <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;">
+      <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
+    </a>
+  </div>
 
-
-  <div style="position: relative; max-width: 560px; margin: 0 auto;">
-
-    <div style="position: absolute; top: 0px; right: 0px;">
-      <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;">
-        <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
-      </a>
-    </div>
-
-    <div style="position: absolute; top: 0px; right: 25px;">
-     <a href="#" onclick="toggleDarkMode(); return false;">
+  <!-- Dark Mode-Icon -->
+  <div style="position: absolute; top: 0px; right: 25px;">
+    <a href="#" onclick="toggleDarkMode(); return false;">
       <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22" id="darkModeIcon">
-     </a>
-   </div>
+    </a>
+  </div>
 
-  <h1 style="margin-top: 10px;">fuel calculator</h1>
+  <!-- Titel und Toggle-Switch -->
+  <div style="display: flex; align-items: center; justify-content: space-between;">
+    <!-- Titel "fuel calculator" -->
+    <h1 style="margin-top: 10px;">fuel calculator</h1>
+
+    <!-- Toggle-Switch mit Labels -->
+    <div style="display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%);">
+      <span>sprint</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="modeToggle" onchange="toggleMode()">
+        <span class="slider"></span>
+      </label>
+      <span>endu</span>
+    </div>
+  </div>
+</div>
   
   <form>
     <label for="rundenzeit">average lap time (of leader):</label>
@@ -256,6 +455,7 @@ th {
     <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
 
     <p>
+    <div style="height: 3px;"></div>
 
     <label for="verbrauch">fuel consumption per lap:</label>
     <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
@@ -265,6 +465,9 @@ th {
     <br>
     <br/>
     <br/>
+
+
+<div id="sprintSection">
 
     <h2>timed race</h2>
     <small id="hinweisText" style="display: none;">There may be an extra lap. Use fuel in brackets to be safe.</small>
@@ -391,6 +594,81 @@ th {
 </table>
 
 <button type="button" onclick="berechnen()">calculate</button>
+</div>
+
+
+<div id="enduSection" style="display: none;">
+
+  <form>
+      <label for="maxFuelCapacity">max fuel capacity:</label>
+      <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="e.g., 55">
+      <br>
+      
+      <div style="height: 3px;"></div>
+      
+<div class="input-container">
+  <label for="raceLength">race length:</label>
+  <div class="input-group">
+    <input type="text" id="raceLength" name="raceLength" placeholder="e.g., 120">
+    <select id="unit">
+      <option value="minutes">minutes</option>
+      <option value="laps">laps</option>
+    </select>
+  </div>
+</div>
+
+      <button type="button" onclick="calculatePitstopWindow()">calculate</button>
+    </form>
+
+<div style="height: 10px;"></div>
+  
+  
+<div class="tables-container">
+    
+<table id="resultsTable">
+  <tr>
+    <td>total race laps:</td>
+    <td><span id="totalLapsExact"></span></td>
+    <td>&rarr;</td>
+    <td><strong><span id="totalLapsRounded"></span></strong></td>
+  </tr>
+  <tr>
+    <td>total fuel required:</td>
+    <td><span id="totalFuelNeededExact"></span></td>
+    <td>&rarr;</td>
+    <td><strong><span id="totalFuelNeededRounded"></span></strong></td>
+  </tr>
+  <tr>
+    <td>total pitstops:</td>
+    <td><span id="totalPitstopsExact"></span></td>
+    <td>&rarr;</td>
+    <td><strong><span id="totalPitstopsRounded"></span></strong></td>
+  </tr>
+  <tr>
+    <td>max laps per tank:</td>
+    <td><span id="maxLapsPerTankExact"></span></td>
+    <td>&rarr;</td>
+    <td><strong><span id="maxLapsPerTankRounded"></span></strong></td>
+  </tr>
+  <tr>
+    <td>total race time:</td>
+    <td colspan="3" style="text-align: center;"><span id="totalRaceTime"></span></td>
+  </tr>
+</table>
+  
+  
+    <!-- Tabelle für Pitstop Window und Nachttankmenge -->
+    <table id="pitstopWindowTable">
+      <tr>
+        <th>pitstop</th>
+        <th>pit window (laps)</th>
+        <th>fuel to add</th>
+      </tr>
+      <!-- Zeilen werden dynamisch hinzugefügt -->
+    </table>
+  </div>
+</div>
+    
 
 
   </form>
@@ -399,8 +677,10 @@ th {
 
   <script>
 
-    var zusatzFaktor = 0.5;
-    // Auto fängt bei 0.3 zum Stottern an, +0.2 Sicherheit
+    var zusatzFaktor = 0.4;
+    // Auto fängt bei 0.3 zum Stottern an, +0.1 Sicherheit
+    
+    
     
     function erhoeheRundenzeit() {
       var rundenzeitInput = document.getElementById('rundenzeit').value;
@@ -408,7 +688,8 @@ th {
         var rundenzeit = umwandelnInSekunden(rundenzeitInput);
         rundenzeit += 0.5;
         document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-        berechnen();
+        berechnen(); // Sprint-Bereich aktualisieren
+        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
       }
     }
     
@@ -418,7 +699,8 @@ th {
         var rundenzeit = umwandelnInSekunden(rundenzeitInput);
         rundenzeit -= 0.5;
         document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-        berechnen();
+        berechnen(); // Sprint-Bereich aktualisieren
+        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
       }
     }
     
@@ -428,7 +710,8 @@ th {
         var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
         verbrauch += 0.05;
         document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-        berechnen();
+        berechnen(); // Sprint-Bereich aktualisieren
+        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
       }
     }
 
@@ -438,7 +721,8 @@ th {
         var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
         verbrauch -= 0.05;
         document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-        berechnen();
+        berechnen(); // Sprint-Bereich aktualisieren
+        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
       }
     }
 
@@ -512,6 +796,154 @@ function einblendenBeiBedingung() {
   var textElement = document.getElementById('hinweisText');
   textElement.style.display = bedingungen.some(b => b) ? 'block' : 'none';
 }
+
+
+
+// Neue Funktion zur Berechnung des Pitstop Windows
+function calculatePitstopWindow() {
+  // Eingaben auslesen und validieren
+  const maxFuelCapacityInput = document.getElementById('maxFuelCapacity');
+  const raceLengthInput = document.getElementById('raceLength');
+  const rundenzeitInput = document.getElementById('rundenzeit');
+  const verbrauchInput = document.getElementById('verbrauch');
+  const unitSelect = document.getElementById('unit');
+
+  const maxFuelCapacity = validateAndParseInput(maxFuelCapacityInput);
+  const raceLength = validateAndParseInput(raceLengthInput);
+  const rundenzeit = umwandelnInSekunden(rundenzeitInput.value);
+  const verbrauch = parseFloat(verbrauchInput.value.replace(',', '.')); // Komma durch Punkt ersetzen
+
+  // Überprüfen, ob die Eingaben gültig sind
+  if (maxFuelCapacity === null || raceLength === null || isNaN(rundenzeit) || isNaN(verbrauch)) {
+    console.log('Ungültige Eingabe. Bitte überprüfen Sie die Werte.');
+    return; // Beende die Funktion, wenn die Eingaben ungültig sind
+  }
+
+  // Rennlänge in Minuten oder Runden umrechnen
+  let enduranceDuration, totalLaps;
+  if (unitSelect.value === 'minutes') {
+    enduranceDuration = raceLength;
+    totalLaps = (enduranceDuration * 60) / rundenzeit;
+  } else {
+    totalLaps = raceLength;
+    enduranceDuration = (totalLaps * rundenzeit) / 60;
+  }
+
+  // Gesamte Runden berechnen
+  const totalLapsExact = totalLaps;
+  const totalLapsRounded = Math.ceil(totalLapsExact);
+
+  // Maximale Runden pro Tank berechnen
+  const maxLapsPerTankExact = (maxFuelCapacity - 0.3) / verbrauch;
+  const maxLapsPerTank = Math.floor(maxLapsPerTankExact)
+
+  // Anzahl der benötigten Pitstops berechnen
+  const totalPitstopsExact = (totalLapsRounded / maxLapsPerTank) - 1; // Exakte Anzahl
+  const totalPitstops = Math.ceil(totalLapsRounded / maxLapsPerTank) - 1; // Gerundete Anzahl
+
+  // Gesamte Kraftstoffmenge berechnen
+  const totalFuelNeeded = (totalLapsRounded * verbrauch) + 0.3; // ZusatzFaktor: 0.3 Liter
+  
+  // Gesamte Rennzeit berechnen
+  const totalRaceTimeSeconds = totalLapsRounded * rundenzeit;
+  const totalRaceTimeFormatted = formatRaceTime(totalRaceTimeSeconds);
+
+  // Ergebnisse in die Tabelle eintragen
+  document.getElementById('totalLapsExact').textContent = totalLapsExact.toFixed(2);
+  document.getElementById('totalLapsRounded').textContent = totalLapsRounded;
+
+  document.getElementById('totalFuelNeededExact').textContent = totalFuelNeeded.toFixed(2);
+  document.getElementById('totalFuelNeededRounded').textContent = Math.ceil(totalFuelNeeded);
+
+  document.getElementById('totalPitstopsExact').textContent = totalPitstopsExact.toFixed(2);
+  document.getElementById('totalPitstopsRounded').textContent = totalPitstops;
+
+  document.getElementById('maxLapsPerTankExact').textContent = maxLapsPerTankExact.toFixed(2);
+  document.getElementById('maxLapsPerTankRounded').textContent = maxLapsPerTank;
+  
+  document.getElementById('totalRaceTime').textContent = totalRaceTimeFormatted;
+
+  // Tabelle für Pitstop Window und Nachttankmenge aktualisieren
+  const pitstopTable = document.getElementById('pitstopWindowTable');
+  pitstopTable.innerHTML = `
+    <tr>
+      <th>pitstop</th>
+      <th>pit window (laps)</th>
+      <th>fuel to add</th>
+    </tr>
+  `;
+
+  // Berechnungen für jeden Pitstop
+  let fuelToAddValues = []; // Array, um die "Fuel to Add"-Werte zu speichern
+  for (let i = 1; i <= totalPitstops; i++) {
+    let earlyPitWindow, latePitWindow, fuelToAdd;
+
+    if (totalPitstops === 1) {
+      // Formeln für einen Pitstop
+      earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
+      latePitWindow = maxLapsPerTank;
+
+      const fuelAmountAfterPitstop = Math.ceil((earlyPitWindow * verbrauch) + 0.3);
+      fuelToAdd = Math.ceil(fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow)));
+    } else {
+      // Formeln für mehrere Pitstops
+      if (i === 1) {
+        // Erster Pitstop
+        earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
+        latePitWindow = maxLapsPerTank;
+
+        const fuelAmountAfterPitstop = Math.ceil((earlyPitWindow * verbrauch) + 0.3);
+        fuelToAdd = Math.ceil(fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow)));
+      } else {
+        // Weitere Pitstops
+        earlyPitWindow = (totalLapsRounded - (maxLapsPerTank * totalPitstops)) + (maxLapsPerTank * (i - 1));
+        latePitWindow = maxLapsPerTank + (maxLapsPerTank * (i - 1));
+        fuelToAdd = maxFuelCapacity; // Volle Tankfüllung für weitere Pitstops
+      }
+    }
+
+    // Speichern der Fuel-Werte im Array
+    fuelToAddValues.push(fuelToAdd);
+
+    // Überprüfen, ob die "Fuel to Add"-Werte "full" oder ein numerischer Wert sein sollen
+    let fuelToAddDisplay = (fuelToAdd === maxFuelCapacity) ? "full" : fuelToAdd.toFixed(2);
+
+    // Zeile zur Tabelle hinzufügen
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${i}</td>
+      <td>${earlyPitWindow} - ${latePitWindow}</td>
+      <td>${fuelToAdd.toFixed(2)}</td>
+    `;
+    pitstopTable.appendChild(row);
+  }
+
+  // Hier wird die Reihenfolge der "Fuel to Add"-Werte umgekehrt
+const reversedFuelToAddValues = fuelToAddValues.reverse();
+
+// Die Fuel-Werte für die Tabelle anpassen
+const rows = pitstopTable.querySelectorAll('tr');
+for (let i = 1; i <= totalPitstops; i++) {
+  let fuelToAddDisplay = (reversedFuelToAddValues[i - 1] === maxFuelCapacity) ? "full" : reversedFuelToAddValues[i - 1].toFixed(2);
+  rows[i].cells[2].innerText = fuelToAddDisplay;
+}
+
+}
+
+    
+function toggleMode() {
+  var modeToggle = document.getElementById('modeToggle');
+  var sprintSection = document.getElementById('sprintSection');
+  var enduSection = document.getElementById('enduSection');
+
+  if (modeToggle.checked) {
+    sprintSection.style.display = 'none'; // Sprint-Bereich ausblenden
+    enduSection.style.display = 'block'; // Endurance-Bereich anzeigen
+  } else {
+    sprintSection.style.display = 'block'; // Sprint-Bereich anzeigen
+    enduSection.style.display = 'none'; // Endurance-Bereich ausblenden
+  }
+}
     
     
     function umwandelnInSekunden(rundenzeitInput) {
@@ -551,6 +983,27 @@ function einblendenBeiBedingung() {
     }
 
   
+ function validateAndParseInput(input) {
+  // Ersetze Kommas durch Punkte, falls vorhanden
+  const value = input.value.replace(',', '.');
+
+  // Überprüfe, ob der Wert eine gültige Zahl ist
+  if (isNaN(value) || value === '') {
+    alert('please enter a valid number');
+    input.value = ''; // Leere das Feld, wenn die Eingabe ungültig ist
+    return null; // Rückgabe von null, um anzuzeigen, dass die Eingabe ungültig ist
+  }
+
+  // Konvertiere den Wert in eine Zahl
+  return parseFloat(value);
+}
+
+function formatRaceTime(seconds) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
   
   function toggleDarkMode() {
   var isDarkMode = document.body.classList.toggle('dark-mode');
