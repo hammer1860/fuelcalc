@@ -471,6 +471,7 @@ input:checked + .slider:before {
 
     <h2>timed race</h2>
     <small id="hinweisText" style="display: none;">There may be an extra lap. Use fuel in brackets to be safe.</small>
+    <div style="height: 4px;"></div>
     <table id="timedRaceTable">
       <tr>
         <th>time</th>
@@ -814,8 +815,8 @@ function calculatePitstopWindow() {
   const verbrauch = parseFloat(verbrauchInput.value.replace(',', '.')); // Komma durch Punkt ersetzen
 
   // Überprüfen, ob die Eingaben gültig sind
-  if (maxFuelCapacity === null || raceLength === null || isNaN(rundenzeit) || isNaN(verbrauch)) {
-    console.log('Ungültige Eingabe. Bitte überprüfen Sie die Werte.');
+  if (maxFuelCapacity === null || raceLength === null || rundenzeit === null || verbrauch === null) {
+    console.log('invalid inputs');
     return; // Beende die Funktion, wenn die Eingaben ungültig sind
   }
 
@@ -989,7 +990,7 @@ function toggleMode() {
 
   // Überprüfe, ob der Wert eine gültige Zahl ist
   if (isNaN(value) || value === '') {
-    alert('please enter a valid number');
+  //  alert('please enter a valid number');
     input.value = ''; // Leere das Feld, wenn die Eingabe ungültig ist
     return null; // Rückgabe von null, um anzuzeigen, dass die Eingabe ungültig ist
   }
