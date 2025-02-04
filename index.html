@@ -18,7 +18,7 @@ body {
 
   :root {
   --background-color: #f2f2f2;
-  --text-color: #000;
+  --text-color: #353434;
   --text-color-results: #202020;
   --border-color: #ddd;
   --special-column-bg-timed: #CDCDCD; /* Beispiel für timed race Tabelle */
@@ -26,19 +26,25 @@ body {
   --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Light Mode */
   --gradient-end: rgba(242, 242, 242, 1); /* Endfarbe für Light Mode */
   --text-color-exact-column: #999999; /* Schriftfarbe für Light Mode resultsTable*/
+  --label-color: #8a8a8a;
+  --active-label-color: #018b8b;
+  --header-color: #2f9898; 
 }
 
 
 .dark-mode {
   --background-color: #333;
-  --text-color: #fff;
+  --text-color: #fafafa;
   --text-color-results: #fff;
   --border-color: #bbb;
   --special-column-bg-timed: #272727; /* Dunklere Farbe für Dark Mode */
   --special-column-bg-fixed: #272727; /* Dunklere Farbe für Dark Mode */
   --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Dark Mode */
   --gradient-end: rgba(52, 51, 51, 1); /* Endfarbe für Dark Mode */
-  --text-color-exact-column: #CDCDCD; /* Schriftfarbe für Dark Mode resultsTable*/
+  --text-color-exact-column: #a5a4a4; /* Schriftfarbe für Dark Mode resultsTable*/
+  --label-color: #888;
+  --active-label-color: #3a9b9f;
+  --header-color: #009191; 
 }
 
 /* Für "laps" Spalte in der timed race Tabelle */
@@ -64,6 +70,7 @@ body {
 h1 {
   font-size: 24px;
   margin-bottom: 20px;
+  color:var(--header-color);
 }
 
 h2 {
@@ -86,7 +93,27 @@ input[type="number"] {
   height: 30px;
   border: 1px solid #ccc;
   border-radius: 4px;
+  border-color: #b5b5b5;
   margin-right: 10px;
+  background-color: #fff; /* Standard-Hintergrundfarbe */
+  color: #000; /* Standard-Textfarbe */
+}
+
+input::placeholder {
+  color: #acacac; /* Hellgraue Farbe für Platzhaltertext */
+}
+
+/* Dark Mode Stile für Eingabefelder */
+.dark-mode input[type="text"],
+.dark-mode input[type="number"] {
+  background-color: #444; /* Dunklere Hintergrundfarbe */
+  color: #ffffff; /* Helle Textfarbe */
+  border-color: #93d4d6; /* Dunklere Rahmenfarbe */
+}
+
+/* Placeholder-Farbe im Dark Mode anpassen */
+.dark-mode input::placeholder {
+  color: #9e9e9e; /* Hellgraue Farbe für Platzhaltertext */
 }
 
 input[type="text"][name="verbrauch"] {
@@ -277,7 +304,12 @@ input:checked + .slider:before {
 /* Stil für die Labels (Sprint und Endu) */
 .toggle-labels {
   font-size: 14px; /* Gleiche Schriftgröße */
-  color: #333; /* Gleiche Farbe */
+  color: var(--label-color);
+  transition: color 0.3s ease;
+}
+
+.toggle-labels.active {
+  color: var(--active-label-color);
 }
 
 
@@ -345,12 +377,27 @@ input:checked + .slider:before {
 }
 
 .input-group select {
-  font-size: 13px; /* Schriftgröße des Dropdown-Menüs anpassen */
-  padding: 4px; /* Innenabstand des Dropdown-Menüs anpassen */
-  height: 30px; /* Höhe des Dropdown-Menüs anpassen */
-  width: 100px; /* Breite des Dropdown-Menüs anpassen */
-  border: 1px solid #ccc; /* Rahmen hinzufügen */
-  border-radius: 4px; /* Abgerundete Ecken */
+  font-size: 13px;
+  padding: 4px;
+  height: 30px;
+  width: 100px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff; /* Standard-Hintergrundfarbe */
+  color: #000; /* Standard-Textfarbe */
+}
+
+/* Dark Mode Stile für das Dropdown-Menü */
+.dark-mode select {
+  background-color: #444; /* Dunklere Hintergrundfarbe */
+  color: #93d4d6; /* Helle Textfarbe */
+  border-color: #666666; /* Dunklere Rahmenfarbe */
+}
+
+/* Stile für die Optionen im Dropdown-Menü */
+.dark-mode select option {
+  background-color: #444; /* Dunklere Hintergrundfarbe */
+  color: #93d4d6; /* Helle Textfarbe */
 }
 
 #resultsTable td:nth-child(1) {
@@ -438,12 +485,12 @@ input:checked + .slider:before {
 
     <!-- Toggle-Switch mit Labels -->
     <div style="display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%);">
-      <span>sprint</span>
-      <label class="toggle-switch">
+        <span id="sprintLabel" class="toggle-labels">sprint</span>
+        <label class="toggle-switch">
         <input type="checkbox" id="modeToggle" onchange="toggleMode()">
         <span class="slider"></span>
       </label>
-      <span>endu</span>
+      <span id="enduLabel" class="toggle-labels">endu</span>
     </div>
   </div>
 </div>
@@ -936,13 +983,19 @@ function toggleMode() {
   var modeToggle = document.getElementById('modeToggle');
   var sprintSection = document.getElementById('sprintSection');
   var enduSection = document.getElementById('enduSection');
+  var sprintLabel = document.getElementById('sprintLabel');
+  var enduLabel = document.getElementById('enduLabel');
 
   if (modeToggle.checked) {
-    sprintSection.style.display = 'none'; // Sprint-Bereich ausblenden
-    enduSection.style.display = 'block'; // Endurance-Bereich anzeigen
+    sprintSection.style.display = 'none';
+    enduSection.style.display = 'block';
+    sprintLabel.classList.remove('active');
+    enduLabel.classList.add('active');
   } else {
-    sprintSection.style.display = 'block'; // Sprint-Bereich anzeigen
-    enduSection.style.display = 'none'; // Endurance-Bereich ausblenden
+    sprintSection.style.display = 'block';
+    enduSection.style.display = 'none';
+    sprintLabel.classList.add('active');
+    enduLabel.classList.remove('active');
   }
 }
     
@@ -1029,11 +1082,23 @@ function formatRaceTime(seconds) {
 
 document.addEventListener('DOMContentLoaded', function() {
   var isDarkMode = localStorage.getItem('darkMode') === 'true';
-  if (isDarkMode) {
+  var modeToggle = document.getElementById('modeToggle');
+  var sprintLabel = document.getElementById('sprintLabel');
+  var enduLabel = document.getElementById('enduLabel');
+ 
+    if (isDarkMode) {
     document.body.classList.add('dark-mode');
     document.getElementById('darkModeIcon').src = "./docs/assets/dn_w.png"; // Bild setzen, wenn Dark Mode aktiviert ist
     document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
   }
+
+    // Initiale Label-Färbung
+    if (modeToggle.checked) {
+    enduLabel.classList.add('active');
+  } else {
+    sprintLabel.classList.add('active');
+  }
+
 });
 
   </script>
