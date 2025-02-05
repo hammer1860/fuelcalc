@@ -321,7 +321,7 @@ input:checked + .slider:before {
   border-spacing: 0;
   margin-bottom: 20px;
   border:solid 0px var(--border-color);
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -432,7 +432,7 @@ input:checked + .slider:before {
   outline: 1px solid var(--border-color); /* Rahmen für die gesamte Tabelle */
   border-collapse: collapse;
   margin-bottom: 20px;
-  border-radius: 3px;
+  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -495,30 +495,47 @@ input:checked + .slider:before {
   </div>
 </div>
   
-  <form>
-    <label for="rundenzeit">average lap time (of leader):</label>
-    <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
-    <button class="small-button" type="button" onclick="verringereRundenzeit()">- 0.5s</button>
-    <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
-
-    <p>
-    <div style="height: 3px;"></div>
-
-    <label for="verbrauch">fuel consumption per lap:</label>
-    <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
-    <button class="small-button" type="button" onclick="verringereVerbrauch()">- 0,05</button>
-    <button class="small-button" type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
-
-    <br>
-    <br/>
-    <br/>
+<form>
+    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+      
+      <!-- Linker Container: "average lap time" & "fuel consumption" -->
+      <div style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <!-- "average lap time" -->
+        <div>
+          <label for="rundenzeit">average lap time (of leader):</label><br>
+          <div style="height: 4px;"></div>
+          <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
+          <button class="small-button" type="button" onclick="verringereRundenzeit()">- 0.5s</button>
+          <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
+        </div>
+  
+        <!-- "fuel consumption" -->
+        <div>
+          <label for="verbrauch">fuel consumption per lap:</label><br>
+          <div style="height: 4px;"></div>
+          <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
+          <button class="small-button" type="button" onclick="verringereVerbrauch()">- 0,05</button>
+          <button class="small-button" type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
+        </div>
+  
+      </div>
+  
+      <!-- Rechter Container: "fuel buffer" -->
+      <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
+        <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:</label>
+        <input type="number" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
+               style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px">
+      </div>
+  
+    </div>
+    <div style="height: 10px;"></div>
+  </form>
 
 
 <div id="sprintSection">
-
     <h2>timed race</h2>
     <small id="hinweisText" style="display: none;">There may be an extra lap. Use fuel in brackets to be safe.</small>
-    <div style="height: 4px;"></div>
     <table id="timedRaceTable">
       <tr>
         <th>time</th>
@@ -652,7 +669,7 @@ input:checked + .slider:before {
       <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="e.g., 55">
       <br>
       
-      <div style="height: 3px;"></div>
+      <div style="height: 5px;"></div>
       
 <div class="input-container">
   <label for="raceLength">race length:</label>
@@ -725,8 +742,8 @@ input:checked + .slider:before {
 
   <script>
 
-    var zusatzFaktor = 0.4;
-    // Auto fängt bei 0.3 zum Stottern an, +0.1 Sicherheit
+    var zusatzFaktor = 0.3;
+    // Auto fängt bei 0.3 zum Stottern an
     
     
     
@@ -882,7 +899,7 @@ function calculatePitstopWindow() {
   const totalLapsRounded = Math.ceil(totalLapsExact);
 
   // Maximale Runden pro Tank berechnen
-  const maxLapsPerTankExact = (maxFuelCapacity - 0.3) / verbrauch;
+  const maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
   const maxLapsPerTank = Math.floor(maxLapsPerTankExact)
 
   // Anzahl der benötigten Pitstops berechnen
@@ -890,7 +907,7 @@ function calculatePitstopWindow() {
   const totalPitstops = Math.ceil(totalLapsRounded / maxLapsPerTank) - 1; // Gerundete Anzahl
 
   // Gesamte Kraftstoffmenge berechnen
-  const totalFuelNeeded = (totalLapsRounded * verbrauch) + 0.3; // ZusatzFaktor: 0.3 Liter
+  const totalFuelNeeded = (totalLapsRounded * verbrauch) + zusatzFaktor;
   
   // Gesamte Rennzeit berechnen
   const totalRaceTimeSeconds = totalLapsRounded * rundenzeit;
@@ -911,7 +928,7 @@ function calculatePitstopWindow() {
   
   document.getElementById('totalRaceTime').textContent = totalRaceTimeFormatted;
 
-  // Tabelle für Pitstop Window und Nachttankmenge aktualisieren
+  // Tabelle für Pitstop Window und Nachtankmenge aktualisieren
   const pitstopTable = document.getElementById('pitstopWindowTable');
   pitstopTable.innerHTML = `
     <tr>
@@ -931,8 +948,8 @@ function calculatePitstopWindow() {
       earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
       latePitWindow = maxLapsPerTank;
 
-      const fuelAmountAfterPitstop = Math.ceil((earlyPitWindow * verbrauch) + 0.3);
-      fuelToAdd = Math.ceil(fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow)));
+      const fuelAmountAfterPitstop = (earlyPitWindow * verbrauch) + zusatzFaktor;
+      fuelToAdd = fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow));
     } else {
       // Formeln für mehrere Pitstops
       if (i === 1) {
@@ -940,8 +957,8 @@ function calculatePitstopWindow() {
         earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
         latePitWindow = maxLapsPerTank;
 
-        const fuelAmountAfterPitstop = Math.ceil((earlyPitWindow * verbrauch) + 0.3);
-        fuelToAdd = Math.ceil(fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow)));
+        const fuelAmountAfterPitstop = (earlyPitWindow * verbrauch) + zusatzFaktor;
+        fuelToAdd = fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow));
       } else {
         // Weitere Pitstops
         earlyPitWindow = (totalLapsRounded - (maxLapsPerTank * totalPitstops)) + (maxLapsPerTank * (i - 1));
@@ -1099,6 +1116,19 @@ document.addEventListener('DOMContentLoaded', function() {
     sprintLabel.classList.add('active');
   }
 
+});
+
+// Event-Listener für Änderungen im Fuel Buffer Eingabefeld
+document.getElementById('fuelBuffer').addEventListener('input', function() {
+  // Validierung und Formatierung
+  let value = parseFloat(this.value.replace(',', '.')) || 0;
+  value = Math.max(0, value); // Verhindert negative Werte
+//  this.value = value.toFixed(1); // Erzwingt eine Dezimalstelle
+
+  // Aktualisierung der Variable und Berechnungen
+  zusatzFaktor = value;
+  berechnen(); // Sprint-Bereich aktualisieren
+  calculatePitstopWindow(); // Endurance-Bereich aktualisieren
 });
 
   </script>
