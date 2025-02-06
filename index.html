@@ -184,6 +184,17 @@ th {
   color: red;
 }
 
+/* Feste Breite für die erste Spalte in beiden Tabellen */
+#timedRaceTable th:nth-child(1),
+#timedRaceTable td:nth-child(1),
+#fixedLapsTable th:nth-child(1),
+#fixedLapsTable td:nth-child(1) {
+  width: 120px; /* Feste Breite für die erste Spalte */
+  min-width: 120px; /* Verhindert, dass die Spalte schmaler wird */
+  max-width: 120px; /* Verhindert, dass die Spalte breiter wird */
+  padding-left: 8px;
+}
+
 /* Vertikaler Strich für die 'timed race' Tabelle */
 #timedRaceTable td:nth-child(1),
 #timedRaceTable th:nth-child(1) {
@@ -444,6 +455,29 @@ input:checked + .slider:before {
   text-align: center; /* Text in allen Zellen zentrieren */
 }
 
+/* Stil für das Eingabefeld "max fuel capacity" */
+#maxFuelCapacity {
+  width: 55px;
+}
+
+/* Stil für das Eingabefeld "race length" */
+#raceLength {
+  width: 55px;
+}
+
+/* Betrifft nur die Zeit-Eingabefelder (renndauer1-5) */
+#renndauer1, #renndauer2, #renndauer3, #renndauer4, #renndauer5,
+/* Betrifft nur die Laps-Eingabefelder (setLaps1-5) */
+#setLaps1, #setLaps2, #setLaps3, #setLaps4, #setLaps5 {
+  width: 100px;    /* Kleinere Breite */
+}
+
+.unrounded-zusatz {
+  color: rgb(183, 0, 0);
+  font-size: 16px;
+  margin-left: 5px; /* Abstand zum vorherigen Wert */
+}
+
   </style>
 
   <!-- Google tag (gtag.js) -->
@@ -506,8 +540,11 @@ input:checked + .slider:before {
           <label for="rundenzeit">average lap time (of leader):</label><br>
           <div style="height: 4px;"></div>
           <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
-          <button class="small-button" type="button" onclick="verringereRundenzeit()">- 0.5s</button>
-          <button class="small-button" type="button" onclick="erhoeheRundenzeit()">+ 0.5s</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5)">- 0.5s</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1)">- 0.1s</button>
+          <span style="margin: 0 4px;"></span> <!-- Abstand -->
+          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1)">+ 0.1s</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5)">+ 0.5s</button>
         </div>
   
         <!-- "fuel consumption" -->
@@ -515,8 +552,11 @@ input:checked + .slider:before {
           <label for="verbrauch">fuel consumption per lap:</label><br>
           <div style="height: 4px;"></div>
           <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
-          <button class="small-button" type="button" onclick="verringereVerbrauch()">- 0,05</button>
-          <button class="small-button" type="button" onclick="erhoeheVerbrauch()">+ 0,05</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05)">- 0.05</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01)">- 0.01</button>
+          <span style="margin: 0 4px;"></span> <!-- Abstand -->
+          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01)">+ 0.01</button>
+          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05)">+ 0.05</button>
         </div>
   
       </div>
@@ -524,7 +564,7 @@ input:checked + .slider:before {
       <!-- Rechter Container: "fuel buffer" -->
       <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
         <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:</label>
-        <input type="number" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
+        <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
                style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px">
       </div>
   
@@ -533,9 +573,14 @@ input:checked + .slider:before {
   </form>
 
 
-<div id="sprintSection">
-    <h2>timed race</h2>
-    <small id="hinweisText" style="display: none;">There may be an extra lap. Use fuel in brackets to be safe.</small>
+  <div id="sprintSection">
+    <div style="display: flex; align-items: flex-end; gap: 20px;">
+      <h2 style="margin: 0;">timed race</h2>
+      <small id="hinweisText" style="display: none; position: relative; top: 0px;">
+        There may be an extra lap. Use fuel in brackets to be safe.
+      </small>
+    </div>
+    <div style="height: 10px;"></div>
     <table id="timedRaceTable">
       <tr>
         <th>time</th>
@@ -547,47 +592,47 @@ input:checked + .slider:before {
         <th></th>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="time in minutes"></td>
+        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="in minutes"></td>
         <td><span id="ergebnis1"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden1"></span></td>
-        <td><span id="unroundedFuel1"></span></td>
+        <td><span id="unroundedFuel1"></span> <span id="unroundedFuel1-zusatz" class="unrounded-zusatz"></span></td>
         <td>&rarr;</td> 
         <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="time in minutes"></td>
+        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="in minutes"></td>
         <td><span id="ergebnis2"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden2"></span></td>
-        <td><span id="unroundedFuel2"></span></td>
+        <td><span id="unroundedFuel2"></span> <span id="unroundedFuel2-zusatz" class="unrounded-zusatz"></span></td>
         <td>&rarr;</td> 
         <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="time in minutes"></td>
+        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="in minutes"></td>
         <td><span id="ergebnis3"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden3"></span></td>
-        <td><span id="unroundedFuel3"></span></td> 
+        <td><span id="unroundedFuel3"></span> <span id="unroundedFuel3-zusatz" class="unrounded-zusatz"></span></td> 
         <td>&rarr;</td>
         <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="time in minutes"></td>
+        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="in minutes"></td>
         <td><span id="ergebnis4"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden4"></span></td>
-        <td><span id="unroundedFuel4"></span></td> 
+        <td><span id="unroundedFuel4"></span> <span id="unroundedFuel4-zusatz" class="unrounded-zusatz"></span></td> 
         <td>&rarr;</td>
         <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
       <tr>
-        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="time in minutes"></td>
+        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="in minutes"></td>
         <td><span id="ergebnis5"></span></td>
         <td>&rarr;</td>
         <td><span id="aufgerundeteRunden5"></span></td>
-        <td><span id="unroundedFuel5"></span></td> 
+        <td><span id="unroundedFuel5"></span> <span id="unroundedFuel5-zusatz" class="unrounded-zusatz"></span></td> 
         <td>&rarr;</td>
         <td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis markiert"></span></td>
       </tr>
@@ -666,15 +711,15 @@ input:checked + .slider:before {
 
   <form>
       <label for="maxFuelCapacity">max fuel capacity:</label>
-      <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="e.g., 55">
+      <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="">
       <br>
       
       <div style="height: 5px;"></div>
       
 <div class="input-container">
-  <label for="raceLength">race length:</label>
+  <label for="raceLength">race length:</label><div style="margin-left: 29px; margin-right: 10px;"></div>
   <div class="input-group">
-    <input type="text" id="raceLength" name="raceLength" placeholder="e.g., 120">
+    <input type="text" id="raceLength" name="raceLength" placeholder="">
     <select id="unit">
       <option value="minutes">minutes</option>
       <option value="laps">laps</option>
@@ -747,60 +792,60 @@ input:checked + .slider:before {
     
     
     
-    function erhoeheRundenzeit() {
-      var rundenzeitInput = document.getElementById('rundenzeit').value;
-      if (rundenzeitInput) {
-        var rundenzeit = umwandelnInSekunden(rundenzeitInput);
-        rundenzeit += 0.5;
-        document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-        berechnen(); // Sprint-Bereich aktualisieren
-        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-      }
-    }
-    
-    function verringereRundenzeit() {
-      var rundenzeitInput = document.getElementById('rundenzeit').value;
-      if (rundenzeitInput) {
-        var rundenzeit = umwandelnInSekunden(rundenzeitInput);
-        rundenzeit -= 0.5;
-        document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-        berechnen(); // Sprint-Bereich aktualisieren
-        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-      }
-    }
-    
-    function erhoeheVerbrauch() {
-      var verbrauchInput = document.getElementById('verbrauch').value;
-      if (verbrauchInput) {
-        var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
-        verbrauch += 0.05;
-        document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-        berechnen(); // Sprint-Bereich aktualisieren
-        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-      }
-    }
+function erhoeheRundenzeit(step) {
+  var rundenzeitInput = document.getElementById('rundenzeit').value;
+  if (rundenzeitInput) {
+    var rundenzeit = umwandelnInSekunden(rundenzeitInput);
+    rundenzeit += step;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
+    berechnen(); // Sprint-Bereich aktualisieren
+    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+  }
+}
 
-    function verringereVerbrauch() {
-      var verbrauchInput = document.getElementById('verbrauch').value;
-      if (verbrauchInput) {
-        var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
-        verbrauch -= 0.05;
-        document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-        berechnen(); // Sprint-Bereich aktualisieren
-        calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-      }
-    }
+function verringereRundenzeit(step) {
+  var rundenzeitInput = document.getElementById('rundenzeit').value;
+  if (rundenzeitInput) {
+    var rundenzeit = umwandelnInSekunden(rundenzeitInput);
+    rundenzeit -= step;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
+    berechnen(); // Sprint-Bereich aktualisieren
+    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+  }
+}
+
+function erhoeheVerbrauch(step) {
+  var verbrauchInput = document.getElementById('verbrauch').value;
+  if (verbrauchInput) {
+    var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
+    verbrauch += step;
+    document.getElementById('verbrauch').value = verbrauch.toFixed(2);
+    berechnen(); // Sprint-Bereich aktualisieren
+    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+  }
+}
+
+function verringereVerbrauch(step) {
+  var verbrauchInput = document.getElementById('verbrauch').value;
+  if (verbrauchInput) {
+    var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
+    verbrauch -= step;
+    document.getElementById('verbrauch').value = verbrauch.toFixed(2);
+    berechnen(); // Sprint-Bereich aktualisieren
+    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+  }
+}
 
 
-    function formatiereRundenzeit(rundenzeit) {
-      var minuten = Math.floor(rundenzeit / 60);
-      var sekunden = Math.floor(rundenzeit % 60);
-      var millisekunden = Math.round((rundenzeit % 1) * 1000);
-      return ('0' + minuten).slice(-2) + ':' + ('0' + sekunden).slice(-2) + '.' + ('00' + millisekunden).slice(-3);
-    }
+function formatiereRundenzeit(rundenzeit) {
+  var minuten = Math.floor(rundenzeit / 60);
+  var sekunden = Math.floor(rundenzeit % 60);
+  var millisekunden = Math.round((rundenzeit % 1) * 1000);
+  return ('0' + minuten).slice(-2) + ':' + ('0' + sekunden).slice(-2) + '.' + ('00' + millisekunden).slice(-3);
+}
     
     
-    function berechnen() {
+function berechnen() {
   var rundenzeitInput = document.getElementById('rundenzeit').value;
   var rundenzeit = umwandelnInSekunden(rundenzeitInput);
   
@@ -818,6 +863,7 @@ input:checked + .slider:before {
     document.getElementById('ergebnis' + i).textContent = ergebnis !== null ? ergebnis.toFixed(2) : '';
     document.getElementById('aufgerundeteRunden' + i).textContent = aufgerundeteRunden !== null ? aufgerundeteRunden : '';
     document.getElementById('unroundedFuel' + i).textContent = unroundedFuel !== null ? unroundedFuel.toFixed(2) : '';
+    document.getElementById('unroundedFuel' + i + '-zusatz').textContent = '';
     document.getElementById('fuel' + i).textContent = fuel !== null ? fuel : '';
     document.getElementById('fuel' + i + '-zusatz').textContent = '';
 
@@ -827,6 +873,8 @@ input:checked + .slider:before {
       document.getElementById('aufgerundeteRunden' + i).textContent = predictedLaps;
       var fuelZusatz = '(' + Math.ceil(((aufgerundeteRunden + 1) * verbrauch) + zusatzFaktor) + ')';
       document.getElementById('fuel' + i + '-zusatz').textContent = fuelZusatz;
+      var unroundedFuelZusatz = unroundedFuel + verbrauch; // unroundedFuel + Verbrauch
+      document.getElementById('unroundedFuel' + i + '-zusatz').textContent = '(' + unroundedFuelZusatz.toFixed(2) + ')';
     }
   }
 
@@ -845,21 +893,19 @@ input:checked + .slider:before {
 
   
 
-  }
+}
     
-function einblendenBeiBedingung() {
-  var bedingungen = [];
-  for (var i = 1; i <= 5; i++) {
-    // Die Werte extrahieren und parsen
-    var aufgerundeteRundenX = parseFloat(document.getElementById('aufgerundeteRunden' + i).textContent.split(' ')[0]); 
-    var ergebnisX = parseFloat(document.getElementById('ergebnis' + i).textContent);
-    
-    // Logik für die Bedingungsprüfung
-    bedingungen.push((aufgerundeteRundenX - ergebnisX) < 0.1);
+  function einblendenBeiBedingung() {
+  let hatKlammern = false;
+  for (let i = 1; i <= 5; i++) {
+    const klammerElement = document.getElementById('fuel' + i + '-zusatz');
+    // Prüfe, ob die Klammer-Zelle nicht leer ist
+    if (klammerElement.textContent.trim() !== '') {
+      hatKlammern = true;
+      break; // Eine Zeile reicht, um den Hinweis anzuzeigen
+    }
   }
-
-  var textElement = document.getElementById('hinweisText');
-  textElement.style.display = bedingungen.some(b => b) ? 'block' : 'none';
+  document.getElementById('hinweisText').style.display = hatKlammern ? 'block' : 'none';
 }
 
 
