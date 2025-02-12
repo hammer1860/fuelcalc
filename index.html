@@ -478,6 +478,51 @@ input:checked + .slider:before {
   margin-left: 5px; /* Abstand zum vorherigen Wert */
 }
 
+.info-icon {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+  font-size: 12px;
+  color: #ffffff;
+}
+
+.info-icon .tooltip-text,
+.info-icon .tooltip-text2 {
+  visibility: hidden;
+  width: 230px;
+  background-color: #222;
+  color: #fff;
+  text-align: center;
+  border-radius: 4px;
+  padding: 4px;
+  position: absolute;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+/* Unterschiedliche Positionierung */
+.info-icon .tooltip-text {
+  top: 300%;
+  left: -205px;
+}
+
+.info-icon .tooltip-text2 {
+  bottom: 120%;
+  left: -210px;
+}
+
+/* Tooltip anzeigen, wenn .info-icon aktiv ist oder gehovert wird */
+.info-icon.active .tooltip-text,
+.info-icon.active .tooltip-text2,
+.info-icon:hover .tooltip-text,
+.info-icon:hover .tooltip-text2 {
+  visibility: visible;
+  opacity: 1;
+}
+
   </style>
 
   <!-- Google tag (gtag.js) -->
@@ -563,7 +608,11 @@ input:checked + .slider:before {
   
       <!-- Rechter Container: "fuel buffer" -->
       <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
-        <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:</label>
+        <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:
+    <span class="info-icon" onclick="toggleTooltip(event)">ⓘ
+      <span class="tooltip-text">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span>
+    </span>
+    </label>
         <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
                style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px">
       </div>
@@ -574,13 +623,26 @@ input:checked + .slider:before {
 
 
   <div id="sprintSection">
+<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
     <div style="display: flex; align-items: flex-end; gap: 20px;">
-      <h2 style="margin: 0;">timed race</h2>
-      <small id="hinweisText" style="display: none; position: relative; top: 0px;">
-        There may be an extra lap. Use fuel in brackets to be safe.
-      </small>
+        <h2 style="margin: 0;">timed race</h2>
+        <small id="hinweisText" style="display: none; position: relative; top: 3px;">
+            There may be an extra lap. Use fuel in brackets to be safe.
+        </small>
     </div>
+
+<span class="info-icon" onclick="toggleTooltip(event)" style="position: relative; top: 10px;">
+    ⓘ
+    <span class="tooltip-text2">
+        unrounded values &rarr; rounded values<br>
+        use rounded fuel values for liters,<br>
+        use unrounded fuel values for gallons
+    </span>
+</span>
+</div>
     <div style="height: 10px;"></div>
+    
+  
     <table id="timedRaceTable">
       <tr>
         <th>time</th>
@@ -1121,6 +1183,24 @@ function formatRaceTime(seconds) {
   const secs = Math.floor(seconds % 60);
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
+
+
+
+function toggleTooltip(event) {
+  event.stopPropagation(); // Verhindert, dass das Event weitergegeben wird
+  const infoIcon = event.currentTarget; // Das angeklickte Info-Icon
+  infoIcon.classList.toggle('active'); // Tooltip ein-/ausblenden
+}
+
+// Schließen des Tooltips, wenn außerhalb geklickt wird
+document.addEventListener('click', function(event) {
+  const infoIcon = document.querySelector('.info-icon');
+  if (!infoIcon.contains(event.target)) { // Klammer hinzugefügt
+    infoIcon.classList.remove('active');
+  }
+});
+  
+  
   
   function toggleDarkMode() {
   var isDarkMode = document.body.classList.toggle('dark-mode');
