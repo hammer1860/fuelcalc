@@ -23,7 +23,7 @@ body {
   --border-color: #ddd;
   --special-column-bg-timed: #CDCDCD; /* Beispiel für timed race Tabelle */
   --special-column-bg-fixed: #CDCDCD; /* Beispiel für fixed amount of laps Tabelle */
-  --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Light Mode */
+  --gradient-start: #418d90; /* Startfarbe für Light Mode */
   --gradient-end: rgba(242, 242, 242, 1); /* Endfarbe für Light Mode */
   --text-color-exact-column: #999999; /* Schriftfarbe für Light Mode resultsTable*/
   --label-color: #8a8a8a;
@@ -91,7 +91,7 @@ input[type="number"] {
   padding: 8px;
   width: 130px;
   height: 30px;
-  border: 1px solid #ccc;
+  border: 1px solid;
   border-radius: 4px;
   border-color: #b5b5b5;
   margin-right: 10px;
@@ -137,6 +137,10 @@ button {
 
 button:hover {
   background-color: #5C2F80;
+}
+
+button:active {
+  background-color: #501e66;
 }
 
 table {
@@ -515,15 +519,112 @@ input:checked + .slider:before {
 }
 
 .info-icon .tooltip-text2 {
-  bottom: 120%;
+  bottom: 110%;
   left: -210px;
 }
 
-/* Tooltip anzeigen, wenn gehovert wird (nur für Desktop) */
+/* Tooltip anzeigen, wenn gehovert wird */
 .info-icon:hover .tooltip-text,
 .info-icon:hover .tooltip-text2 {
   visibility: visible;
   opacity: 1;
+}
+
+.save-clear-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 5px;
+}
+
+.clear-button-container {
+  margin-bottom: 10px; /* Abstand nach unten zum Fuel Buffer */
+}
+
+
+/* Clear-Button */
+.clear-button {
+  padding: 3px 6px;
+  font-size: 11px;
+  background-color: #e7e7e7;
+  color: #434343;
+  border: 1px solid #5b5b5b;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.clear-button:hover {
+  background-color: #418d90;
+  color: #e3e3e3;
+}
+
+.clear-button:active {
+  background-color: #585858;
+}
+
+.dark-mode .clear-button {
+  background-color: #3c3c3c;
+  color: #e3e3e3;
+}
+
+.dark-mode .clear-button:hover {
+  background-color: #418d90;
+}
+
+.dark-mode .clear-button:active {
+  background-color: #2a2a2a;
+}
+
+.checkbox-label {
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+  gap: 11px; /* Abstand zwischen Text und Checkbox */
+  flex-direction: row-reverse; /* Checkbox nach rechts */
+}
+
+/* Stile für die Checkbox */
+.checkbox-label input[type="checkbox"] {
+  appearance: none; /* Standard-Checkbox-Stil entfernen */
+  width: 12px;
+  height: 12px;
+  border: 1px solid #b5b5b5; /* Rahmenfarbe im Light Mode */
+  border-radius: 3px;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Haken-Symbol für die Checkbox */
+.checkbox-label input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background-color: #418d90; /* Farbe des Hakens */
+  border-radius: 2px;
+  transform: translate(-50%, -50%) scale(0); /* Standardmäßig unsichtbar */
+  transition: transform 0.2s ease;
+}
+
+/* Checkbox aktiviert */
+.checkbox-label input[type="checkbox"]:checked::after {
+  transform: translate(-50%, -50%) scale(1); /* Haken anzeigen */
+}
+
+/* Dark Mode spezifische Stile */
+.dark-mode .checkbox-label input[type="checkbox"] {
+  border-color: #5b5b5b; /* Rahmenfarbe im Dark Mode */
+}
+
+.dark-mode .checkbox-label input[type="checkbox"]::after {
+  background-color: #418d90; /* Hakenfarbe im Dark Mode */
+}
+
+.save-inputs-text {
+  font-size: 11px; /* Anpassen nach Bedarf */
 }
 
   </style>
@@ -578,38 +679,50 @@ input:checked + .slider:before {
 </div>
   
 <form>
-    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-      
-      <!-- Linker Container: "average lap time" & "fuel consumption" -->
-      <div style="display: flex; flex-direction: column; gap: 15px;">
-        
-        <!-- "average lap time" -->
-        <div>
-          <label for="rundenzeit">average lap time (of leader):</label><br>
-          <div style="height: 4px;"></div>
-          <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
-          <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5)">- 0.5s</button>
-          <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1)">- 0.1s</button>
-          <span style="margin: 0 4px;"></span> <!-- Abstand -->
-          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1)">+ 0.1s</button>
-          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5)">+ 0.5s</button>
-        </div>
-  
-        <!-- "fuel consumption" -->
-        <div>
-          <label for="verbrauch">fuel consumption per lap:</label><br>
-          <div style="height: 4px;"></div>
-          <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
-          <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05)">- 0.05</button>
-          <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01)">- 0.01</button>
-          <span style="margin: 0 4px;"></span> <!-- Abstand -->
-          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01)">+ 0.01</button>
-          <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05)">+ 0.05</button>
-        </div>
-  
+  <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+    <!-- Linker Container: "average lap time" & "fuel consumption" -->
+    <div style="display: flex; flex-direction: column; gap: 15px;">
+      <!-- "average lap time" -->
+      <div>
+        <label for="rundenzeit">average lap time (of leader):</label><br>
+        <div style="height: 4px;"></div>
+        <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5)">- 0.5s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1)">- 0.1s</button>
+        <span style="margin: 0 4px;"></span> <!-- Abstand -->
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1)">+ 0.1s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5)">+ 0.5s</button>
       </div>
-  
-      <!-- Rechter Container: "fuel buffer" -->
+
+      <!-- "fuel consumption" -->
+      <div>
+        <label for="verbrauch">fuel consumption per lap:</label><br>
+        <div style="height: 4px;"></div>
+        <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05)">- 0.05</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01)">- 0.01</button>
+        <span style="margin: 0 4px;"></span> <!-- Abstand -->
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01)">+ 0.01</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05)">+ 0.05</button>
+      </div>
+    </div>
+
+    <!-- Rechter Container: Save/Clear-Buttons und Fuel Buffer -->
+    <div style="display: flex; flex-direction: column; align-items: flex-end;">
+      <!-- Save Inputs Checkbox -->
+      <div class="save-clear-container">
+        <label class="checkbox-label">
+          <input type="checkbox" tabindex="-1" id="saveInputsCheckbox">
+          <span class="save-inputs-text">save inputs</span>
+        </label>
+      </div>
+    
+      <!-- Clear Button -->
+      <div class="clear-button-container">
+        <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
+      </div>
+
+      <!-- Fuel Buffer Container -->
       <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
         <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:
     <span class="info-icon" onclick="toggleTooltip(event)">ⓘ
@@ -619,10 +732,11 @@ input:checked + .slider:before {
         <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
                style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px">
       </div>
-  
+
     </div>
-    <div style="height: 10px;"></div>
-  </form>
+  </div>
+  <div style="height: 10px;"></div>
+</form>
 
 
   <div id="sprintSection">
@@ -865,6 +979,9 @@ function erhoeheRundenzeit(step) {
     document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
     berechnen(); // Sprint-Bereich aktualisieren
     calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+    if (document.getElementById('saveInputsCheckbox').checked) {
+      saveInputs();
+    }
   }
 }
 
@@ -876,6 +993,9 @@ function verringereRundenzeit(step) {
     document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
     berechnen(); // Sprint-Bereich aktualisieren
     calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+    if (document.getElementById('saveInputsCheckbox').checked) {
+      saveInputs();
+    }
   }
 }
 
@@ -887,6 +1007,9 @@ function erhoeheVerbrauch(step) {
     document.getElementById('verbrauch').value = verbrauch.toFixed(2);
     berechnen(); // Sprint-Bereich aktualisieren
     calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+    if (document.getElementById('saveInputsCheckbox').checked) {
+      saveInputs();
+    }
   }
 }
 
@@ -898,6 +1021,9 @@ function verringereVerbrauch(step) {
     document.getElementById('verbrauch').value = verbrauch.toFixed(2);
     berechnen(); // Sprint-Bereich aktualisieren
     calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+    if (document.getElementById('saveInputsCheckbox').checked) {
+      saveInputs();
+    }
   }
 }
 
@@ -1242,6 +1368,157 @@ document.getElementById('fuelBuffer').addEventListener('input', function() {
   zusatzFaktor = value;
   berechnen(); // Sprint-Bereich aktualisieren
   calculatePitstopWindow(); // Endurance-Bereich aktualisieren
+});
+
+
+// Funktion zum Speichern der Eingaben
+function saveInputs() {
+  const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
+  inputs.forEach(input => {
+    localStorage.setItem(input.id, input.value);
+  });
+  localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
+}
+
+// Funktion zum Wiederherstellen der Eingaben
+function restoreInputs() {
+  const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
+  inputs.forEach(input => {
+    const savedValue = localStorage.getItem(input.id);
+    if (savedValue !== null) {
+      input.value = savedValue;
+    }
+  });
+}
+
+// Funktion zum Löschen der Eingaben (nur bei Klick auf "clear all inputs")
+function clearInputs() {
+  // Alle Eingabefelder leeren
+  const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
+  inputs.forEach(input => {
+    input.value = '';
+    localStorage.removeItem(input.id); // Entfernt gespeicherte Werte
+  });
+
+  // Fuel Buffer auf 0.3 zurücksetzen
+  document.getElementById('fuelBuffer').value = 0.3;
+  localStorage.removeItem('fuelBuffer');
+
+  // Alle berechneten Tabellen zurücksetzen
+  resetAllTablesAndResults();
+}
+
+// Hilfsfunktion: Setzt alle Tabellen und Ergebnisse zurück
+function resetAllTablesAndResults() {
+  // Timed Race Tabelle zurücksetzen
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`ergebnis${i}`).textContent = '';
+    document.getElementById(`aufgerundeteRunden${i}`).textContent = '';
+    document.getElementById(`unroundedFuel${i}`).textContent = '';
+    document.getElementById(`unroundedFuel${i}-zusatz`).textContent = '';
+    document.getElementById(`fuel${i}`).textContent = '';
+    document.getElementById(`fuel${i}-zusatz`).textContent = '';
+  }
+
+  // Fixed Laps Tabelle zurücksetzen
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById(`unroundedSetFuel${i}`).textContent = '';
+    document.getElementById(`setFuel${i}`).textContent = '';
+    document.getElementById(`setRaceTime${i}`).textContent = '';
+  }
+
+  // Endurance-Bereich zurücksetzen
+  document.getElementById('totalLapsExact').textContent = '';
+  document.getElementById('totalLapsRounded').textContent = '';
+  document.getElementById('totalFuelNeededExact').textContent = '';
+  document.getElementById('totalFuelNeededRounded').textContent = '';
+  document.getElementById('totalPitstopsExact').textContent = '';
+  document.getElementById('totalPitstopsRounded').textContent = '';
+  document.getElementById('maxLapsPerTankExact').textContent = '';
+  document.getElementById('maxLapsPerTankRounded').textContent = '';
+  document.getElementById('totalRaceTime').textContent = '';
+
+  // Pitstop Window Tabelle leeren
+  const pitstopTable = document.getElementById('pitstopWindowTable');
+  pitstopTable.innerHTML = `
+    <tr>
+      <th>pitstop</th>
+      <th>pit window (laps)</th>
+      <th>fuel to add</th>
+    </tr>
+  `;
+}
+
+// Event-Listener für Eingabefelder (speichern bei Änderung)
+document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
+  input.addEventListener('input', function() {
+    if (document.getElementById('saveInputsCheckbox').checked) {
+      saveInputs();
+    }
+  });
+});
+
+// Event-Listener für Checkbox (nur speichern/entfernen)
+document.getElementById('saveInputsCheckbox').addEventListener('change', function() {
+  if (this.checked) {
+    saveInputs(); // Checkbox aktiviert → speichern
+  } else {
+    localStorage.removeItem('saveInputsCheckbox'); // Checkbox deaktiviert → nur Status löschen
+  }
+});
+
+// Event-Listener für Änderungen im Dropdown-Menü
+document.getElementById('unit').addEventListener('change', function() {
+  if (document.getElementById('saveInputsCheckbox').checked) {
+    saveInputs();
+  }
+});
+
+// Beim Laden der Seite wiederherstellen
+document.addEventListener('DOMContentLoaded', function() {
+  const saveInputsCheckbox = document.getElementById('saveInputsCheckbox');
+  const isChecked = localStorage.getItem('saveInputsCheckbox') === 'true';
+  
+  if (isChecked) {
+    saveInputsCheckbox.checked = true;
+    restoreInputs();
+    
+    // Fuel Buffer-Wert aus dem Input-Feld nach dem Restore übernehmen
+    zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
+  }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Dark Mode standardmäßig auf "true" setzen, wenn kein Wert existiert
+  if (localStorage.getItem('darkMode') === null) {
+    localStorage.setItem('darkMode', 'true');
+  }
+
+  // Dark Mode-Status aus dem localStorage lesen
+  var isDarkMode = localStorage.getItem('darkMode') === 'true';
+  
+  // Dark Mode aktivieren/deaktivieren
+  if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeIcon').src = "./docs/assets/dn_w.png";
+    document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png";
+  } else {
+    document.body.classList.remove('dark-mode');
+    document.getElementById('darkModeIcon').src = "./docs/assets/dn.png";
+    document.getElementById('twitchIcon').src = "./docs/assets/twitch.png";
+  }
+
+  // Initiale Label-Färbung für Sprint/Endu-Toggle
+  var modeToggle = document.getElementById('modeToggle');
+  var sprintLabel = document.getElementById('sprintLabel');
+  var enduLabel = document.getElementById('enduLabel');
+
+  if (modeToggle.checked) {
+    enduLabel.classList.add('active');
+  } else {
+    sprintLabel.classList.add('active');
+  }
 });
 
   </script>
