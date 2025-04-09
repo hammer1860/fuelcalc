@@ -702,16 +702,16 @@ input:checked + .slider:before {
     <!-- Rechter Container: Save/Clear-Buttons und Fuel Buffer -->
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
       <!-- Save Inputs Checkbox -->
-      <div class="save-clear-container">
-        <label class="checkbox-label">
-          <input type="checkbox" tabindex="-1" id="saveInputsCheckbox">
-          <span class="save-inputs-text">save inputs</span>
-        </label>
-      </div>
+    <div class="save-clear-container">
+      <label class="checkbox-label">
+        <input type="checkbox" tabindex="-1" id="saveInputsCheckbox" onchange="saveInputs(); if (typeof umami !== 'undefined') { umami.track(this.checked ? 'toggle-save-inputs-on' : 'toggle-save-inputs-off'); }">
+        <span class="save-inputs-text">save inputs</span>
+      </label>
+    </div>
     
       <!-- Clear Button -->
       <div class="clear-button-container">
-        <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
+        <button type="button" tabindex="-1" onclick="clearInputs(); if (typeof umami !== 'undefined') { umami.track('reset-inputs'); }" class="clear-button">clear all inputs</button>
       </div>
 
       <!-- Fuel Buffer Container -->
