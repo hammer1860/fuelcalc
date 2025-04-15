@@ -679,11 +679,11 @@ input:checked + .slider:before {
         <label for="rundenzeit">average lap time (of leader):</label><br>
         <div style="height: 4px;"></div>
         <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
-        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5)">- 0.5s</button>
-        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1)">- 0.1s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5); if (typeof umami !== 'undefined') { umami.track('decrease-laptime-0.5'); }">- 0.5s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1); if (typeof umami !== 'undefined') { umami.track('decrease-laptime-0.1'); }">- 0.1s</button>
         <span style="margin: 0 4px;"></span> <!-- Abstand -->
-        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1)">+ 0.1s</button>
-        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5)">+ 0.5s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1); if (typeof umami !== 'undefined') { umami.track('increase-laptime-0.1'); }">+ 0.1s</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5); if (typeof umami !== 'undefined') { umami.track('increase-laptime-0.5'); }">+ 0.5s</button>
       </div>
 
       <!-- "fuel consumption" -->
@@ -691,27 +691,27 @@ input:checked + .slider:before {
         <label for="verbrauch">fuel consumption per lap:</label><br>
         <div style="height: 4px;"></div>
         <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
-        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05)">- 0.05</button>
-        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01)">- 0.01</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05); if (typeof umami !== 'undefined') { umami.track('decrease-fuel-0.05'); }">- 0.05</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01); if (typeof umami !== 'undefined') { umami.track('decrease-fuel-0.01'); }">- 0.01</button>
         <span style="margin: 0 4px;"></span> <!-- Abstand -->
-        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01)">+ 0.01</button>
-        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05)">+ 0.05</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01); if (typeof umami !== 'undefined') { umami.track('increase-fuel-0.01'); }">+ 0.01</button>
+        <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05); if (typeof umami !== 'undefined') { umami.track('increase-fuel-0.05'); }">+ 0.05</button>
       </div>
     </div>
 
     <!-- Rechter Container: Save/Clear-Buttons und Fuel Buffer -->
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
       <!-- Save Inputs Checkbox -->
-    <div class="save-clear-container">
-      <label class="checkbox-label">
-        <input type="checkbox" tabindex="-1" id="saveInputsCheckbox" onchange="saveInputs(); if (typeof umami !== 'undefined') { umami.track(this.checked ? 'toggle-save-inputs-on' : 'toggle-save-inputs-off'); }">
-        <span class="save-inputs-text">save inputs</span>
-      </label>
-    </div>
+      <div class="save-clear-container">
+        <label class="checkbox-label">
+          <input type="checkbox" tabindex="-1" id="saveInputsCheckbox">
+          <span class="save-inputs-text">save inputs</span>
+        </label>
+      </div>
     
       <!-- Clear Button -->
       <div class="clear-button-container">
-        <button type="button" tabindex="-1" onclick="clearInputs(); if (typeof umami !== 'undefined') { umami.track('reset-inputs'); }" class="clear-button">clear all inputs</button>
+        <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
       </div>
 
       <!-- Fuel Buffer Container -->
