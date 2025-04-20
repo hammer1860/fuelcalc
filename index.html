@@ -662,7 +662,7 @@ input:checked + .slider:before {
     <div style="display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%);">
         <span id="sprintLabel" class="toggle-labels">sprint</span>
         <label class="toggle-switch">
-        <input type="checkbox" id="modeToggle" onchange="toggleMode()">
+         <input type="checkbox" id="modeToggle" onchange="toggleMode(); if (typeof umami !== 'undefined') { umami.track(this.checked ? 'switch-to-endurance' : 'switch-to-sprint'); }">
         <span class="slider"></span>
       </label>
       <span id="enduLabel" class="toggle-labels">endu</span>
