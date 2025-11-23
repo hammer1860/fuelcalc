@@ -933,6 +933,10 @@ input:checked + .slider:before {
     <td><strong><span id="maxLapsPerTankRounded"></span></strong></td>
   </tr>
   <tr>
+    <td>stint time (full tank):</td>
+    <td colspan="3" style="text-align: center;"><span id="stintTime"></span></td>
+  </tr>
+  <tr>
     <td>total race time:</td>
     <td colspan="3" style="text-align: center;"><span id="totalRaceTime"></span></td>
   </tr>
@@ -1156,6 +1160,11 @@ function calculatePitstopWindow() {
   document.getElementById('maxLapsPerTankExact').textContent = maxLapsPerTankExact.toFixed(2);
   document.getElementById('maxLapsPerTankRounded').textContent = maxLapsPerTank;
   
+  // Stint-Time Berechnung
+  const stintTimeSeconds = maxLapsPerTank * rundenzeit;
+  const stintTimeFormatted = formatRaceTime(stintTimeSeconds);
+  document.getElementById('stintTime').textContent = stintTimeFormatted;
+    
   document.getElementById('totalRaceTime').textContent = totalRaceTimeFormatted;
 
   // Tabelle für Pitstop Window und Nachtankmenge aktualisieren
@@ -1416,6 +1425,7 @@ function resetAllTablesAndResults() {
     document.getElementById(`unroundedFuel${i}-zusatz`).textContent = '';
     document.getElementById(`fuel${i}`).textContent = '';
     document.getElementById(`fuel${i}-zusatz`).textContent = '';
+    document.getElementById('stintTime').textContent = '';
   }
 
   // Fixed Laps Tabelle zurücksetzen
