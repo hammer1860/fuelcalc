@@ -3,1533 +3,814 @@
 <head>
   <title>fuel calc</title>
   <style>
-    /* Reset für die Standardstile */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: Arial, sans-serif; background-color: var(--background-color); color: var(--text-color); }
+
+:root {
+  --background-color: #f2f2f2; --text-color: #353434; --text-color-results: #202020;
+  --border-color: #ddd; --special-column-bg-timed: #CDCDCD; --special-column-bg-fixed: #CDCDCD;
+  --gradient-start: #418d90; --gradient-end: rgba(242,242,242,1);
+  --text-color-exact-column: #999999; --label-color: #8a8a8a;
+  --active-label-color: #018b8b; --header-color: #2f9898;
 }
-
-body {
-  font-family: Arial, sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-}
-
-  :root {
-  --background-color: #f2f2f2;
-  --text-color: #353434;
-  --text-color-results: #202020;
-  --border-color: #ddd;
-  --special-column-bg-timed: #CDCDCD; /* Beispiel für timed race Tabelle */
-  --special-column-bg-fixed: #CDCDCD; /* Beispiel für fixed amount of laps Tabelle */
-  --gradient-start: #418d90; /* Startfarbe für Light Mode */
-  --gradient-end: rgba(242, 242, 242, 1); /* Endfarbe für Light Mode */
-  --text-color-exact-column: #999999; /* Schriftfarbe für Light Mode resultsTable*/
-  --label-color: #8a8a8a;
-  --active-label-color: #018b8b;
-  --header-color: #2f9898; 
-}
-
-
 .dark-mode {
-  --background-color: #333;
-  --text-color: #fafafa;
-  --text-color-results: #fff;
-  --border-color: #bbb;
-  --special-column-bg-timed: #272727; /* Dunklere Farbe für Dark Mode */
-  --special-column-bg-fixed: #272727; /* Dunklere Farbe für Dark Mode */
-  --gradient-start: rgba(65, 141, 144, 1); /* Startfarbe für Dark Mode */
-  --gradient-end: rgba(52, 51, 51, 1); /* Endfarbe für Dark Mode */
-  --text-color-exact-column: #a5a4a4; /* Schriftfarbe für Dark Mode resultsTable*/
-  --label-color: #888;
-  --active-label-color: #3a9b9f;
-  --header-color: #009191; 
+  --background-color: #333; --text-color: #fafafa; --text-color-results: #fff;
+  --border-color: #bbb; --special-column-bg-timed: #272727; --special-column-bg-fixed: #272727;
+  --gradient-start: rgba(65,141,144,1); --gradient-end: rgba(52,51,51,1);
+  --text-color-exact-column: #a5a4a4; --label-color: #888;
+  --active-label-color: #3a9b9f; --header-color: #009191;
 }
 
-/* Für "laps" Spalte in der timed race Tabelle */
-#timedRaceTable td:nth-child(4) {
-  background-color: var(--special-column-bg-timed);
-}
+#timedRaceTable td:nth-child(4) { background-color: var(--special-column-bg-timed); }
+#timedRaceTable td:nth-child(7) { background-color: var(--special-column-bg-timed); }
+#fixedLapsTable td:nth-child(4) { background-color: var(--special-column-bg-fixed); }
 
-/* Für "fuel" Spalte in der timed race Tabelle, angenommen sie ist die sechste Spalte */
-#timedRaceTable td:nth-child(7) {
-  background-color: var(--special-column-bg-timed);
-}
+.container { max-width: 560px; margin: 0 auto; }
+h1 { font-size: 24px; margin-bottom: 20px; color: var(--header-color); }
+h2 { font-size: 18px; margin-bottom: 10px; }
+label { font-size: 16px; }
+form { margin-bottom: 20px; }
 
-/* Für "fuel" Spalte in der fixed amount of laps Tabelle, angenommen sie ist die dritte Spalte */
-#fixedLapsTable td:nth-child(4) {
-  background-color: var(--special-column-bg-fixed);
+input[type="text"], input[type="number"] {
+  padding: 8px; width: 130px; height: 30px;
+  border: 1px solid; border-radius: 4px; border-color: #b5b5b5;
+  margin-right: 10px; background-color: #fff; color: #000;
 }
-
-.container {
-  max-width: 560px;
-  margin: 0 auto;
+input::placeholder { color: #acacac; }
+.dark-mode input[type="text"], .dark-mode input[type="number"] {
+  background-color: #444; color: #ffffff; border-color: #93d4d6;
 }
+.dark-mode input::placeholder { color: #9e9e9e; }
+input[type="text"][name="verbrauch"] { width: 130px; }
 
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color:var(--header-color);
-}
-
-h2 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
-
-label {
-  font-size: 16px;
-}
-
-form {
-  margin-bottom: 20px;
-}
-
-input[type="text"],
-input[type="number"] {
-  padding: 8px;
-  width: 130px;
-  height: 30px;
-  border: 1px solid;
-  border-radius: 4px;
-  border-color: #b5b5b5;
-  margin-right: 10px;
-  background-color: #fff; /* Standard-Hintergrundfarbe */
-  color: #000; /* Standard-Textfarbe */
-}
-
-input::placeholder {
-  color: #acacac; /* Hellgraue Farbe für Platzhaltertext */
-}
-
-/* Dark Mode Stile für Eingabefelder */
-.dark-mode input[type="text"],
-.dark-mode input[type="number"] {
-  background-color: #444; /* Dunklere Hintergrundfarbe */
-  color: #ffffff; /* Helle Textfarbe */
-  border-color: #93d4d6; /* Dunklere Rahmenfarbe */
-}
-
-/* Placeholder-Farbe im Dark Mode anpassen */
-.dark-mode input::placeholder {
-  color: #9e9e9e; /* Hellgraue Farbe für Platzhaltertext */
-}
-
-input[type="text"][name="verbrauch"] {
-  width: 130px;
-}
-
-.small-button {
-  padding: 8px 8px;
-  font-size: 10px;
-}
-
+.small-button { padding: 8px 8px; font-size: 10px; }
 button {
-  padding: 8px 40px;
-  font-size: 12px;
-  background-color: #256CB0;
-  color: #fff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 8px 40px; font-size: 12px; background-color: #256CB0;
+  color: #fff; border: none; border-radius: 4px; cursor: pointer;
 }
-
-button:hover {
-  background-color: #5C2F80;
-}
-
-button:active {
-  background-color: #501e66;
-}
+button:hover { background-color: #5C2F80; }
+button:active { background-color: #501e66; }
 
 table {
-  width: 100%;
-  outline: 1px solid var(--border-color);
-  outline-offset: 2px;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  border:solid 1px var(--border-color);
-  border-radius: 5px;
-  overflow: hidden;
+  width: 100%; outline: 1px solid var(--border-color); outline-offset: 2px;
+  border-collapse: collapse; margin-bottom: 20px;
+  border: solid 1px var(--border-color); border-radius: 5px; overflow: hidden;
 }
+th, td { padding: 6px; text-align: left; border-bottom: 1px solid #ddd; height: 20px; }
+th { background-color: #088F90; color: #fff; }
+.markiert { color: red; font-weight: bold; }
+.fuel-ergebnis { font-weight: bold; font-size: 18px; }
+#hinweisText { display: none; color: red; }
 
-th,
-td {
-  padding: 6px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-  height: 20px;
+#timedRaceTable th:nth-child(1), #timedRaceTable td:nth-child(1),
+#fixedLapsTable th:nth-child(1), #fixedLapsTable td:nth-child(1) {
+  width: 120px; min-width: 120px; max-width: 120px; padding-left: 8px;
 }
+#timedRaceTable td:nth-child(1), #timedRaceTable th:nth-child(1) { border-left: 1px solid var(--border-color); }
+#timedRaceTable td:nth-child(3), #timedRaceTable td:nth-child(6) { border-right: 1px solid var(--border-color); }
+#timedRaceTable td:nth-child(1), #timedRaceTable th:nth-child(1),
+#timedRaceTable td:nth-child(4), #timedRaceTable th:nth-child(4),
+#timedRaceTable td:nth-child(7), #timedRaceTable th:nth-child(7) { border-right: 1px solid var(--border-color); }
+#fixedLapsTable td:nth-child(1), #fixedLapsTable th:nth-child(1) { border-left: 1px solid var(--border-color); }
+#fixedLapsTable td:nth-child(3) { border-right: 1px solid var(--border-color); }
+#fixedLapsTable td:nth-child(1), #fixedLapsTable th:nth-child(1),
+#fixedLapsTable td:nth-child(4), #fixedLapsTable th:nth-child(4),
+#fixedLapsTable td:nth-child(7), #fixedLapsTable th:nth-child(7) { border-right: 1px solid var(--border-color); }
 
-th {
-  background-color: #088F90;
-  color: #fff;
-}
+#timedRaceTable td:nth-child(2), #timedRaceTable th:nth-child(2),
+#timedRaceTable td:nth-child(3), #timedRaceTable th:nth-child(3),
+#timedRaceTable td:nth-child(4), #timedRaceTable th:nth-child(4),
+#timedRaceTable td:nth-child(5), #timedRaceTable th:nth-child(5),
+#timedRaceTable td:nth-child(6), #timedRaceTable th:nth-child(6),
+#timedRaceTable td:nth-child(7), #timedRaceTable th:nth-child(7) { text-align: center; }
+#fixedLapsTable td:nth-child(2), #fixedLapsTable th:nth-child(2),
+#fixedLapsTable td:nth-child(3), #fixedLapsTable th:nth-child(3),
+#fixedLapsTable td:nth-child(4), #fixedLapsTable th:nth-child(4),
+#fixedLapsTable td:nth-child(5), #fixedLapsTable th:nth-child(5) { text-align: center; }
+#timedRaceTable td:nth-child(2), #timedRaceTable td:nth-child(5) { color: var(--text-color-exact-column); }
+#fixedLapsTable td:nth-child(2) { color: var(--text-color-exact-column); }
 
-.markiert {
-  color: red;
-  font-weight: bold;
-}
-
-.fuel-ergebnis {
-  font-weight: bold;
-  font-size: 18px;
-}
-
-.result-container {
-  margin-top: 20px;
-  background-color: #fff;
-  padding: 20px;
-}
-
-#hinweisText {
-  display: none;
-  color: red;
-}
-
-/* Feste Breite für die erste Spalte in beiden Tabellen */
-#timedRaceTable th:nth-child(1),
-#timedRaceTable td:nth-child(1),
-#fixedLapsTable th:nth-child(1),
-#fixedLapsTable td:nth-child(1) {
-  width: 120px; /* Feste Breite für die erste Spalte */
-  min-width: 120px; /* Verhindert, dass die Spalte schmaler wird */
-  max-width: 120px; /* Verhindert, dass die Spalte breiter wird */
-  padding-left: 8px;
-}
-
-/* Vertikaler Strich für die 'timed race' Tabelle */
-#timedRaceTable td:nth-child(1),
-#timedRaceTable th:nth-child(1) {
-  border-left: 1px solid var(--border-color);
-}
-
-#timedRaceTable td:nth-child(3),
-#timedRaceTable td:nth-child(6) {
-  border-right: 1px solid var(--border-color);
-}
-
-#timedRaceTable td:nth-child(1),
-#timedRaceTable th:nth-child(1),
-#timedRaceTable td:nth-child(4),
-#timedRaceTable th:nth-child(4),
-#timedRaceTable td:nth-child(7),
-#timedRaceTable th:nth-child(7) {
-  border-right: 1px solid var(--border-color);
-}
-
-/* Vertikaler Strich für die 'fixed number of laps' Tabelle */
-#fixedLapsTable td:nth-child(1),
-#fixedLapsTable th:nth-child(1) {
-  border-left: 1px solid var(--border-color);
-}
-
-#fixedLapsTable td:nth-child(3){
-  border-right: 1px solid var(--border-color);
-}
-
-#fixedLapsTable td:nth-child(1),
-#fixedLapsTable th:nth-child(1),
-#fixedLapsTable td:nth-child(4),
-#fixedLapsTable th:nth-child(4),
-#fixedLapsTable td:nth-child(7),
-#fixedLapsTable th:nth-child(7) {
-  border-right: 1px solid var(--border-color);
-}
-
-#timedRaceTable td:nth-child(2),
-#timedRaceTable th:nth-child(2),
-#timedRaceTable td:nth-child(3),
-#timedRaceTable th:nth-child(3),
-#timedRaceTable td:nth-child(4),
-#timedRaceTable th:nth-child(4),
-#timedRaceTable td:nth-child(5),
-#timedRaceTable th:nth-child(5),
-#timedRaceTable td:nth-child(6),
-#timedRaceTable th:nth-child(6),
-#timedRaceTable td:nth-child(7),
-#timedRaceTable th:nth-child(7) {
-  text-align: center;
-}
-
-#fixedLapsTable td:nth-child(2),
-#fixedLapsTable th:nth-child(2),
-#fixedLapsTable td:nth-child(3),
-#fixedLapsTable th:nth-child(3),
-#fixedLapsTable td:nth-child(4),
-#fixedLapsTable th:nth-child(4),
-#fixedLapsTable td:nth-child(5),
-#fixedLapsTable th:nth-child(5) {
-  text-align: center;
-}
-
-#timedRaceTable td:nth-child(2),
-#timedRaceTable td:nth-child(5) {
-    color: var(--text-color-exact-column);
-}
-
-#fixedLapsTable td:nth-child(2){
-    color: var(--text-color-exact-column);
-}
-
-
-/* Stil für den Toggle-Switch */
-.toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px; /* Kleinere Breite */
-  height: 20px; /* Kleinere Höhe */
-}
-
-.toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
+/* Toggle Switch */
+.toggle-switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
 .slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #bbb;
-  transition: 0.4s;
-  border-radius: 20px; /* Abgerundete Ecken */
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #bbb; transition: 0.4s; border-radius: 20px;
 }
-
 .slider:before {
-  position: absolute;
-  content: "";
-  height: 16px; /* Kleinere Höhe */
-  width: 16px; /* Kleinere Breite */
-  left: 2px; /* Positionierung nach links */
-  bottom: 2px;
-  background-color: #408D8F;
-  transition: 0.4s;
-  border-radius: 50%;
+  position: absolute; content: ""; height: 16px; width: 16px;
+  left: 2px; bottom: 2px; background-color: #408D8F; transition: 0.4s; border-radius: 50%;
 }
+input:checked + .slider:before { transform: translateX(20px); }
+.toggle-labels { font-size: 14px; color: var(--label-color); transition: color 0.3s ease; }
+.toggle-labels.active { color: var(--active-label-color); }
 
-input:checked + .slider:before {
-  transform: translateX(20px); /* Bewegung nach rechts */
-}
-
-/* Stil für die Labels (Sprint und Endu) */
-.toggle-labels {
-  font-size: 14px; /* Gleiche Schriftgröße */
-  color: var(--label-color);
-  transition: color 0.3s ease;
-}
-
-.toggle-labels.active {
-  color: var(--active-label-color);
-}
-
-
+/* Results table */
 #resultsTable {
-  width: 100%;
-  border-collapse: separate;
-  outline: 1px solid var(--border-color);
-  outline-offset: 2px;
-  border-spacing: 0;
-  margin-bottom: 20px;
-  border:solid 0px var(--border-color);
-  border-radius: 4px;
-  overflow: hidden;
+  width: 100%; border-collapse: separate; outline: 1px solid var(--border-color);
+  outline-offset: 2px; border-spacing: 0; margin-bottom: 20px;
+  border: solid 0px var(--border-color); border-radius: 4px; overflow: hidden;
 }
-
-#resultsTable td {
-  padding: 8px;
-  text-align: left;
-  border-bottom: 1px solid var(--border-color);
-}
-
-#resultsTable tr:last-child td {
-  border-bottom: none; /* Entfernt den unteren Rand der letzten Zeile */
-}
-
-
-
-#resultsTable td:first-child {
-/*  background-color: #088F90; /* Farbe für die erste Spalte */
-  white-space: nowrap; /* Verhindert Umbrüche im Text */
-  width: 50%; /* Erzwingt minimale Breite */
-}
-
-#resultsTable td:nth-child(2) {
-    color: #B3B3B3;
-}
-
-#resultsTable td:nth-child(2),
-#resultsTable td:nth-child(3),
-#resultsTable td:nth-child(4) {
-  text-align: center; /* Exakte und gerundete Werte zentrieren */
-}
-
-
-.input-container {
-  display: flex; /* Container als Flexbox */
-  align-items: center; /* Elemente vertikal zentrieren */
-  margin-bottom: 20px; /* Abstand nach unten */
-}
-
-.input-container label {
-  margin-right: 10px; /* Abstand zwischen Label und Eingabegruppe */
-}
-
-.input-group {
-  display: flex; /* Eingabegruppe als Flexbox */
-  align-items: center; /* Elemente vertikal zentrieren */
-}
-
-.input-group input {
-  margin-right: 10px;
-  border: 1px solid #ccc; /* Rahmen hinzufügen */
-  border-radius: 4px; /* Abgerundete Ecken */
-  height: 30px;
-}
-
-.input-group select {
-  font-size: 13px;
-  padding: 4px;
-  height: 30px;
-  width: 100px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #fff; /* Standard-Hintergrundfarbe */
-  color: #000; /* Standard-Textfarbe */
-}
-
-/* Dark Mode Stile für das Dropdown-Menü */
-.dark-mode select {
-  background-color: #444; /* Dunklere Hintergrundfarbe */
-  color: #93d4d6; /* Helle Textfarbe */
-  border-color: #666666; /* Dunklere Rahmenfarbe */
-}
-
-/* Stile für die Optionen im Dropdown-Menü */
-.dark-mode select option {
-  background-color: #444; /* Dunklere Hintergrundfarbe */
-  color: #93d4d6; /* Helle Textfarbe */
-}
-
+#resultsTable td { padding: 8px; text-align: left; border-bottom: 1px solid var(--border-color); }
+#resultsTable tr:last-child td { border-bottom: none; }
+#resultsTable td:first-child { white-space: nowrap; width: 50%; }
+#resultsTable td:nth-child(2), #resultsTable td:nth-child(3), #resultsTable td:nth-child(4) { text-align: center; }
 #resultsTable td:nth-child(1) {
   background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
-  padding: 5px 10px; /* Etwas Abstand für bessere Darstellung */
-  color: var(--text-color-results);
-  font-size: 14px;
+  padding: 5px 10px; color: var(--text-color-results); font-size: 14px;
 }
+#resultsTable td:nth-child(2) { color: var(--text-color-exact-column); }
+#resultsTable td[colspan="3"] { text-align: center; }
 
-#resultsTable td:nth-child(2) {
-  color: var(--text-color-exact-column); /* Schriftfarbe anwenden */
+/* Input containers */
+.input-container { display: flex; align-items: center; margin-bottom: 20px; }
+.input-container label { margin-right: 10px; }
+.input-group { display: flex; align-items: center; }
+.input-group input { margin-right: 10px; border: 1px solid #ccc; border-radius: 4px; height: 30px; }
+.input-group select {
+  font-size: 13px; padding: 4px; height: 30px; width: 100px;
+  border: 1px solid #ccc; border-radius: 4px; background-color: #fff; color: #000;
 }
+.dark-mode select { background-color: #444; color: #93d4d6; border-color: #666666; }
+.dark-mode select option { background-color: #444; color: #93d4d6; }
 
-#resultsTable td[colspan="3"] {
-  text-align: center; /* Text in der zusammengeführten Zelle zentrieren */
-}
-
+/* Tables container — unchanged from original, restored */
 .tables-container {
+  display: flex; gap: 20px; justify-content: space-between; align-items: flex-start;
+}
+
+/* Pitstop panel wraps toggle + table; shrinks to content, does not expand */
+.pitstop-panel {
+  flex: 0 0 auto;
   display: flex;
-  gap: 20px;
-  justify-content: space-between;
-  align-items: flex-start; /* Tabellen haben unabhängige Höhen */
+  flex-direction: column;
+  align-self: flex-start;
 }
 
-#pitstopWindowTable th {
-  font-size: 14px; /* Schriftgröße anpassen */
-  font-weight: normal; /* Schriftstärke auf normal setzen */
-  padding: 6px; /* Padding anpassen */
-}
+.pitstop-mode-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 
+#pitstopWindowTable th { font-size: 14px; font-weight: normal; padding: 6px; }
 #pitstopWindowTable {
-  outline: 1px solid var(--border-color); /* Rahmen für die gesamte Tabelle */
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  border-radius: 4px;
-  overflow: hidden;
+  outline: 1px solid var(--border-color); border-collapse: collapse;
+  margin-bottom: 20px; border-radius: 4px; overflow: hidden;
+  width: auto; /* key: don't stretch beyond content */
+}
+#pitstopWindowTable th, #pitstopWindowTable td {
+  border: 1px solid var(--border-color); border-spacing: 0; font-size: 14px; text-align: center;
 }
 
-#pitstopWindowTable th,
-#pitstopWindowTable td {
-  border: 1px solid var(--border-color); /* Rahmen für jede Zelle */
-  border-spacing: 0;
-  font-size: 14px; /* Schriftgröße anpassen */
-  text-align: center; /* Text in allen Zellen zentrieren */
+/* Field sizes */
+#maxFuelCapacity { width: 55px; }
+#raceLength { width: 55px; }
+#renndauer1,#renndauer2,#renndauer3,#renndauer4,#renndauer5,
+#setLaps1,#setLaps2,#setLaps3,#setLaps4,#setLaps5 { width: 100px; }
+
+.unrounded-zusatz { color: rgb(183,0,0); font-size: 16px; margin-left: 5px; }
+
+/* Info icon */
+.info-icon { position: relative; display: inline-block; cursor: default; font-size: 12px; color: #037979; }
+.dark-mode .info-icon { color: #27ac9d; }
+.info-icon .tooltip-text, .info-icon .tooltip-text2 {
+  visibility: hidden; width: 230px; background-color: #222; color: #fff;
+  text-align: center; border-radius: 4px; padding: 4px; position: absolute;
+  z-index: 1; opacity: 0; transition: opacity 0.3s, visibility 0.3s; font-size: 11px; line-height: 1.4;
 }
+.info-icon .tooltip-text { top: 300%; left: -205px; }
+.info-icon .tooltip-text2 { bottom: 110%; left: -210px; }
+.info-icon:hover .tooltip-text, .info-icon:hover .tooltip-text2 { visibility: visible; opacity: 1; }
 
-/* Stil für das Eingabefeld "max fuel capacity" */
-#maxFuelCapacity {
-  width: 55px;
-}
-
-/* Stil für das Eingabefeld "race length" */
-#raceLength {
-  width: 55px;
-}
-
-/* Betrifft nur die Zeit-Eingabefelder (renndauer1-5) */
-#renndauer1, #renndauer2, #renndauer3, #renndauer4, #renndauer5,
-/* Betrifft nur die Laps-Eingabefelder (setLaps1-5) */
-#setLaps1, #setLaps2, #setLaps3, #setLaps4, #setLaps5 {
-  width: 100px;    /* Kleinere Breite */
-}
-
-.unrounded-zusatz {
-  color: rgb(183, 0, 0);
-  font-size: 16px;
-  margin-left: 5px; /* Abstand zum vorherigen Wert */
-}
-
-.info-icon {
-  position: relative;
-  display: inline-block;
-  cursor: default; /* Standard-Cursor (kein Zeiger) */
-  font-size: 12px;
-  color: #037979; /* Standardfarbe (schwarz) im hellen Modus */
-}
-
-/* Farbe im dunklen Modus */
-.dark-mode .info-icon {
-  color: #27ac9d; /* Weiß im dunklen Modus */
-}
-
-.info-icon .tooltip-text,
-.info-icon .tooltip-text2 {
-  visibility: hidden;
-  width: 230px;
-  background-color: #222;
-  color: #fff;
-  text-align: center;
-  border-radius: 4px;
-  padding: 4px;
-  position: absolute;
-  z-index: 1;
-  opacity: 0;
-  transition: opacity 0.3s, visibility 0.3s;
-  font-size: 11px;
-  line-height: 1.4;
-}
-
-/* Unterschiedliche Positionierung */
-.info-icon .tooltip-text {
-  top: 300%;
-  left: -205px;
-}
-
-.info-icon .tooltip-text2 {
-  bottom: 110%;
-  left: -210px;
-}
-
-/* Tooltip anzeigen, wenn gehovert wird */
-.info-icon:hover .tooltip-text,
-.info-icon:hover .tooltip-text2 {
-  visibility: visible;
-  opacity: 1;
-}
-
-.save-clear-container {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 5px;
-}
-
-.clear-button-container {
-  margin-bottom: 10px; /* Abstand nach unten zum Fuel Buffer */
-}
-
-
-/* Clear-Button */
+/* Save/clear */
+.save-clear-container { display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
+.clear-button-container { margin-bottom: 10px; }
 .clear-button {
-  padding: 3px 6px;
-  font-size: 11px;
-  background-color: #e7e7e7;
-  color: #434343;
-  border: 1px solid #5b5b5b;
-  border-radius: 4px;
-  cursor: pointer;
+  padding: 3px 6px; font-size: 11px; background-color: #e7e7e7; color: #434343;
+  border: 1px solid #5b5b5b; border-radius: 4px; cursor: pointer;
 }
+.clear-button:hover { background-color: #418d90; color: #e3e3e3; }
+.clear-button:active { background-color: #585858; }
+.dark-mode .clear-button { background-color: #3c3c3c; color: #e3e3e3; }
+.dark-mode .clear-button:hover { background-color: #418d90; }
+.dark-mode .clear-button:active { background-color: #2a2a2a; }
 
-.clear-button:hover {
-  background-color: #418d90;
-  color: #e3e3e3;
-}
-
-.clear-button:active {
-  background-color: #585858;
-}
-
-.dark-mode .clear-button {
-  background-color: #3c3c3c;
-  color: #e3e3e3;
-}
-
-.dark-mode .clear-button:hover {
-  background-color: #418d90;
-}
-
-.dark-mode .clear-button:active {
-  background-color: #2a2a2a;
-}
-
-.checkbox-label {
-  color: var(--text-color);
-  display: flex;
-  align-items: center;
-  gap: 11px; /* Abstand zwischen Text und Checkbox */
-  flex-direction: row-reverse; /* Checkbox nach rechts */
-}
-
-/* Stile für die Checkbox */
+/* Checkbox */
+.checkbox-label { color: var(--text-color); display: flex; align-items: center; gap: 11px; flex-direction: row-reverse; }
 .checkbox-label input[type="checkbox"] {
-  appearance: none; /* Standard-Checkbox-Stil entfernen */
-  width: 12px;
-  height: 12px;
-  border: 1px solid #b5b5b5; /* Rahmenfarbe im Light Mode */
-  border-radius: 3px;
-  background-color: transparent;
-  cursor: pointer;
-  position: relative;
+  appearance: none; width: 12px; height: 12px; border: 1px solid #b5b5b5;
+  border-radius: 3px; background-color: transparent; cursor: pointer; position: relative;
 }
-
-/* Haken-Symbol für die Checkbox */
 .checkbox-label input[type="checkbox"]::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  background-color: #418d90; /* Farbe des Hakens */
-  border-radius: 2px;
-  transform: translate(-50%, -50%) scale(0); /* Standardmäßig unsichtbar */
-  transition: transform 0.2s ease;
+  content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
+  background-color: #418d90; border-radius: 2px;
+  transform: translate(-50%,-50%) scale(0); transition: transform 0.2s ease;
 }
+.checkbox-label input[type="checkbox"]:checked::after { transform: translate(-50%,-50%) scale(1); }
+.dark-mode .checkbox-label input[type="checkbox"] { border-color: #5b5b5b; }
+.dark-mode .checkbox-label input[type="checkbox"]::after { background-color: #418d90; }
+.save-inputs-text { font-size: 11px; }
 
-/* Checkbox aktiviert */
-.checkbox-label input[type="checkbox"]:checked::after {
-  transform: translate(-50%, -50%) scale(1); /* Haken anzeigen */
+/* Formation lap section */
+.formation-lap-section {
+  padding-top: 6px; margin-top: 6px; text-align: center;
 }
-
-/* Dark Mode spezifische Stile */
-.dark-mode .checkbox-label input[type="checkbox"] {
-  border-color: #5b5b5b; /* Rahmenfarbe im Dark Mode */
+.formation-lap-toggle-row {
+  display: flex; align-items: center; justify-content: center; gap: 8px; margin-left: 9px;
 }
-
-.dark-mode .checkbox-label input[type="checkbox"]::after {
-  background-color: #418d90; /* Hakenfarbe im Dark Mode */
-}
-
-.save-inputs-text {
-  font-size: 11px; /* Anpassen nach Bedarf */
-}
-
   </style>
 
-<script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
-  
+  <script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
 </head>
 <body>
-
-
- <div class="container">
-   
+<div class="container">
 
 <div style="position: relative; max-width: 560px; margin: 0 auto;">
-  <!-- Twitch-Icon -->
   <div style="position: absolute; top: 0px; right: 0px;">
     <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;" onclick="if (typeof umami !== 'undefined') { umami.track('twitch-link-click'); }">
       <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
     </a>
   </div>
-
-  <!-- Dark Mode-Icon -->
   <div style="position: absolute; top: 0px; right: 25px;">
     <a href="#" onclick="toggleDarkMode(); return false;">
       <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22" id="darkModeIcon">
     </a>
   </div>
-
-  <!-- Titel und Toggle-Switch -->
   <div style="display: flex; align-items: center; justify-content: space-between;">
-    <!-- Titel "fuel calculator" -->
     <h1 style="margin-top: 10px;">fuel calculator</h1>
-
-    <!-- Toggle-Switch mit Labels -->
     <div style="display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%);">
-        <span id="sprintLabel" class="toggle-labels">sprint</span>
-        <label class="toggle-switch">
-         <input type="checkbox" id="modeToggle" onchange="toggleMode(); if (typeof umami !== 'undefined') { umami.track(this.checked ? 'switch-to-endurance' : 'switch-to-sprint'); }">
+      <span id="sprintLabel" class="toggle-labels">sprint</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="modeToggle" onchange="toggleMode(); if (typeof umami !== 'undefined') { umami.track(this.checked ? 'switch-to-endurance' : 'switch-to-sprint'); }">
         <span class="slider"></span>
       </label>
       <span id="enduLabel" class="toggle-labels">endu</span>
     </div>
   </div>
 </div>
-  
+
 <form>
   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-    <!-- Linker Container: "average lap time" & "fuel consumption" -->
     <div style="display: flex; flex-direction: column; gap: 15px;">
-      <!-- "average lap time" -->
       <div>
         <label for="rundenzeit">average lap time (of leader):</label><br>
         <div style="height: 4px;"></div>
         <input type="text" id="rundenzeit" name="rundenzeit" placeholder="format: 01:10.500">
         <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.5); if (typeof umami !== 'undefined') { umami.track('decrease-laptime-0.5'); }">- 0.5s</button>
         <button class="small-button" tabindex="-1" type="button" onclick="verringereRundenzeit(0.1); if (typeof umami !== 'undefined') { umami.track('decrease-laptime-0.1'); }">- 0.1s</button>
-        <span style="margin: 0 4px;"></span> <!-- Abstand -->
+        <span style="margin: 0 4px;"></span>
         <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.1); if (typeof umami !== 'undefined') { umami.track('increase-laptime-0.1'); }">+ 0.1s</button>
         <button class="small-button" tabindex="-1" type="button" onclick="erhoeheRundenzeit(0.5); if (typeof umami !== 'undefined') { umami.track('increase-laptime-0.5'); }">+ 0.5s</button>
       </div>
-
-      <!-- "fuel consumption" -->
       <div>
         <label for="verbrauch">fuel consumption per lap:</label><br>
         <div style="height: 4px;"></div>
         <input type="text" id="verbrauch" name="verbrauch" placeholder="format: 2,15">
         <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.05); if (typeof umami !== 'undefined') { umami.track('decrease-fuel-0.05'); }">- 0.05</button>
         <button class="small-button" tabindex="-1" type="button" onclick="verringereVerbrauch(0.01); if (typeof umami !== 'undefined') { umami.track('decrease-fuel-0.01'); }">- 0.01</button>
-        <span style="margin: 0 4px;"></span> <!-- Abstand -->
+        <span style="margin: 0 4px;"></span>
         <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.01); if (typeof umami !== 'undefined') { umami.track('increase-fuel-0.01'); }">+ 0.01</button>
         <button class="small-button" tabindex="-1" type="button" onclick="erhoeheVerbrauch(0.05); if (typeof umami !== 'undefined') { umami.track('increase-fuel-0.05'); }">+ 0.05</button>
       </div>
     </div>
 
-    <!-- Rechter Container: Save/Clear-Buttons und Fuel Buffer -->
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <!-- Save Inputs Checkbox -->
       <div class="save-clear-container">
         <label class="checkbox-label">
           <input type="checkbox" tabindex="-1" id="saveInputsCheckbox">
           <span class="save-inputs-text">save inputs</span>
         </label>
       </div>
-    
-      <!-- Clear Button -->
       <div class="clear-button-container">
         <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
       </div>
-
-      <!-- Fuel Buffer Container -->
       <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
         <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:
-          <span class="info-icon" onclick="toggleTooltip(event)">ⓘ
+          <span class="info-icon" onclick="toggleTooltip(event)">&#9432;
             <span class="tooltip-text">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span>
           </span>
         </label>
-        <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0" 
+        <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0"
                style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px"
                onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
       </div>
-
+      <!-- Formation lap toggle -->
+      <div class="formation-lap-section">
+        <label style="font-size: 14px; display: block; margin-bottom: 4px;">formation lap?</label>
+        <div class="formation-lap-toggle-row">
+          <span id="formationNoLabel" class="toggle-labels active">no</span>
+          <label class="toggle-switch">
+            <input type="checkbox" id="formationLapToggle" onchange="onFormationLapChange()">
+            <span class="slider"></span>
+          </label>
+          <span id="formationYesLabel" class="toggle-labels">yes</span>
+        </div>
+      </div>
     </div>
   </div>
   <div style="height: 10px;"></div>
 </form>
 
 
-  <div id="sprintSection">
-<div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+<!-- SPRINT SECTION -->
+<div id="sprintSection">
+  <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
     <div style="display: flex; align-items: flex-end; gap: 20px;">
-        <h2 style="margin: 0;">timed race</h2>
-        <small id="hinweisText" style="display: none; position: relative; top: 3px;">
-            There may be an extra lap. Use fuel in brackets to be safe.
-        </small>
+      <h2 style="margin: 0;">timed race</h2>
+      <small id="hinweisText" style="display: none; position: relative; top: 3px;">
+        There may be an extra lap. Use fuel in brackets to be safe.
+      </small>
     </div>
-
-<span class="info-icon" onclick="toggleTooltip(event)" style="position: relative; top: 10px;">
-    ⓘ
-    <span class="tooltip-text2">
-        unrounded values &rarr; rounded values<br>
-        use rounded fuel values for liters,<br>
-        use unrounded fuel values for gallons
+    <span class="info-icon" onclick="toggleTooltip(event)" style="position: relative; top: 10px;">&#9432;
+      <span class="tooltip-text2">unrounded values &rarr; rounded values<br>use rounded fuel values for liters,<br>use unrounded fuel values for gallons</span>
     </span>
-</span>
-</div>
-    <div style="height: 10px;"></div>
-    
-  
-    <table id="timedRaceTable">
-      <tr>
-        <th>time</th>
-        <th></th>
-        <th>laps</th>
-        <th></th>
-        <th></th>
-        <th>fuel</th>
-        <th></th>
-      </tr>
-      <tr>
-        <td><input type="text" id="renndauer1" name="renndauer1" placeholder="in minutes"></td>
-        <td><span id="ergebnis1"></span></td>
-        <td>&rarr;</td>
-        <td><span id="aufgerundeteRunden1"></span></td>
-        <td><span id="unroundedFuel1"></span> <span id="unroundedFuel1-zusatz" class="unrounded-zusatz"></span></td>
-        <td>&rarr;</td> 
-        <td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis markiert"></span></td>
-      </tr>
-      <tr>
-        <td><input type="text" id="renndauer2" name="renndauer2" placeholder="in minutes"></td>
-        <td><span id="ergebnis2"></span></td>
-        <td>&rarr;</td>
-        <td><span id="aufgerundeteRunden2"></span></td>
-        <td><span id="unroundedFuel2"></span> <span id="unroundedFuel2-zusatz" class="unrounded-zusatz"></span></td>
-        <td>&rarr;</td> 
-        <td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis markiert"></span></td>
-      </tr>
-      <tr>
-        <td><input type="text" id="renndauer3" name="renndauer3" placeholder="in minutes"></td>
-        <td><span id="ergebnis3"></span></td>
-        <td>&rarr;</td>
-        <td><span id="aufgerundeteRunden3"></span></td>
-        <td><span id="unroundedFuel3"></span> <span id="unroundedFuel3-zusatz" class="unrounded-zusatz"></span></td> 
-        <td>&rarr;</td>
-        <td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis markiert"></span></td>
-      </tr>
-      <tr>
-        <td><input type="text" id="renndauer4" name="renndauer4" placeholder="in minutes"></td>
-        <td><span id="ergebnis4"></span></td>
-        <td>&rarr;</td>
-        <td><span id="aufgerundeteRunden4"></span></td>
-        <td><span id="unroundedFuel4"></span> <span id="unroundedFuel4-zusatz" class="unrounded-zusatz"></span></td> 
-        <td>&rarr;</td>
-        <td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis markiert"></span></td>
-      </tr>
-      <tr>
-        <td><input type="text" id="renndauer5" name="renndauer5" placeholder="in minutes"></td>
-        <td><span id="ergebnis5"></span></td>
-        <td>&rarr;</td>
-        <td><span id="aufgerundeteRunden5"></span></td>
-        <td><span id="unroundedFuel5"></span> <span id="unroundedFuel5-zusatz" class="unrounded-zusatz"></span></td> 
-        <td>&rarr;</td>
-        <td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis markiert"></span></td>
-      </tr>
-    </table>
-    
-    <button type="button" onclick="berechnen(); if (typeof umami !== 'undefined') { umami.track('calculate-sprint-time'); }">calculate</button>
-    
-    <br/>
-    <br/>
-    <br/>
-
-    <h2>fixed number of laps</h2>
-
-  <table id="fixedLapsTable">
-  <tr>
-    <th>laps</th>
-    <th></th>
-    <th>fuel</th>
-    <th></th>
-    <th>race time (hh:mm:ss)</th>
-    <th></th>
-    <th></th>
-  </tr>
-  <tr>
-    <td><input type="text" id="setLaps1" name="setLaps1" placeholder="laps"></td>
-    <td><span id="unroundedSetFuel1"></span></td>
-    <td>&rarr;</td> 
-    <td><span id="setFuel1" class="fuel-ergebnis"></span></td>
-    <td><span id="setRaceTime1"></span></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td><input type="text" id="setLaps2" name="setLaps2" placeholder="laps"></td>
-    <td><span id="unroundedSetFuel2"></span></td>
-    <td>&rarr;</td> 
-    <td><span id="setFuel2" class="fuel-ergebnis"></span></td>
-    <td><span id="setRaceTime2"></span></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td><input type="text" id="setLaps3" name="setLaps3" placeholder="laps"></td>
-    <td><span id="unroundedSetFuel3"></span></td>
-    <td>&rarr;</td> 
-    <td><span id="setFuel3" class="fuel-ergebnis"></span></td>
-    <td><span id="setRaceTime3"></span></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td><input type="text" id="setLaps4" name="setLaps4" placeholder="laps"></td>
-    <td><span id="unroundedSetFuel4"></span></td>
-    <td>&rarr;</td> 
-    <td><span id="setFuel4" class="fuel-ergebnis"></span></td>
-    <td><span id="setRaceTime4"></span></td>
-    <td></td>
-    <td></td>
-  </tr>
-  <tr>
-    <td><input type="text" id="setLaps5" name="setLaps5" placeholder="laps"></td>
-    <td><span id="unroundedSetFuel5"></span></td>
-    <td>&rarr;</td> 
-    <td><span id="setFuel5" class="fuel-ergebnis"></span></td>
-    <td><span id="setRaceTime5"></span></td>
-    <td></td>
-    <td></td>
-  </tr>
-</table>
-
-<button type="button" onclick="berechnen(); if (typeof umami !== 'undefined') { umami.track('calculate-sprint-laps'); }">calculate</button>
-</div>
-
-
-<div id="enduSection" style="display: none;">
-
-  <form>
-      <label for="maxFuelCapacity">max fuel capacity:</label>
-      <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="">
-      <br>
-      
-      <div style="height: 5px;"></div>
-      
-<div class="input-container">
-  <label for="raceLength">race length:</label><div style="margin-left: 29px; margin-right: 10px;"></div>
-  <div class="input-group">
-    <input type="text" id="raceLength" name="raceLength" placeholder="">
-    <select id="unit">
-      <option value="minutes">minutes</option>
-      <option value="laps">laps</option>
-    </select>
   </div>
-</div>
+  <div style="height: 10px;"></div>
 
-  <button type="button" onclick="calculatePitstopWindow(); if (typeof umami !== 'undefined') { umami.track('calculate-endurance'); }">calculate</button>
-    </form>
-
-<div style="height: 10px;"></div>
-  
-  
-<div class="tables-container">
-    
-<table id="resultsTable">
-  <tr>
-    <td>total race laps:</td>
-    <td><span id="totalLapsExact"></span></td>
-    <td>&rarr;</td>
-    <td><strong><span id="totalLapsRounded"></span></strong></td>
-  </tr>
-  <tr>
-    <td>total fuel required:</td>
-    <td><span id="totalFuelNeededExact"></span></td>
-    <td>&rarr;</td>
-    <td><strong><span id="totalFuelNeededRounded"></span></strong></td>
-  </tr>
-  <tr>
-    <td>total pitstops:</td>
-    <td><span id="totalPitstopsExact"></span></td>
-    <td>&rarr;</td>
-    <td><strong><span id="totalPitstopsRounded"></span></strong></td>
-  </tr>
-  <tr>
-    <td>max laps per tank:</td>
-    <td><span id="maxLapsPerTankExact"></span></td>
-    <td>&rarr;</td>
-    <td><strong><span id="maxLapsPerTankRounded"></span></strong></td>
-  </tr>
-  <tr>
-    <td>stint time (full tank):</td>
-    <td colspan="3" style="text-align: center;"><span id="stintTime"></span></td>
-  </tr>
-  <tr>
-    <td>total race time:</td>
-    <td colspan="3" style="text-align: center;"><span id="totalRaceTime"></span></td>
-  </tr>
-</table>
-  
-  
-    <!-- Tabelle für Pitstop Window und Nachttankmenge -->
-    <table id="pitstopWindowTable">
-      <tr>
-        <th>pitstop</th>
-        <th>pit window (laps)</th>
-        <th>fuel to add</th>
-      </tr>
-      <!-- Zeilen werden dynamisch hinzugefügt -->
-    </table>
-  </div>
-</div>
-    
-
-
-  </form>
-  
-  <div id="ergebnis"></div>
-
-  <script>
-
-    var zusatzFaktor = 0.3;
-    // Auto fängt bei 0.3 zum Stottern an
-    
-    
-    
-function erhoeheRundenzeit(step) {
-  var rundenzeitInput = document.getElementById('rundenzeit').value;
-  if (rundenzeitInput) {
-    var rundenzeit = umwandelnInSekunden(rundenzeitInput);
-    rundenzeit += step;
-    document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-    berechnen(); // Sprint-Bereich aktualisieren
-    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-    if (document.getElementById('saveInputsCheckbox').checked) {
-      saveInputs();
-    }
-  }
-}
-
-function verringereRundenzeit(step) {
-  var rundenzeitInput = document.getElementById('rundenzeit').value;
-  if (rundenzeitInput) {
-    var rundenzeit = umwandelnInSekunden(rundenzeitInput);
-    rundenzeit -= step;
-    document.getElementById('rundenzeit').value = formatiereRundenzeit(rundenzeit);
-    berechnen(); // Sprint-Bereich aktualisieren
-    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-    if (document.getElementById('saveInputsCheckbox').checked) {
-      saveInputs();
-    }
-  }
-}
-
-function erhoeheVerbrauch(step) {
-  var verbrauchInput = document.getElementById('verbrauch').value;
-  if (verbrauchInput) {
-    var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
-    verbrauch += step;
-    document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-    berechnen(); // Sprint-Bereich aktualisieren
-    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-    if (document.getElementById('saveInputsCheckbox').checked) {
-      saveInputs();
-    }
-  }
-}
-
-function verringereVerbrauch(step) {
-  var verbrauchInput = document.getElementById('verbrauch').value;
-  if (verbrauchInput) {
-    var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
-    verbrauch -= step;
-    document.getElementById('verbrauch').value = verbrauch.toFixed(2);
-    berechnen(); // Sprint-Bereich aktualisieren
-    calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-    if (document.getElementById('saveInputsCheckbox').checked) {
-      saveInputs();
-    }
-  }
-}
-
-
-function formatiereRundenzeit(rundenzeit) {
-  var minuten = Math.floor(rundenzeit / 60);
-  var sekunden = Math.floor(rundenzeit % 60);
-  var millisekunden = Math.round((rundenzeit % 1) * 1000);
-  return ('0' + minuten).slice(-2) + ':' + ('0' + sekunden).slice(-2) + '.' + ('00' + millisekunden).slice(-3);
-}
-    
-    
-function berechnen() {
-  var rundenzeitInput = document.getElementById('rundenzeit').value;
-  var rundenzeit = umwandelnInSekunden(rundenzeitInput);
-  
-  var verbrauchInput = document.getElementById('verbrauch').value;
-  var verbrauch = parseFloat(verbrauchInput.replace(',', '.')); // Komma durch Punkt ersetzen
-
-  // Überprüfung für jede Zeile der 'timed race' Tabelle
-  for (var i = 1; i <= 5; i++) {
-    var renndauer = parseFloat(document.getElementById('renndauer' + i).value);
-    var ergebnis = renndauer !== '' && !isNaN(renndauer) ? berechneErgebnis(renndauer, rundenzeit) : null;
-    var aufgerundeteRunden = ergebnis !== null ? Math.ceil(ergebnis) : null;
-    var unroundedFuel = aufgerundeteRunden !== null ? (aufgerundeteRunden * verbrauch) + zusatzFaktor : null;
-    var fuel = aufgerundeteRunden !== null ? Math.ceil(unroundedFuel) : null;
-    
-    document.getElementById('ergebnis' + i).textContent = ergebnis !== null ? ergebnis.toFixed(2) : '';
-    document.getElementById('aufgerundeteRunden' + i).textContent = aufgerundeteRunden !== null ? aufgerundeteRunden : '';
-    document.getElementById('unroundedFuel' + i).textContent = unroundedFuel !== null ? unroundedFuel.toFixed(2) : '';
-    document.getElementById('unroundedFuel' + i + '-zusatz').textContent = '';
-    document.getElementById('fuel' + i).textContent = fuel !== null ? fuel : '';
-    document.getElementById('fuel' + i + '-zusatz').textContent = '';
-
-    // Logik für zusätzliche Runden und Zusatzkraftstoff
-    if (aufgerundeteRunden !== null && (aufgerundeteRunden - ergebnis) < 0.1) {
-      var predictedLaps = aufgerundeteRunden + ' (' + (aufgerundeteRunden + 1) + ')';
-      document.getElementById('aufgerundeteRunden' + i).textContent = predictedLaps;
-      var fuelZusatz = '(' + Math.ceil(((aufgerundeteRunden + 1) * verbrauch) + zusatzFaktor) + ')';
-      document.getElementById('fuel' + i + '-zusatz').textContent = fuelZusatz;
-      var unroundedFuelZusatz = unroundedFuel + verbrauch; // unroundedFuel + Verbrauch
-      document.getElementById('unroundedFuel' + i + '-zusatz').textContent = '(' + unroundedFuelZusatz.toFixed(2) + ')';
-    }
-  }
-
-  // Überprüfung für jede Zeile der 'fixed amount of laps' Tabelle
-  for (var i = 1; i <= 5; i++) {
-    var setLaps = parseInt(document.getElementById('setLaps' + i).value);
-    var unroundedSetFuel = !isNaN(setLaps) ? (setLaps * verbrauch) + zusatzFaktor : null;
-    var setFuel = unroundedSetFuel !== null ? Math.ceil(unroundedSetFuel) : null;
-    
-    document.getElementById('unroundedSetFuel' + i).textContent = unroundedSetFuel !== null ? unroundedSetFuel.toFixed(2) : '';
-    document.getElementById('setFuel' + i).textContent = setFuel !== null ? setFuel : '';
-    document.getElementById('setRaceTime' + i).textContent = !isNaN(setLaps) ? berechneRacetime(setLaps, rundenzeit) : '';
-  }
-
-      einblendenBeiBedingung();
-
-  
-
-}
-    
-  function einblendenBeiBedingung() {
-  let hatKlammern = false;
-  for (let i = 1; i <= 5; i++) {
-    const klammerElement = document.getElementById('fuel' + i + '-zusatz');
-    // Prüfe, ob die Klammer-Zelle nicht leer ist
-    if (klammerElement.textContent.trim() !== '') {
-      hatKlammern = true;
-      break; // Eine Zeile reicht, um den Hinweis anzuzeigen
-    }
-  }
-  document.getElementById('hinweisText').style.display = hatKlammern ? 'block' : 'none';
-}
-
-
-
-// Neue Funktion zur Berechnung des Pitstop Windows
-function calculatePitstopWindow() {
-  // Eingaben auslesen und validieren
-  const maxFuelCapacityInput = document.getElementById('maxFuelCapacity');
-  const raceLengthInput = document.getElementById('raceLength');
-  const rundenzeitInput = document.getElementById('rundenzeit');
-  const verbrauchInput = document.getElementById('verbrauch');
-  const unitSelect = document.getElementById('unit');
-
-  const maxFuelCapacity = validateAndParseInput(maxFuelCapacityInput);
-  const raceLength = validateAndParseInput(raceLengthInput);
-  const rundenzeit = umwandelnInSekunden(rundenzeitInput.value);
-  const verbrauch = parseFloat(verbrauchInput.value.replace(',', '.')); // Komma durch Punkt ersetzen
-
-  // Überprüfen, ob die Eingaben gültig sind
-  if (maxFuelCapacity === null || raceLength === null || rundenzeit === null || verbrauch === null) {
-    console.log('invalid inputs');
-    return; // Beende die Funktion, wenn die Eingaben ungültig sind
-  }
-
-  // Rennlänge in Minuten oder Runden umrechnen
-  let enduranceDuration, totalLaps;
-  if (unitSelect.value === 'minutes') {
-    enduranceDuration = raceLength;
-    totalLaps = (enduranceDuration * 60) / rundenzeit;
-  } else {
-    totalLaps = raceLength;
-    enduranceDuration = (totalLaps * rundenzeit) / 60;
-  }
-
-  // Gesamte Runden berechnen
-  const totalLapsExact = totalLaps;
-  const totalLapsRounded = Math.ceil(totalLapsExact);
-
-  // Maximale Runden pro Tank berechnen
-  const maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
-  const maxLapsPerTank = Math.floor(maxLapsPerTankExact)
-
-  // Anzahl der benötigten Pitstops berechnen
-  const totalPitstopsExact = (totalLapsRounded / maxLapsPerTank) - 1; // Exakte Anzahl
-  const totalPitstops = Math.ceil(totalLapsRounded / maxLapsPerTank) - 1; // Gerundete Anzahl
-
-  // Gesamte Kraftstoffmenge berechnen
-  const totalFuelNeeded = (totalLapsRounded * verbrauch) + zusatzFaktor;
-  
-  // Gesamte Rennzeit berechnen
-  const totalRaceTimeSeconds = totalLapsRounded * rundenzeit;
-  const totalRaceTimeFormatted = formatRaceTime(totalRaceTimeSeconds);
-
-  // Ergebnisse in die Tabelle eintragen
-  document.getElementById('totalLapsExact').textContent = totalLapsExact.toFixed(2);
-  document.getElementById('totalLapsRounded').textContent = totalLapsRounded;
-
-  document.getElementById('totalFuelNeededExact').textContent = totalFuelNeeded.toFixed(2);
-  document.getElementById('totalFuelNeededRounded').textContent = Math.ceil(totalFuelNeeded);
-
-  document.getElementById('totalPitstopsExact').textContent = totalPitstopsExact.toFixed(2);
-  document.getElementById('totalPitstopsRounded').textContent = totalPitstops;
-
-  document.getElementById('maxLapsPerTankExact').textContent = maxLapsPerTankExact.toFixed(2);
-  document.getElementById('maxLapsPerTankRounded').textContent = maxLapsPerTank;
-  
-  // Stint-Time Berechnung
-  const stintTimeSeconds = maxLapsPerTank * rundenzeit;
-  const stintTimeFormatted = formatRaceTime(stintTimeSeconds);
-  document.getElementById('stintTime').textContent = stintTimeFormatted;
-    
-  document.getElementById('totalRaceTime').textContent = totalRaceTimeFormatted;
-
-  // Tabelle für Pitstop Window und Nachtankmenge aktualisieren
-  const pitstopTable = document.getElementById('pitstopWindowTable');
-  pitstopTable.innerHTML = `
+  <table id="timedRaceTable">
+    <tr><th>time</th><th></th><th>laps</th><th></th><th></th><th>fuel</th><th></th></tr>
     <tr>
-      <th>pitstop</th>
-      <th>pit window (laps)</th>
-      <th>fuel to add</th>
+      <td><input type="text" id="renndauer1" name="renndauer1" placeholder="in minutes"></td>
+      <td><span id="ergebnis1"></span></td><td>&rarr;</td><td><span id="aufgerundeteRunden1"></span></td>
+      <td><span id="unroundedFuel1"></span> <span id="unroundedFuel1-zusatz" class="unrounded-zusatz"></span></td>
+      <td>&rarr;</td><td><span id="fuel1" class="fuel-ergebnis"></span> <span id="fuel1-zusatz" class="fuel-ergebnis markiert"></span></td>
     </tr>
-  `;
+    <tr>
+      <td><input type="text" id="renndauer2" name="renndauer2" placeholder="in minutes"></td>
+      <td><span id="ergebnis2"></span></td><td>&rarr;</td><td><span id="aufgerundeteRunden2"></span></td>
+      <td><span id="unroundedFuel2"></span> <span id="unroundedFuel2-zusatz" class="unrounded-zusatz"></span></td>
+      <td>&rarr;</td><td><span id="fuel2" class="fuel-ergebnis"></span> <span id="fuel2-zusatz" class="fuel-ergebnis markiert"></span></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="renndauer3" name="renndauer3" placeholder="in minutes"></td>
+      <td><span id="ergebnis3"></span></td><td>&rarr;</td><td><span id="aufgerundeteRunden3"></span></td>
+      <td><span id="unroundedFuel3"></span> <span id="unroundedFuel3-zusatz" class="unrounded-zusatz"></span></td>
+      <td>&rarr;</td><td><span id="fuel3" class="fuel-ergebnis"></span> <span id="fuel3-zusatz" class="fuel-ergebnis markiert"></span></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="renndauer4" name="renndauer4" placeholder="in minutes"></td>
+      <td><span id="ergebnis4"></span></td><td>&rarr;</td><td><span id="aufgerundeteRunden4"></span></td>
+      <td><span id="unroundedFuel4"></span> <span id="unroundedFuel4-zusatz" class="unrounded-zusatz"></span></td>
+      <td>&rarr;</td><td><span id="fuel4" class="fuel-ergebnis"></span> <span id="fuel4-zusatz" class="fuel-ergebnis markiert"></span></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="renndauer5" name="renndauer5" placeholder="in minutes"></td>
+      <td><span id="ergebnis5"></span></td><td>&rarr;</td><td><span id="aufgerundeteRunden5"></span></td>
+      <td><span id="unroundedFuel5"></span> <span id="unroundedFuel5-zusatz" class="unrounded-zusatz"></span></td>
+      <td>&rarr;</td><td><span id="fuel5" class="fuel-ergebnis"></span> <span id="fuel5-zusatz" class="fuel-ergebnis markiert"></span></td>
+    </tr>
+  </table>
+  <button type="button" onclick="berechnen(); if (typeof umami !== 'undefined') { umami.track('calculate-sprint-time'); }">calculate</button>
+  <br/><br/><br/>
 
-  // Berechnungen für jeden Pitstop
-  let fuelToAddValues = []; // Array, um die "Fuel to Add"-Werte zu speichern
-  for (let i = 1; i <= totalPitstops; i++) {
-    let earlyPitWindow, latePitWindow, fuelToAdd;
+  <h2>fixed number of laps</h2>
+  <table id="fixedLapsTable">
+    <tr><th>laps</th><th></th><th>fuel</th><th></th><th>race time (hh:mm:ss)</th><th></th><th></th></tr>
+    <tr>
+      <td><input type="text" id="setLaps1" name="setLaps1" placeholder="laps"></td>
+      <td><span id="unroundedSetFuel1"></span></td><td>&rarr;</td>
+      <td><span id="setFuel1" class="fuel-ergebnis"></span></td><td><span id="setRaceTime1"></span></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="setLaps2" name="setLaps2" placeholder="laps"></td>
+      <td><span id="unroundedSetFuel2"></span></td><td>&rarr;</td>
+      <td><span id="setFuel2" class="fuel-ergebnis"></span></td><td><span id="setRaceTime2"></span></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="setLaps3" name="setLaps3" placeholder="laps"></td>
+      <td><span id="unroundedSetFuel3"></span></td><td>&rarr;</td>
+      <td><span id="setFuel3" class="fuel-ergebnis"></span></td><td><span id="setRaceTime3"></span></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="setLaps4" name="setLaps4" placeholder="laps"></td>
+      <td><span id="unroundedSetFuel4"></span></td><td>&rarr;</td>
+      <td><span id="setFuel4" class="fuel-ergebnis"></span></td><td><span id="setRaceTime4"></span></td><td></td><td></td>
+    </tr>
+    <tr>
+      <td><input type="text" id="setLaps5" name="setLaps5" placeholder="laps"></td>
+      <td><span id="unroundedSetFuel5"></span></td><td>&rarr;</td>
+      <td><span id="setFuel5" class="fuel-ergebnis"></span></td><td><span id="setRaceTime5"></span></td><td></td><td></td>
+    </tr>
+  </table>
+  <button type="button" onclick="berechnen(); if (typeof umami !== 'undefined') { umami.track('calculate-sprint-laps'); }">calculate</button>
+</div>
 
-    if (totalPitstops === 1) {
-      // Formeln für einen Pitstop
-      earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
-      latePitWindow = maxLapsPerTank;
 
-      const fuelAmountAfterPitstop = (earlyPitWindow * verbrauch) + zusatzFaktor;
-      fuelToAdd = fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow));
-    } else {
-      // Formeln für mehrere Pitstops
-      if (i === 1) {
-        // Erster Pitstop
-        earlyPitWindow = totalLapsRounded - (maxLapsPerTank * totalPitstops);
-        latePitWindow = maxLapsPerTank;
+<!-- ENDU SECTION -->
+<div id="enduSection" style="display: none;">
+  <form>
+    <label for="maxFuelCapacity">max fuel capacity:</label>
+    <input type="text" id="maxFuelCapacity" name="maxFuelCapacity" placeholder="">
+    <br><div style="height: 5px;"></div>
+    <div class="input-container">
+      <label for="raceLength">race length:</label>
+      <div style="margin-left: 29px; margin-right: 10px;"></div>
+      <div class="input-group">
+        <input type="text" id="raceLength" name="raceLength" placeholder="">
+        <select id="unit">
+          <option value="minutes">minutes</option>
+          <option value="laps">laps</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" onclick="calculatePitstopWindow(); if (typeof umami !== 'undefined') { umami.track('calculate-endurance'); }">calculate</button>
+  </form>
+  <div style="height: 10px;"></div>
 
-        const fuelAmountAfterPitstop = (earlyPitWindow * verbrauch) + zusatzFaktor;
-        fuelToAdd = fuelAmountAfterPitstop - (maxFuelCapacity - (verbrauch * latePitWindow));
-      } else {
-        // Weitere Pitstops
-        earlyPitWindow = (totalLapsRounded - (maxLapsPerTank * totalPitstops)) + (maxLapsPerTank * (i - 1));
-        latePitWindow = maxLapsPerTank + (maxLapsPerTank * (i - 1));
-        fuelToAdd = maxFuelCapacity; // Volle Tankfüllung für weitere Pitstops
+  <div class="tables-container">
+    <table id="resultsTable">
+      <tr><td>total race laps:</td><td><span id="totalLapsExact"></span></td><td>&rarr;</td><td><strong><span id="totalLapsRounded"></span></strong></td></tr>
+      <tr><td>total fuel required:</td><td><span id="totalFuelNeededExact"></span></td><td>&rarr;</td><td><strong><span id="totalFuelNeededRounded"></span></strong></td></tr>
+      <tr><td>total pitstops:</td><td><span id="totalPitstopsExact"></span></td><td>&rarr;</td><td><strong><span id="totalPitstopsRounded"></span></strong></td></tr>
+      <tr><td>max laps per tank:</td><td><span id="maxLapsPerTankExact"></span></td><td>&rarr;</td><td><strong><span id="maxLapsPerTankRounded"></span></strong></td></tr>
+      <tr><td>stint time (full tank):</td><td colspan="3" style="text-align:center;"><span id="stintTime"></span></td></tr>
+      <tr id="equalStintTimeRow" style="display:none;"><td>stint time (equal stints):</td><td colspan="3" style="text-align:center;"><span id="equalStintTime"></span></td></tr>
+      <tr><td>total race time:</td><td colspan="3" style="text-align:center;"><span id="totalRaceTime"></span></td></tr>
+    </table>
+
+    <!-- Pitstop panel: toggle + table, sized to content -->
+    <div class="pitstop-panel">
+      <div class="pitstop-mode-toggle" id="pitstopModeToggleContainer" style="display: none;">
+        <span id="standardLabel" class="toggle-labels active">standard</span>
+        <label class="toggle-switch">
+          <input type="checkbox" id="pitstopModeToggle" onchange="togglePitstopMode()">
+          <span class="slider"></span>
+        </label>
+        <span id="equalStintsLabel" class="toggle-labels">equal stints</span>
+      </div>
+      <table id="pitstopWindowTable">
+        <tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div id="ergebnis"></div>
+
+<script>
+  var zusatzFaktor = 0.3;
+  var FORMATION_LAP_COEFF = 0.6;
+
+  function getFormationFuel(verbrauch) {
+    return document.getElementById('formationLapToggle').checked ? verbrauch * FORMATION_LAP_COEFF : 0;
+  }
+
+  function onFormationLapChange() {
+    var tog = document.getElementById('formationLapToggle');
+    document.getElementById('formationNoLabel').classList.toggle('active', !tog.checked);
+    document.getElementById('formationYesLabel').classList.toggle('active', tog.checked);
+    if (typeof umami !== 'undefined') umami.track(tog.checked ? 'formation-lap-on' : 'formation-lap-off');
+    berechnen();
+    calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+
+  function erhoeheRundenzeit(step) {
+    var v = document.getElementById('rundenzeit').value;
+    if (!v) return;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(umwandelnInSekunden(v) + step);
+    berechnen(); calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+  function verringereRundenzeit(step) {
+    var v = document.getElementById('rundenzeit').value;
+    if (!v) return;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(umwandelnInSekunden(v) - step);
+    berechnen(); calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+  function erhoeheVerbrauch(step) {
+    var v = document.getElementById('verbrauch').value;
+    if (!v) return;
+    document.getElementById('verbrauch').value = (parseFloat(v.replace(',','.')) + step).toFixed(2);
+    berechnen(); calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+  function verringereVerbrauch(step) {
+    var v = document.getElementById('verbrauch').value;
+    if (!v) return;
+    document.getElementById('verbrauch').value = (parseFloat(v.replace(',','.')) - step).toFixed(2);
+    berechnen(); calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+
+  function formatiereRundenzeit(rz) {
+    var m = Math.floor(rz/60), s = Math.floor(rz%60), ms = Math.round((rz%1)*1000);
+    return ('0'+m).slice(-2)+':'+('0'+s).slice(-2)+'.'+('00'+ms).slice(-3);
+  }
+
+  function berechnen() {
+    var rzInput = document.getElementById('rundenzeit').value;
+    var rundenzeit = umwandelnInSekunden(rzInput);
+    var verbrauch = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
+    var formationFuel = getFormationFuel(verbrauch);
+
+    for (var i = 1; i <= 5; i++) {
+      var renndauer = parseFloat(document.getElementById('renndauer'+i).value);
+      var ergebnis = (!isNaN(renndauer) && renndauer !== '') ? renndauer * 60 / rundenzeit : null;
+      var aufRunden = ergebnis !== null ? Math.ceil(ergebnis) : null;
+      var unrFuel = aufRunden !== null ? (aufRunden * verbrauch) + zusatzFaktor + formationFuel : null;
+      var fuel = unrFuel !== null ? Math.ceil(unrFuel) : null;
+
+      document.getElementById('ergebnis'+i).textContent = ergebnis !== null ? ergebnis.toFixed(2) : '';
+      document.getElementById('aufgerundeteRunden'+i).textContent = aufRunden !== null ? aufRunden : '';
+      document.getElementById('unroundedFuel'+i).textContent = unrFuel !== null ? unrFuel.toFixed(2) : '';
+      document.getElementById('unroundedFuel'+i+'-zusatz').textContent = '';
+      document.getElementById('fuel'+i).textContent = fuel !== null ? fuel : '';
+      document.getElementById('fuel'+i+'-zusatz').textContent = '';
+
+      if (aufRunden !== null && (aufRunden - ergebnis) < 0.1) {
+        document.getElementById('aufgerundeteRunden'+i).textContent = aufRunden + ' (' + (aufRunden+1) + ')';
+        var unrExtra = ((aufRunden+1) * verbrauch) + zusatzFaktor + formationFuel;
+        document.getElementById('unroundedFuel'+i+'-zusatz').textContent = '(' + unrExtra.toFixed(2) + ')';
+        document.getElementById('fuel'+i+'-zusatz').textContent = '(' + Math.ceil(unrExtra) + ')';
       }
     }
 
-    // Speichern der Fuel-Werte im Array
-    fuelToAddValues.push(fuelToAdd);
+    for (var i = 1; i <= 5; i++) {
+      var setLaps = parseInt(document.getElementById('setLaps'+i).value);
+      var unrSetFuel = !isNaN(setLaps) ? (setLaps * verbrauch) + zusatzFaktor + formationFuel : null;
+      document.getElementById('unroundedSetFuel'+i).textContent = unrSetFuel !== null ? unrSetFuel.toFixed(2) : '';
+      document.getElementById('setFuel'+i).textContent = unrSetFuel !== null ? Math.ceil(unrSetFuel) : '';
+      document.getElementById('setRaceTime'+i).textContent = !isNaN(setLaps) ? berechneRacetime(setLaps, rundenzeit) : '';
+    }
 
-    // Überprüfen, ob die "Fuel to Add"-Werte "full" oder ein numerischer Wert sein sollen
-    let fuelToAddDisplay = (fuelToAdd === maxFuelCapacity) ? "full" : fuelToAdd.toFixed(2);
-
-    // Zeile zur Tabelle hinzufügen
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${i}</td>
-      <td>${earlyPitWindow} - ${latePitWindow}</td>
-      <td>${fuelToAdd.toFixed(2)}</td>
-    `;
-    pitstopTable.appendChild(row);
+    einblendenBeiBedingung();
   }
 
-  // Hier wird die Reihenfolge der "Fuel to Add"-Werte umgekehrt
-const reversedFuelToAddValues = fuelToAddValues.reverse();
-
-// Die Fuel-Werte für die Tabelle anpassen
-const rows = pitstopTable.querySelectorAll('tr');
-for (let i = 1; i <= totalPitstops; i++) {
-  let fuelToAddDisplay = (reversedFuelToAddValues[i - 1] === maxFuelCapacity) ? "full" : reversedFuelToAddValues[i - 1].toFixed(2);
-  rows[i].cells[2].innerText = fuelToAddDisplay;
-}
-
-}
-
-    
-function toggleMode() {
-  var modeToggle = document.getElementById('modeToggle');
-  var sprintSection = document.getElementById('sprintSection');
-  var enduSection = document.getElementById('enduSection');
-  var sprintLabel = document.getElementById('sprintLabel');
-  var enduLabel = document.getElementById('enduLabel');
-
-  if (modeToggle.checked) {
-    sprintSection.style.display = 'none';
-    enduSection.style.display = 'block';
-    sprintLabel.classList.remove('active');
-    enduLabel.classList.add('active');
-  } else {
-    sprintSection.style.display = 'block';
-    enduSection.style.display = 'none';
-    sprintLabel.classList.add('active');
-    enduLabel.classList.remove('active');
-  }
-}
-    
-    
-    function umwandelnInSekunden(rundenzeitInput) {
-      var parts = rundenzeitInput.split(':');
-      var minuten = parseInt(parts[0]);
-      var sekundenMillisekunden = parts[1].split('.');
-      var sekunden = parseInt(sekundenMillisekunden[0]);
-      var millisekunden = parseInt(sekundenMillisekunden[1]);
-      return minuten * 60 + sekunden + millisekunden / 1000;
-    }
-    
-    function berechneErgebnis(renndauer, rundenzeit) {
-      return renndauer * 60 / rundenzeit;
-    }
-    
-    function berechneRacetime(setLaps, rundenzeit) {
-      var racetimeInSeconds = setLaps * rundenzeit;
-      var hours = Math.floor(racetimeInSeconds / 3600);
-      var minutes = Math.floor((racetimeInSeconds % 3600) / 60);
-      var seconds = Math.floor(racetimeInSeconds % 60);
-      return ('0' + hours).slice(-2) + ':' + ('0' + minutes).slice(-2) + ':' + ('0' + seconds).slice(-2);
-    }
-
-    function markiereRunden() {
-      var aufgerundeteRunden1 = parseFloat(document.getElementById('aufgerundeteRunden1').textContent);
-      var aufgerundeteRunden2 = parseFloat(document.getElementById('aufgerundeteRunden2').textContent);
-      var aufgerundeteRunden3 = parseFloat(document.getElementById('aufgerundeteRunden3').textContent);
-      var aufgerundeteRunden4 = parseFloat(document.getElementById('aufgerundeteRunden4').textContent);
-      var aufgerundeteRunden5 = parseFloat(document.getElementById('aufgerundeteRunden5').textContent);
-      
-      var runden1 = parseFloat(document.getElementById('ergebnis1').textContent);
-      var runden2 = parseFloat(document.getElementById('ergebnis2').textContent);
-      var runden3 = parseFloat(document.getElementById('ergebnis3').textContent);
-      var runden4 = parseFloat(document.getElementById('ergebnis4').textContent);
-      var runden5 = parseFloat(document.getElementById('ergebnis5').textContent);
-      
-    }
-
-  
- function validateAndParseInput(input) {
-  // Ersetze Kommas durch Punkte, falls vorhanden
-  const value = input.value.replace(',', '.');
-
-  // Überprüfe, ob der Wert eine gültige Zahl ist
-  if (isNaN(value) || value === '') {
-  //  alert('please enter a valid number');
-    input.value = ''; // Leere das Feld, wenn die Eingabe ungültig ist
-    return null; // Rückgabe von null, um anzuzeigen, dass die Eingabe ungültig ist
+  function einblendenBeiBedingung() {
+    var hat = false;
+    for (var i = 1; i <= 5; i++) if (document.getElementById('fuel'+i+'-zusatz').textContent.trim() !== '') { hat = true; break; }
+    document.getElementById('hinweisText').style.display = hat ? 'block' : 'none';
   }
 
-  // Konvertiere den Wert in eine Zahl
-  return parseFloat(value);
-}
+  function togglePitstopMode() {
+    var tog = document.getElementById('pitstopModeToggle');
+    document.getElementById('standardLabel').classList.toggle('active', !tog.checked);
+    document.getElementById('equalStintsLabel').classList.toggle('active', tog.checked);
+    if (typeof umami !== 'undefined') umami.track(tog.checked ? 'switch-to-equal-stints' : 'switch-to-standard');
+    calculatePitstopWindow();
+  }
 
-function formatRaceTime(seconds) {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-}
-  
-  
-  
+  function calculatePitstopWindow() {
+    var maxFuelCapacity = validateAndParseInput(document.getElementById('maxFuelCapacity'));
+    var raceLength      = validateAndParseInput(document.getElementById('raceLength'));
+    var verbrauch       = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
+    var formationFuel   = getFormationFuel(verbrauch);
+    var unit            = document.getElementById('unit').value;
+
+    if (maxFuelCapacity === null || raceLength === null || isNaN(verbrauch)) return;
+
+    // Parse laptime — always attempt it so stint/race time work regardless of unit
+    var rundenzeit = NaN;
+    try { rundenzeit = umwandelnInSekunden(document.getElementById('rundenzeit').value); } catch(e) {}
+
+    var totalLaps;
+    if (unit === 'minutes') {
+      if (isNaN(rundenzeit)) return; // laptime required for minute-based races
+      totalLaps = (raceLength * 60) / rundenzeit;
+    } else {
+      totalLaps = raceLength;
+    }
+
+    var totalLapsRounded    = Math.ceil(totalLaps);
+    var maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
+    var maxLapsPerTank      = Math.floor(maxLapsPerTankExact);
+
+    // First stint is shorter when formation lap is active (formation fuel consumed before lap 1).
+    // Subsequent stints always start from a full tank, so maxLapsPerTank stays the same.
+    var firstStintMaxLaps   = Math.floor((maxFuelCapacity - formationFuel - zusatzFaktor) / verbrauch);
+
+    // Unified pitstop formula: how many full stints needed after the (shorter) first stint?
+    // Works for both formation=on and off (when off, firstStintMaxLaps === maxLapsPerTank).
+    var totalPitstopsExact  = totalLapsRounded <= firstStintMaxLaps ? 0
+                              : (totalLapsRounded - firstStintMaxLaps) / maxLapsPerTank;
+    var totalPitstops       = totalLapsRounded <= firstStintMaxLaps ? 0
+                              : Math.ceil(totalPitstopsExact);
+    var totalFuelNeeded     = (totalLapsRounded * verbrauch) + zusatzFaktor + formationFuel;
+
+    document.getElementById('totalLapsExact').textContent         = totalLaps.toFixed(2);
+    document.getElementById('totalLapsRounded').textContent       = totalLapsRounded;
+    document.getElementById('totalFuelNeededExact').textContent   = totalFuelNeeded.toFixed(2);
+    document.getElementById('totalFuelNeededRounded').textContent = Math.ceil(totalFuelNeeded);
+    document.getElementById('totalPitstopsExact').textContent     = totalPitstopsExact.toFixed(2);
+    document.getElementById('totalPitstopsRounded').textContent   = totalPitstops;
+    document.getElementById('maxLapsPerTankExact').textContent    = maxLapsPerTankExact.toFixed(2);
+    document.getElementById('maxLapsPerTankRounded').textContent  = maxLapsPerTank;
+    // Stint/race time only shown when laptime is available
+    document.getElementById('stintTime').textContent     = !isNaN(rundenzeit) ? formatRaceTime(maxLapsPerTank * rundenzeit) : '';
+    document.getElementById('totalRaceTime').textContent = !isNaN(rundenzeit) ? formatRaceTime(totalLapsRounded * rundenzeit) : '';
+
+    var toggleContainer = document.getElementById('pitstopModeToggleContainer');
+    toggleContainer.style.display = (totalPitstops > 1) ? 'flex' : 'none';
+
+    var pitstopModeToggle = document.getElementById('pitstopModeToggle');
+    if (totalPitstops <= 1) {
+      pitstopModeToggle.checked = false;
+      document.getElementById('standardLabel').classList.add('active');
+      document.getElementById('equalStintsLabel').classList.remove('active');
+    }
+
+    var isEqualMode = pitstopModeToggle.checked && totalPitstops > 1;
+    if (isEqualMode) renderEqualStints(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel);
+    else             renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel);
+
+    // Equal stints time row: average stint duration, visible only in equal stints mode
+    var equalStintTimeRow = document.getElementById('equalStintTimeRow');
+    if (isEqualMode && !isNaN(rundenzeit)) {
+      var avgStintLaps = totalLapsRounded / (totalPitstops + 1);
+      document.getElementById('equalStintTime').textContent = formatRaceTime(avgStintLaps * rundenzeit);
+      equalStintTimeRow.style.display = '';
+    } else {
+      document.getElementById('equalStintTime').textContent = '';
+      equalStintTimeRow.style.display = 'none';
+    }
+  }
+
+  function renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
+    var t = document.getElementById('pitstopWindowTable');
+    t.innerHTML = '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
+    // late_i  = latest lap to pit for stop i (drive as long as fuel allows)
+    //         = firstStintMaxLaps + (i-1)*maxLapsPerTank
+    //   Pit 1: firstStintMaxLaps  (shorter if formation lap active, else = maxLapsPerTank)
+    //   Pit 2: firstStintMaxLaps + maxLapsPerTank, etc.
+    // early_i = earliest lap to pit for stop i (so remaining stints can still cover the race)
+    //         = totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank
+    for (var i = 1; i <= totalPitstops; i++) {
+      var late  = firstStintMaxLaps + (i - 1) * maxLapsPerTank;
+      var early = Math.max(1, totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank);
+      var remainingFuel;
+      if (i === 1) {
+        // Started with full tank, burned firstStintMaxLaps laps + formation fuel
+        remainingFuel = maxFuelCapacity - (late * verbrauch) - formationFuel;
+      } else {
+        // Previous pit filled to full; drove exactly maxLapsPerTank laps since
+        remainingFuel = maxFuelCapacity - (maxLapsPerTank * verbrauch);
+      }
+      var lapsLeft  = totalLapsRounded - late;
+      var fuelNeeded = (lapsLeft * verbrauch) + zusatzFaktor;
+      // Formation fuel was already burned at race start — do NOT add it here again.
+      // The shorter first stint (firstStintMaxLaps vs maxLapsPerTank) already accounts for it.
+      var fuelToAdd = fuelNeeded - remainingFuel;
+      if (fuelToAdd < 0) fuelToAdd = 0;
+      var display = (fuelToAdd >= maxFuelCapacity) ? 'full' : fuelToAdd.toFixed(2);
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>'+i+'</td><td>'+early+' - '+late+'</td><td>'+display+'</td>';
+      t.appendChild(row);
+    }
+  }
+
+  function renderEqualStints(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel) {
+    var numStints = totalPitstops + 1;
+    var pitLaps = [];
+    for (var i = 1; i <= totalPitstops; i++) {
+      pitLaps.push(Math.round(totalLapsRounded * i / numStints));
+    }
+    var stintLengths = [];
+    for (var i = 0; i < numStints; i++) {
+      var start = (i === 0) ? 0 : pitLaps[i-1];
+      var end   = (i < totalPitstops) ? pitLaps[i] : totalLapsRounded;
+      stintLengths.push(end - start);
+    }
+
+    // Calculate total fuel that needs to be added across all pit stops:
+    // = total fuel needed for whole race - fuel already in tank at start
+    // = (totalLaps * verbrauch + formationFuel + zusatzFaktor) - maxFuelCapacity
+    var totalFuelNeeded = (totalLapsRounded * verbrauch) + formationFuel + zusatzFaktor;
+    var totalFuelToAdd  = totalFuelNeeded - maxFuelCapacity;
+    if (totalFuelToAdd < 0) totalFuelToAdd = 0;
+    var fuelPerStop = totalFuelToAdd / totalPitstops;
+
+    var t = document.getElementById('pitstopWindowTable');
+    t.innerHTML = '<tr><th>pitstop</th><th>pit on lap</th><th>fuel to add</th></tr>';
+    for (var i = 0; i < totalPitstops; i++) {
+      var display = (fuelPerStop >= maxFuelCapacity) ? 'full' : fuelPerStop.toFixed(2);
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>'+(i+1)+'</td><td>'+pitLaps[i]+'</td><td>'+display+'</td>';
+      t.appendChild(row);
+    }
+  }
+
+  function toggleMode() {
+    var tog = document.getElementById('modeToggle');
+    document.getElementById('sprintSection').style.display = tog.checked ? 'none' : 'block';
+    document.getElementById('enduSection').style.display   = tog.checked ? 'block' : 'none';
+    document.getElementById('sprintLabel').classList.toggle('active', !tog.checked);
+    document.getElementById('enduLabel').classList.toggle('active', tog.checked);
+  }
+
+  function umwandelnInSekunden(s) {
+    var parts = s.split(':');
+    var sp2 = parts[1].split('.');
+    return parseInt(parts[0])*60 + parseInt(sp2[0]) + parseInt(sp2[1])/1000;
+  }
+  function berechneRacetime(laps, rz) {
+    var t = laps*rz, h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = Math.floor(t%60);
+    return ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
+  }
+  function formatRaceTime(s) {
+    var h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
+    return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+  }
+  function validateAndParseInput(input) {
+    var v = input.value.replace(',','.');
+    if (isNaN(v) || v === '') { input.value = ''; return null; }
+    return parseFloat(v);
+  }
+
   function toggleDarkMode() {
-  var isDarkMode = document.body.classList.toggle('dark-mode');
-  localStorage.setItem('darkMode', isDarkMode ? 'true' : 'false');
-
-    // Umami-Event
-    if (typeof umami !== 'undefined') {
-    umami.track('toggle-dark-mode');
+    var isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark ? 'true' : 'false');
+    if (typeof umami !== 'undefined') umami.track('toggle-dark-mode');
+    document.getElementById('darkModeIcon').src = isDark ? './docs/assets/dn_w.png' : './docs/assets/dn.png';
+    document.getElementById('twitchIcon').src   = isDark ? './docs/assets/twitch_dark.png' : './docs/assets/twitch.png';
   }
 
-  // Bildwechsel für Dark Mode
-  var darkModeIcon = document.getElementById('darkModeIcon');
-  if (isDarkMode) {
-    darkModeIcon.src = "./docs/assets/dn_w.png"; // Pfad zum alternativen Bild im Dark Mode
-  } else {
-    darkModeIcon.src = "./docs/assets/dn.png"; // Pfad zum ursprünglichen Bild
+  function saveInputs() {
+    document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
+      localStorage.setItem(el.id, el.value);
+    });
+    localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
+    localStorage.setItem('formationLapToggle', document.getElementById('formationLapToggle').checked);
   }
-
-  // Bildwechsel für Twitch-Symbol
-  var twitchIcon = document.getElementById('twitchIcon');
-  if (isDarkMode) {
-    twitchIcon.src = "./docs/assets/twitch_dark.png"; // Pfad zum alternativen Bild im Dark Mode
-  } else {
-    twitchIcon.src = "./docs/assets/twitch.png"; // Pfad zum ursprünglichen Bild
-  }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-  var isDarkMode = localStorage.getItem('darkMode') === 'true';
-  var modeToggle = document.getElementById('modeToggle');
-  var sprintLabel = document.getElementById('sprintLabel');
-  var enduLabel = document.getElementById('enduLabel');
- 
-    if (isDarkMode) {
-    document.body.classList.add('dark-mode');
-    document.getElementById('darkModeIcon').src = "./docs/assets/dn_w.png"; // Bild setzen, wenn Dark Mode aktiviert ist
-    document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png"; // Bild setzen, wenn Dark Mode aktiviert ist
-  }
-
-    // Initiale Label-Färbung
-    if (modeToggle.checked) {
-    enduLabel.classList.add('active');
-  } else {
-    sprintLabel.classList.add('active');
-  }
-
-});
-
-// Event-Listener für Änderungen im Fuel Buffer Eingabefeld
-document.getElementById('fuelBuffer').addEventListener('input', function() {
-  // Validierung und Formatierung
-  let value = parseFloat(this.value.replace(',', '.')) || 0;
-  value = Math.max(0, value); // Verhindert negative Werte
-//  this.value = value.toFixed(1); // Erzwingt eine Dezimalstelle
-
-  // Aktualisierung der Variable und Berechnungen
-  zusatzFaktor = value;
-  berechnen(); // Sprint-Bereich aktualisieren
-  calculatePitstopWindow(); // Endurance-Bereich aktualisieren
-});
-
-
-// Funktion zum Speichern der Eingaben
-function saveInputs() {
-  const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
-  inputs.forEach(input => {
-    localStorage.setItem(input.id, input.value);
-  });
-  localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
-}
-
-// Funktion zum Wiederherstellen der Eingaben
-function restoreInputs() {
-  const inputs = document.querySelectorAll('input[type="text"], input[type="number"], select');
-  inputs.forEach(input => {
-    const savedValue = localStorage.getItem(input.id);
-    if (savedValue !== null) {
-      input.value = savedValue;
+  function restoreInputs() {
+    document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
+      var v = localStorage.getItem(el.id);
+      if (v !== null) el.value = v;
+    });
+    var flVal = localStorage.getItem('formationLapToggle');
+    if (flVal !== null) {
+      var fl = document.getElementById('formationLapToggle');
+      fl.checked = (flVal === 'true');
+      document.getElementById('formationNoLabel').classList.toggle('active', !fl.checked);
+      document.getElementById('formationYesLabel').classList.toggle('active', fl.checked);
     }
-  });
-}
-
-// Funktion zum Löschen der Eingaben (nur bei Klick auf "clear all inputs")
-function clearInputs() {
-  // Alle Eingabefelder leeren
-  const inputs = document.querySelectorAll('input[type="text"], input[type="number"]');
-  inputs.forEach(input => {
-    input.value = '';
-    localStorage.removeItem(input.id); // Entfernt gespeicherte Werte
-  });
-
-  // Fuel Buffer auf 0.3 zurücksetzen
-  document.getElementById('fuelBuffer').value = 0.3;
-  localStorage.removeItem('fuelBuffer');
-
-  // Alle berechneten Tabellen zurücksetzen
-  resetAllTablesAndResults();
-}
-
-// Hilfsfunktion: Setzt alle Tabellen und Ergebnisse zurück
-function resetAllTablesAndResults() {
-  // Timed Race Tabelle zurücksetzen
-  for (let i = 1; i <= 5; i++) {
-    document.getElementById(`ergebnis${i}`).textContent = '';
-    document.getElementById(`aufgerundeteRunden${i}`).textContent = '';
-    document.getElementById(`unroundedFuel${i}`).textContent = '';
-    document.getElementById(`unroundedFuel${i}-zusatz`).textContent = '';
-    document.getElementById(`fuel${i}`).textContent = '';
-    document.getElementById(`fuel${i}-zusatz`).textContent = '';
+  }
+  function clearInputs() {
+    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
+      el.value = ''; localStorage.removeItem(el.id);
+    });
+    document.getElementById('fuelBuffer').value = 0.3;
+    localStorage.removeItem('fuelBuffer');
+    var fl = document.getElementById('formationLapToggle');
+    fl.checked = false;
+    document.getElementById('formationNoLabel').classList.add('active');
+    document.getElementById('formationYesLabel').classList.remove('active');
+    localStorage.removeItem('formationLapToggle');
+    resetAllTablesAndResults();
+  }
+  function resetAllTablesAndResults() {
+    for (var i = 1; i <= 5; i++) {
+      ['ergebnis','aufgerundeteRunden','unroundedFuel','fuel','unroundedSetFuel','setFuel','setRaceTime'].forEach(function(id) {
+        var el = document.getElementById(id+i); if (el) el.textContent = '';
+      });
+      var uzEl = document.getElementById('unroundedFuel'+i+'-zusatz'); if (uzEl) uzEl.textContent = '';
+      var fzEl = document.getElementById('fuel'+i+'-zusatz'); if (fzEl) fzEl.textContent = '';
+    }
     document.getElementById('stintTime').textContent = '';
+    document.getElementById('equalStintTime').textContent = '';
+    document.getElementById('equalStintTimeRow').style.display = 'none';
+    ['totalLapsExact','totalLapsRounded','totalFuelNeededExact','totalFuelNeededRounded',
+     'totalPitstopsExact','totalPitstopsRounded','maxLapsPerTankExact','maxLapsPerTankRounded','totalRaceTime'
+    ].forEach(function(id) { document.getElementById(id).textContent = ''; });
+    document.getElementById('pitstopModeToggleContainer').style.display = 'none';
+    document.getElementById('pitstopModeToggle').checked = false;
+    document.getElementById('standardLabel').classList.add('active');
+    document.getElementById('equalStintsLabel').classList.remove('active');
+    document.getElementById('pitstopWindowTable').innerHTML =
+      '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
   }
 
-  // Fixed Laps Tabelle zurücksetzen
-  for (let i = 1; i <= 5; i++) {
-    document.getElementById(`unroundedSetFuel${i}`).textContent = '';
-    document.getElementById(`setFuel${i}`).textContent = '';
-    document.getElementById(`setRaceTime${i}`).textContent = '';
-  }
+  document.getElementById('fuelBuffer').addEventListener('input', function() {
+    zusatzFaktor = Math.max(0, parseFloat(this.value.replace(',','.')) || 0);
+    berechnen(); calculatePitstopWindow();
+  });
+  document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
+    el.addEventListener('input', function() {
+      if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    });
+  });
+  document.getElementById('saveInputsCheckbox').addEventListener('change', function() {
+    if (this.checked) saveInputs(); else localStorage.removeItem('saveInputsCheckbox');
+  });
+  document.getElementById('unit').addEventListener('change', function() {
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  });
 
-  // Endurance-Bereich zurücksetzen
-  document.getElementById('totalLapsExact').textContent = '';
-  document.getElementById('totalLapsRounded').textContent = '';
-  document.getElementById('totalFuelNeededExact').textContent = '';
-  document.getElementById('totalFuelNeededRounded').textContent = '';
-  document.getElementById('totalPitstopsExact').textContent = '';
-  document.getElementById('totalPitstopsRounded').textContent = '';
-  document.getElementById('maxLapsPerTankExact').textContent = '';
-  document.getElementById('maxLapsPerTankRounded').textContent = '';
-  document.getElementById('totalRaceTime').textContent = '';
-
-  // Pitstop Window Tabelle leeren
-  const pitstopTable = document.getElementById('pitstopWindowTable');
-  pitstopTable.innerHTML = `
-    <tr>
-      <th>pitstop</th>
-      <th>pit window (laps)</th>
-      <th>fuel to add</th>
-    </tr>
-  `;
-}
-
-// Event-Listener für Eingabefelder (speichern bei Änderung)
-document.querySelectorAll('input[type="text"], input[type="number"]').forEach(input => {
-  input.addEventListener('input', function() {
-    if (document.getElementById('saveInputsCheckbox').checked) {
-      saveInputs();
+  document.addEventListener('DOMContentLoaded', function() {
+    if (localStorage.getItem('darkMode') === null) localStorage.setItem('darkMode','true');
+    var isDark = localStorage.getItem('darkMode') === 'true';
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+      document.getElementById('darkModeIcon').src = './docs/assets/dn_w.png';
+      document.getElementById('twitchIcon').src   = './docs/assets/twitch_dark.png';
+    }
+    var modeToggle = document.getElementById('modeToggle');
+    document.getElementById(modeToggle.checked ? 'enduLabel' : 'sprintLabel').classList.add('active');
+    if (localStorage.getItem('saveInputsCheckbox') === 'true') {
+      document.getElementById('saveInputsCheckbox').checked = true;
+      restoreInputs();
+      zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
     }
   });
-});
-
-// Event-Listener für Checkbox (nur speichern/entfernen)
-document.getElementById('saveInputsCheckbox').addEventListener('change', function() {
-  if (this.checked) {
-    saveInputs(); // Checkbox aktiviert → speichern
-  } else {
-    localStorage.removeItem('saveInputsCheckbox'); // Checkbox deaktiviert → nur Status löschen
-  }
-});
-
-// Event-Listener für Änderungen im Dropdown-Menü
-document.getElementById('unit').addEventListener('change', function() {
-  if (document.getElementById('saveInputsCheckbox').checked) {
-    saveInputs();
-  }
-});
-
-// Beim Laden der Seite wiederherstellen
-document.addEventListener('DOMContentLoaded', function() {
-  const saveInputsCheckbox = document.getElementById('saveInputsCheckbox');
-  const isChecked = localStorage.getItem('saveInputsCheckbox') === 'true';
-  
-  if (isChecked) {
-    saveInputsCheckbox.checked = true;
-    restoreInputs();
-    
-    // Fuel Buffer-Wert aus dem Input-Feld nach dem Restore übernehmen
-    zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
-  }
-});
-
-
-document.addEventListener('DOMContentLoaded', function() {
-  // Dark Mode standardmäßig auf "true" setzen, wenn kein Wert existiert
-  if (localStorage.getItem('darkMode') === null) {
-    localStorage.setItem('darkMode', 'true');
-  }
-
-  // Dark Mode-Status aus dem localStorage lesen
-  var isDarkMode = localStorage.getItem('darkMode') === 'true';
-  
-  // Dark Mode aktivieren/deaktivieren
-  if (isDarkMode) {
-    document.body.classList.add('dark-mode');
-    document.getElementById('darkModeIcon').src = "./docs/assets/dn_w.png";
-    document.getElementById('twitchIcon').src = "./docs/assets/twitch_dark.png";
-  } else {
-    document.body.classList.remove('dark-mode');
-    document.getElementById('darkModeIcon').src = "./docs/assets/dn.png";
-    document.getElementById('twitchIcon').src = "./docs/assets/twitch.png";
-  }
-
-  // Initiale Label-Färbung für Sprint/Endu-Toggle
-  var modeToggle = document.getElementById('modeToggle');
-  var sprintLabel = document.getElementById('sprintLabel');
-  var enduLabel = document.getElementById('enduLabel');
-
-  if (modeToggle.checked) {
-    enduLabel.classList.add('active');
-  } else {
-    sprintLabel.classList.add('active');
-  }
-});
-
-  </script>
-  <div>
+</script>
+</div>
 </body>
 </html>
