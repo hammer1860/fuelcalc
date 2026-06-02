@@ -291,16 +291,15 @@ input:checked + .slider:before { transform: translateX(20px); }
                style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px"
                onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
       </div>
-      <!-- Formation lap toggle -->
+      <!-- Formation lap select -->
       <div class="formation-lap-section">
-        <label style="font-size: 14px; display: block; margin-bottom: 4px;">formation lap?</label>
-        <div class="formation-lap-toggle-row">
-          <span id="formationNoLabel" class="toggle-labels active">no</span>
-          <label class="toggle-switch">
-            <input type="checkbox" id="formationLapToggle" onchange="onFormationLapChange()">
-            <span class="slider"></span>
-          </label>
-          <span id="formationYesLabel" class="toggle-labels">yes</span>
+        <label for="formationLapSelect" style="font-size: 14px; display: block; margin-bottom: 4px;">formation lap:</label>
+        <div class="input-group" style="justify-content: flex-end;">
+          <select id="formationLapSelect" onchange="onFormationLapChange()">
+            <option value="no">no</option>
+            <option value="short">short</option>
+            <option value="full">full</option>
+          </select>
         </div>
       </div>
     </div>
@@ -446,17 +445,17 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 <script>
   var zusatzFaktor = 0.3;
-  var FORMATION_LAP_COEFF = 0.6;
 
   function getFormationFuel(verbrauch) {
-    return document.getElementById('formationLapToggle').checked ? verbrauch * FORMATION_LAP_COEFF : 0;
+    var val = document.getElementById('formationLapSelect').value;
+    if (val === 'short') return verbrauch * 0.5;
+    if (val === 'full')  return verbrauch * 0.9;
+    return 0;
   }
 
   function onFormationLapChange() {
-    var tog = document.getElementById('formationLapToggle');
-    document.getElementById('formationNoLabel').classList.toggle('active', !tog.checked);
-    document.getElementById('formationYesLabel').classList.toggle('active', tog.checked);
-    if (typeof umami !== 'undefined') umami.track(tog.checked ? 'formation-lap-on' : 'formation-lap-off');
+    var val = document.getElementById('formationLapSelect').value;
+    if (typeof umami !== 'undefined') umami.track('formation-lap-' + val);
     berechnen();
     calculatePitstopWindow();
     if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
@@ -498,7 +497,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 
   function berechnen() {
     var rzInput = document.getElementById('rundenzeit').value;
-    var rundenzeit = umwandelnInSekunden(rzInput);
+    var rundenzeit;
+    try { rundenzeit = umwandelnInSekunden(rzInput); } catch(e) { rundenzeit = NaN; }
     var verbrauch = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
     var formationFuel = getFormationFuel(verbrauch);
 
@@ -728,20 +728,12 @@ input:checked + .slider:before { transform: translateX(20px); }
       localStorage.setItem(el.id, el.value);
     });
     localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
-    localStorage.setItem('formationLapToggle', document.getElementById('formationLapToggle').checked);
   }
   function restoreInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
       var v = localStorage.getItem(el.id);
       if (v !== null) el.value = v;
     });
-    var flVal = localStorage.getItem('formationLapToggle');
-    if (flVal !== null) {
-      var fl = document.getElementById('formationLapToggle');
-      fl.checked = (flVal === 'true');
-      document.getElementById('formationNoLabel').classList.toggle('active', !fl.checked);
-      document.getElementById('formationYesLabel').classList.toggle('active', fl.checked);
-    }
   }
   function clearInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
@@ -749,11 +741,8 @@ input:checked + .slider:before { transform: translateX(20px); }
     });
     document.getElementById('fuelBuffer').value = 0.3;
     localStorage.removeItem('fuelBuffer');
-    var fl = document.getElementById('formationLapToggle');
-    fl.checked = false;
-    document.getElementById('formationNoLabel').classList.add('active');
-    document.getElementById('formationYesLabel').classList.remove('active');
-    localStorage.removeItem('formationLapToggle');
+    document.getElementById('formationLapSelect').value = 'no';
+    localStorage.removeItem('formationLapSelect');
     resetAllTablesAndResults();
   }
   function resetAllTablesAndResults() {
@@ -791,6 +780,8 @@ input:checked + .slider:before { transform: translateX(20px); }
     if (this.checked) saveInputs(); else localStorage.removeItem('saveInputsCheckbox');
   });
   document.getElementById('unit').addEventListener('change', function() {
+    if (typeof umami !== 'undefined') umami.track('unit-' + this.value);
+    calculatePitstopWindow();
     if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
   });
 
