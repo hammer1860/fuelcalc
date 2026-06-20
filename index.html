@@ -558,13 +558,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 
     if (maxFuelCapacity === null || raceLength === null || isNaN(verbrauch)) return;
 
-    // Parse laptime — always attempt it so stint/race time work regardless of unit
     var rundenzeit = NaN;
     try { rundenzeit = umwandelnInSekunden(document.getElementById('rundenzeit').value); } catch(e) {}
 
     var totalLaps;
     if (unit === 'minutes') {
-      if (isNaN(rundenzeit)) return; // laptime required for minute-based races
+      if (isNaN(rundenzeit)) return;
       totalLaps = (raceLength * 60) / rundenzeit;
     } else {
       totalLaps = raceLength;
@@ -574,12 +573,8 @@ input:checked + .slider:before { transform: translateX(20px); }
     var maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
     var maxLapsPerTank      = Math.floor(maxLapsPerTankExact);
 
-    // First stint is shorter when formation lap is active (formation fuel consumed before lap 1).
-    // Subsequent stints always start from a full tank, so maxLapsPerTank stays the same.
     var firstStintMaxLaps   = Math.floor((maxFuelCapacity - formationFuel - zusatzFaktor) / verbrauch);
 
-    // Unified pitstop formula: how many full stints needed after the (shorter) first stint?
-    // Works for both formation=on and off (when off, firstStintMaxLaps === maxLapsPerTank).
     var totalPitstopsExact  = totalLapsRounded <= firstStintMaxLaps ? 0
                               : (totalLapsRounded - firstStintMaxLaps) / maxLapsPerTank;
     var totalPitstops       = totalLapsRounded <= firstStintMaxLaps ? 0
@@ -594,7 +589,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     document.getElementById('totalPitstopsRounded').textContent   = totalPitstops;
     document.getElementById('maxLapsPerTankExact').textContent    = maxLapsPerTankExact.toFixed(2);
     document.getElementById('maxLapsPerTankRounded').textContent  = maxLapsPerTank;
-    // Stint/race time only shown when laptime is available
     document.getElementById('stintTime').textContent     = !isNaN(rundenzeit) ? formatRaceTime(maxLapsPerTank * rundenzeit) : '';
     document.getElementById('totalRaceTime').textContent = !isNaN(rundenzeit) ? formatRaceTime(totalLapsRounded * rundenzeit) : '';
 
@@ -612,7 +606,6 @@ input:checked + .slider:before { transform: translateX(20px); }
     if (isEqualMode) renderEqualStints(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel);
     else             renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel);
 
-    // Equal stints time row: average stint duration, visible only in equal stints mode
     var equalStintTimeRow = document.getElementById('equalStintTimeRow');
     if (isEqualMode && !isNaN(rundenzeit)) {
       var avgStintLaps = totalLapsRounded / (totalPitstops + 1);
@@ -624,33 +617,49 @@ input:checked + .slider:before { transform: translateX(20px); }
     }
   }
 
+  // ── FIXED renderWindowMode ───────────────────────────────────────────────
+  // Bug: non-last stops calculated fuelNeeded using all remaining race laps,
+  // producing values just below maxFuelCapacity instead of correctly showing "full".
+  // Fix: non-last stops always fill to full (canAdd = maxFuelCapacity - remainingFuel).
+  //      Only the last stop gets the exact amount needed to finish.
+  //      "full" check uses canAdd (physical tank limit) not maxFuelCapacity.
   function renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
     var t = document.getElementById('pitstopWindowTable');
     t.innerHTML = '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
-    // late_i  = latest lap to pit for stop i (drive as long as fuel allows)
-    //         = firstStintMaxLaps + (i-1)*maxLapsPerTank
-    //   Pit 1: firstStintMaxLaps  (shorter if formation lap active, else = maxLapsPerTank)
-    //   Pit 2: firstStintMaxLaps + maxLapsPerTank, etc.
-    // early_i = earliest lap to pit for stop i (so remaining stints can still cover the race)
-    //         = totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank
+
     for (var i = 1; i <= totalPitstops; i++) {
+      // late  = last lap at which you can pit (if later you run dry)
+      // early = earliest lap at which pitting still leaves enough fuel for all remaining stints
       var late  = firstStintMaxLaps + (i - 1) * maxLapsPerTank;
       var early = Math.max(1, totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank);
+
+      // Fuel remaining in tank when arriving at the late boundary
       var remainingFuel;
       if (i === 1) {
-        // Started with full tank, burned firstStintMaxLaps laps + formation fuel
-        remainingFuel = maxFuelCapacity - (late * verbrauch) - formationFuel;
+        // Started with full tank; formation fuel + race laps burned before this stop
+        remainingFuel = maxFuelCapacity - formationFuel - (late * verbrauch);
       } else {
-        // Previous pit filled to full; drove exactly maxLapsPerTank laps since
+        // Previous stop filled to full; drove exactly maxLapsPerTank laps since
         remainingFuel = maxFuelCapacity - (maxLapsPerTank * verbrauch);
       }
-      var lapsLeft  = totalLapsRounded - late;
-      var fuelNeeded = (lapsLeft * verbrauch) + zusatzFaktor;
-      // Formation fuel was already burned at race start — do NOT add it here again.
-      // The shorter first stint (firstStintMaxLaps vs maxLapsPerTank) already accounts for it.
-      var fuelToAdd = fuelNeeded - remainingFuel;
-      if (fuelToAdd < 0) fuelToAdd = 0;
-      var display = (fuelToAdd >= maxFuelCapacity) ? 'full' : fuelToAdd.toFixed(2);
+      if (remainingFuel < 0) remainingFuel = 0;
+
+      // Physical maximum that fits in the tank right now
+      var canAdd = maxFuelCapacity - remainingFuel;
+
+      var fuelToAdd;
+      if (i < totalPitstops) {
+        // Not the last stop: fill to full so the next stint has maximum range
+        fuelToAdd = canAdd;
+      } else {
+        // Last stop: add only what's needed to reach the finish with buffer
+        var lapsLeft = totalLapsRounded - late;
+        fuelToAdd = (lapsLeft * verbrauch) + zusatzFaktor - remainingFuel;
+        if (fuelToAdd < 0) fuelToAdd = 0;
+      }
+
+      // Show "full" only when fuelToAdd fills the tank to the brim
+      var display = (fuelToAdd >= canAdd) ? 'full' : fuelToAdd.toFixed(2);
       var row = document.createElement('tr');
       row.innerHTML = '<td>'+i+'</td><td>'+early+' - '+late+'</td><td>'+display+'</td>';
       t.appendChild(row);
@@ -670,9 +679,6 @@ input:checked + .slider:before { transform: translateX(20px); }
       stintLengths.push(end - start);
     }
 
-    // Calculate total fuel that needs to be added across all pit stops:
-    // = total fuel needed for whole race - fuel already in tank at start
-    // = (totalLaps * verbrauch + formationFuel + zusatzFaktor) - maxFuelCapacity
     var totalFuelNeeded = (totalLapsRounded * verbrauch) + formationFuel + zusatzFaktor;
     var totalFuelToAdd  = totalFuelNeeded - maxFuelCapacity;
     if (totalFuelToAdd < 0) totalFuelToAdd = 0;
