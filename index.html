@@ -215,6 +215,35 @@ input:checked + .slider:before { transform: translateX(20px); }
 .formation-lap-toggle-row {
   display: flex; align-items: center; justify-content: center; gap: 8px; margin-left: 9px;
 }
+
+/* Multiclass safety margin row */
+.multiclass-row {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 8px; justify-content: flex-end;
+}
+.multiclass-label {
+  font-size: 14px; color: var(--text-color); white-space: nowrap; cursor: default;
+}
+.multiclass-cb {
+  appearance: none; width: 12px; height: 12px;
+  border: 1px solid #b5b5b5; border-radius: 3px;
+  background-color: transparent; cursor: pointer;
+  position: relative; flex-shrink: 0;
+}
+.multiclass-cb::after {
+  content: ''; position: absolute; top: 50%; left: 50%;
+  width: 8px; height: 8px; background-color: #FD8700; border-radius: 2px;
+  transform: translate(-50%,-50%) scale(0); transition: transform 0.2s ease;
+}
+.multiclass-cb:checked::after { transform: translate(-50%,-50%) scale(1); }
+.dark-mode .multiclass-cb { border-color: #5b5b5b; }
+
+/* Orange highlights when multiclass safety is active */
+body.multiclass-active #timedRaceTable .fuel-ergebnis:not(.markiert) { color: #FD8700; }
+body.multiclass-active [id^="aufgerundeteRunden"] { color: #FD8700; }
+body.multiclass-active #totalLapsRounded { color: #FD8700; }
+body.multiclass-active #totalFuelNeededRounded { color: #FD8700; }
+body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
   </style>
 
   <script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
@@ -281,26 +310,35 @@ input:checked + .slider:before { transform: translateX(20px); }
       <div class="clear-button-container">
         <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
       </div>
-      <div style="border: 0px solid #ccc; padding-top: 4px; border-radius: 4px; text-align: center;">
-        <label for="fuelBuffer" style="font-size: 14px; display: block;">fuel buffer:
-          <span class="info-icon" onclick="toggleTooltip(event)">&#9432;
-            <span class="tooltip-text">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span>
-          </span>
-        </label>
-        <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0"
-               style="width: 70px; text-align: center; margin-top: 3px; margin-left: 9px"
-               onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
-      </div>
-      <!-- Formation lap select -->
-      <div class="formation-lap-section">
-        <label for="formationLapSelect" style="font-size: 14px; display: block; margin-bottom: 4px;">formation lap:</label>
-        <div class="input-group" style="justify-content: flex-end;">
-          <select id="formationLapSelect" onchange="onFormationLapChange()">
+      <!-- controls sub-container: equal gap between all three rows -->
+      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px; margin-top: 8px;">
+
+        <!-- fuel buffer: label+icon together (no space), then input -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 0;"><label for="fuelBuffer" style="font-size: 14px; white-space: nowrap;">fuel buffer:</label><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0;">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span></span></div>
+          <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0"
+                 style="width: 55px; height: 30px; padding: 4px; text-align: center; margin-right: 0;"
+                 onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
+        </div>
+
+        <!-- formation lap: label then dropdown -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <label for="formationLapSelect" style="font-size: 14px; white-space: nowrap;">formation lap:</label>
+          <select id="formationLapSelect" onchange="onFormationLapChange()"
+                  style="font-size: 13px; padding: 4px; height: 30px; width: 70px; border: 1px solid #ccc; border-radius: 4px;">
             <option value="no">no</option>
             <option value="short">short</option>
             <option value="full">full</option>
           </select>
         </div>
+
+        <!-- multiclass: label+icon together (no space), then checkbox -->
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div style="display: flex; align-items: center; gap: 0;"><span style="font-size: 14px; color: var(--text-color); white-space: nowrap;">multiclass safety margin</span><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0; width: 220px;">This option adds one extra lap to the race. Recommended when you are not racing in the fastest class of a multiclass race.</span></span></div>
+          <input type="checkbox" id="multiclassCheckbox" class="multiclass-cb"
+                 onchange="onMulticlassChange()">
+        </div>
+
       </div>
     </div>
   </div>
@@ -453,6 +491,19 @@ input:checked + .slider:before { transform: translateX(20px); }
     return 0;
   }
 
+  function getExtraLap() {
+    return document.getElementById('multiclassCheckbox').checked ? 1 : 0;
+  }
+
+  function onMulticlassChange() {
+    var checked = document.getElementById('multiclassCheckbox').checked;
+    document.body.classList.toggle('multiclass-active', checked);
+    if (typeof umami !== 'undefined') umami.track(checked ? 'multiclass-safety-on' : 'multiclass-safety-off');
+    berechnen();
+    calculatePitstopWindow();
+    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+  }
+
   function onFormationLapChange() {
     var val = document.getElementById('formationLapSelect').value;
     if (typeof umami !== 'undefined') umami.track('formation-lap-' + val);
@@ -501,11 +552,12 @@ input:checked + .slider:before { transform: translateX(20px); }
     try { rundenzeit = umwandelnInSekunden(rzInput); } catch(e) { rundenzeit = NaN; }
     var verbrauch = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
     var formationFuel = getFormationFuel(verbrauch);
+    var extraLap      = getExtraLap();
 
     for (var i = 1; i <= 5; i++) {
       var renndauer = parseFloat(document.getElementById('renndauer'+i).value);
       var ergebnis = (!isNaN(renndauer) && renndauer !== '') ? renndauer * 60 / rundenzeit : null;
-      var aufRunden = ergebnis !== null ? Math.ceil(ergebnis) : null;
+      var aufRunden = ergebnis !== null ? Math.ceil(ergebnis) + extraLap : null;
       var unrFuel = aufRunden !== null ? (aufRunden * verbrauch) + zusatzFaktor + formationFuel : null;
       var fuel = unrFuel !== null ? Math.ceil(unrFuel) : null;
 
@@ -569,7 +621,8 @@ input:checked + .slider:before { transform: translateX(20px); }
       totalLaps = raceLength;
     }
 
-    var totalLapsRounded    = Math.ceil(totalLaps);
+    var extraLap         = getExtraLap();
+    var totalLapsRounded = Math.ceil(totalLaps) + extraLap;
     var maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
     var maxLapsPerTank      = Math.floor(maxLapsPerTankExact);
 
@@ -734,6 +787,7 @@ input:checked + .slider:before { transform: translateX(20px); }
       localStorage.setItem(el.id, el.value);
     });
     localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
+    localStorage.setItem('multiclassCheckbox', document.getElementById('multiclassCheckbox').checked);
   }
   function restoreInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
@@ -749,6 +803,9 @@ input:checked + .slider:before { transform: translateX(20px); }
     localStorage.removeItem('fuelBuffer');
     document.getElementById('formationLapSelect').value = 'no';
     localStorage.removeItem('formationLapSelect');
+    document.getElementById('multiclassCheckbox').checked = false;
+    document.body.classList.remove('multiclass-active');
+    localStorage.removeItem('multiclassCheckbox');
     resetAllTablesAndResults();
   }
   function resetAllTablesAndResults() {
@@ -805,6 +862,10 @@ input:checked + .slider:before { transform: translateX(20px); }
       document.getElementById('saveInputsCheckbox').checked = true;
       restoreInputs();
       zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
+    }
+    if (localStorage.getItem('multiclassCheckbox') === 'true') {
+      document.getElementById('multiclassCheckbox').checked = true;
+      document.body.classList.add('multiclass-active');
     }
   });
 </script>
