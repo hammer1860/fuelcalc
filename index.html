@@ -12,6 +12,7 @@ body { font-family: Arial, sans-serif; background-color: var(--background-color)
   --gradient-start: #418d90; --gradient-end: rgba(242,242,242,1);
   --text-color-exact-column: #999999; --label-color: #8a8a8a;
   --active-label-color: #018b8b; --header-color: #2f9898;
+  --tooltip-bg: #222; --tooltip-color: #fff; --icon-glow: rgba(0, 150, 150, 0.7);
 }
 .dark-mode {
   --background-color: #333; --text-color: #fafafa; --text-color-results: #fff;
@@ -19,6 +20,7 @@ body { font-family: Arial, sans-serif; background-color: var(--background-color)
   --gradient-start: rgba(65,141,144,1); --gradient-end: rgba(52,51,51,1);
   --text-color-exact-column: #a5a4a4; --label-color: #888;
   --active-label-color: #3a9b9f; --header-color: #009191;
+  --tooltip-bg: #444; --tooltip-color: #f0f0f0; --icon-glow: rgba(0, 200, 200, 0.8);
 }
 
 #timedRaceTable td:nth-child(4) { background-color: var(--special-column-bg-timed); }
@@ -134,12 +136,12 @@ input:checked + .slider:before { transform: translateX(20px); }
 .dark-mode select { background-color: #444; color: #93d4d6; border-color: #666666; }
 .dark-mode select option { background-color: #444; color: #93d4d6; }
 
-/* Tables container — unchanged from original, restored */
+/* Tables container */
 .tables-container {
   display: flex; gap: 20px; justify-content: space-between; align-items: flex-start;
 }
 
-/* Pitstop panel wraps toggle + table; shrinks to content, does not expand */
+/* Pitstop panel */
 .pitstop-panel {
   flex: 0 0 auto;
   display: flex;
@@ -153,7 +155,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 #pitstopWindowTable {
   outline: 1px solid var(--border-color); border-collapse: collapse;
   margin-bottom: 20px; border-radius: 4px; overflow: hidden;
-  width: auto; /* key: don't stretch beyond content */
+  width: auto;
 }
 #pitstopWindowTable th, #pitstopWindowTable td {
   border: 1px solid var(--border-color); border-spacing: 0; font-size: 14px; text-align: center;
@@ -173,14 +175,13 @@ input:checked + .slider:before { transform: translateX(20px); }
 .info-icon .tooltip-text, .info-icon .tooltip-text2 {
   visibility: hidden; width: 230px; background-color: #222; color: #fff;
   text-align: center; border-radius: 4px; padding: 4px; position: absolute;
-  z-index: 1; opacity: 0; transition: opacity 0.3s, visibility 0.3s; font-size: 11px; line-height: 1.4;
+  z-index: 1; opacity: 0; transition: opacity 0.15s, visibility 0.15s; font-size: 11px; line-height: 1.4;
 }
 .info-icon .tooltip-text { top: 300%; left: -205px; }
 .info-icon .tooltip-text2 { bottom: 110%; left: -210px; }
 .info-icon:hover .tooltip-text, .info-icon:hover .tooltip-text2 { visibility: visible; opacity: 1; }
 
-/* Save/clear */
-.save-clear-container { display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
+/* Clear button */
 .clear-button-container { margin-bottom: 10px; }
 .clear-button {
   padding: 3px 6px; font-size: 11px; background-color: #e7e7e7; color: #434343;
@@ -192,38 +193,7 @@ input:checked + .slider:before { transform: translateX(20px); }
 .dark-mode .clear-button:hover { background-color: #418d90; }
 .dark-mode .clear-button:active { background-color: #2a2a2a; }
 
-/* Checkbox */
-.checkbox-label { color: var(--text-color); display: flex; align-items: center; gap: 11px; flex-direction: row-reverse; }
-.checkbox-label input[type="checkbox"] {
-  appearance: none; width: 12px; height: 12px; border: 1px solid #b5b5b5;
-  border-radius: 3px; background-color: transparent; cursor: pointer; position: relative;
-}
-.checkbox-label input[type="checkbox"]::after {
-  content: ''; position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
-  background-color: #418d90; border-radius: 2px;
-  transform: translate(-50%,-50%) scale(0); transition: transform 0.2s ease;
-}
-.checkbox-label input[type="checkbox"]:checked::after { transform: translate(-50%,-50%) scale(1); }
-.dark-mode .checkbox-label input[type="checkbox"] { border-color: #5b5b5b; }
-.dark-mode .checkbox-label input[type="checkbox"]::after { background-color: #418d90; }
-.save-inputs-text { font-size: 11px; }
-
-/* Formation lap section */
-.formation-lap-section {
-  padding-top: 6px; margin-top: 6px; text-align: center;
-}
-.formation-lap-toggle-row {
-  display: flex; align-items: center; justify-content: center; gap: 8px; margin-left: 9px;
-}
-
-/* Multiclass safety margin row */
-.multiclass-row {
-  display: flex; align-items: center; gap: 6px;
-  margin-top: 8px; justify-content: flex-end;
-}
-.multiclass-label {
-  font-size: 14px; color: var(--text-color); white-space: nowrap; cursor: default;
-}
+/* Multiclass checkbox */
 .multiclass-cb {
   appearance: none; width: 12px; height: 12px;
   border: 1px solid #b5b5b5; border-radius: 3px;
@@ -238,12 +208,130 @@ input:checked + .slider:before { transform: translateX(20px); }
 .multiclass-cb:checked::after { transform: translate(-50%,-50%) scale(1); }
 .dark-mode .multiclass-cb { border-color: #5b5b5b; }
 
-/* Orange highlights when multiclass safety is active */
+/* Orange highlights when multiclass active */
 body.multiclass-active #timedRaceTable .fuel-ergebnis:not(.markiert) { color: #FD8700; }
 body.multiclass-active [id^="aufgerundeteRunden"] { color: #FD8700; }
 body.multiclass-active #totalLapsRounded { color: #FD8700; }
 body.multiclass-active #totalFuelNeededRounded { color: #FD8700; }
 body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
+
+/* --- PRESET DROPDOWN & NOTIFICATION --- */
+#presetDropdown {
+  display: none;
+  position: absolute;
+  top: 30px;
+  right: 0;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px 10px;
+  z-index: 1000;
+  min-width: 280px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  color: var(--text-color);
+}
+#presetDropdown .preset-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+#presetDropdown .preset-row:last-child { margin-bottom: 0; }
+#presetDropdown .preset-row input[type="text"] {
+  flex: 1;
+  width: auto;
+  height: 26px;
+  padding: 2px 6px;
+  font-size: 13px;
+  margin: 0;
+  background: var(--background-color);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+}
+#presetDropdown .preset-row button {
+  padding: 2px 10px;
+  font-size: 11px;
+  height: 26px;
+  background-color: #256CB0;
+  color: #fff;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#presetDropdown .preset-row button:hover { background-color: #5C2F80; }
+#presetDropdown .preset-row button:active { background-color: #501e66; }
+#presetDropdown .preset-row .save-btn { background-color: #2a7a7a; }
+#presetDropdown .preset-row .save-btn:hover { background-color: #1d5e5e; }
+#presetDropdown .preset-row .load-btn { background-color: #5a5a5a; }
+#presetDropdown .preset-row .load-btn:hover { background-color: #3e3e3e; }
+.dark-mode #presetDropdown .preset-row input[type="text"] {
+  background-color: #444;
+  color: #fff;
+  border-color: #666;
+}
+#copyNotification {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #222;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+  z-index: 2000;
+}
+#copyNotification.show { opacity: 1; }
+
+/* ---- Icon wrapper & tooltips ---- */
+.icon-wrapper {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+.icon-wrapper img {
+  display: block;
+  transition: filter 0.2s ease;
+}
+.icon-wrapper:hover img {
+  filter: drop-shadow(0 0 10px var(--icon-glow));
+}
+.icon-wrapper .tooltip {
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s, visibility 0.15s;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 6px;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-color);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  white-space: nowrap;
+  z-index: 20;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+.icon-wrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+.icon-wrapper .tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-bottom-color: var(--tooltip-bg);
+}
   </style>
 
   <script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
@@ -252,16 +340,43 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 <div class="container">
 
 <div style="position: relative; max-width: 560px; margin: 0 auto;">
-  <div style="position: absolute; top: 0px; right: 0px;">
-    <a href="https://www.twitch.tv/hammer1860" style="position: absolute; top: 0px; right: 0px;" onclick="if (typeof umami !== 'undefined') { umami.track('twitch-link-click'); }">
-      <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
-    </a>
+  <!-- Icons container at top right -->
+  <div style="position: absolute; top: 0px; right: 0px; display: flex; align-items: center; gap: 12px; z-index: 10;">
+    <!-- Memory -->
+    <span class="icon-wrapper">
+      <a href="#" onclick="togglePresetDropdown(event); return false;">
+        <img src="./docs/assets/memory.png" alt="Memory" width="22" height="22" id="memoryIcon">
+      </a>
+      <span class="tooltip">save/load presets</span>
+    </span>
+    <!-- Share -->
+    <span class="icon-wrapper">
+      <a href="#" onclick="shareLink(event); return false;">
+        <img src="./docs/assets/share.png" alt="Share" width="22" height="22" id="shareIcon">
+      </a>
+      <span class="tooltip">copy a link with these calculations</span>
+    </span>
+    <!-- Dark Mode -->
+    <span class="icon-wrapper">
+      <a href="#" onclick="toggleDarkMode(); return false;">
+        <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22" id="darkModeIcon">
+      </a>
+      <span class="tooltip">toggle dark/light mode</span>
+    </span>
+    <!-- Twitch -->
+    <span class="icon-wrapper">
+      <a href="https://www.twitch.tv/hammer1860" target="_blank" onclick="if (typeof umami !== 'undefined') { umami.track('twitch-link-click'); }">
+        <img src="./docs/assets/twitch.png" alt="Twitch" width="21" height="24" id="twitchIcon">
+      </a>
+      <span class="tooltip">visit my Twitch channel</span>
+    </span>
   </div>
-  <div style="position: absolute; top: 0px; right: 25px;">
-    <a href="#" onclick="toggleDarkMode(); return false;">
-      <img src="./docs/assets/dn.png" alt="Dark Mode" width="30" height="22" id="darkModeIcon">
-    </a>
+
+  <!-- Preset dropdown -->
+  <div id="presetDropdown">
+    <div id="presetRows"></div>
   </div>
+
   <div style="display: flex; align-items: center; justify-content: space-between;">
     <h1 style="margin-top: 10px;">fuel calculator</h1>
     <div style="display: flex; align-items: center; gap: 10px; position: absolute; left: 50%; transform: translateX(-50%);">
@@ -274,6 +389,9 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     </div>
   </div>
 </div>
+
+<!-- Notification for copy -->
+<div id="copyNotification">Link copied to clipboard!</div>
 
 <form>
   <div style="display: flex; justify-content: space-between; align-items: flex-start;">
@@ -301,19 +419,12 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     </div>
 
     <div style="display: flex; flex-direction: column; align-items: flex-end;">
-      <div class="save-clear-container">
-        <label class="checkbox-label">
-          <input type="checkbox" tabindex="-1" id="saveInputsCheckbox">
-          <span class="save-inputs-text">save inputs</span>
-        </label>
-      </div>
       <div class="clear-button-container">
         <button type="button" tabindex="-1" onclick="clearInputs()" class="clear-button">clear all inputs</button>
       </div>
-      <!-- controls sub-container: equal gap between all three rows -->
+      <!-- controls -->
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px; margin-top: 8px;">
 
-        <!-- fuel buffer: label+icon together (no space), then input -->
         <div style="display: flex; align-items: center; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 0;"><label for="fuelBuffer" style="font-size: 14px; white-space: nowrap;">fuel buffer:</label><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0;">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span></span></div>
           <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0"
@@ -321,7 +432,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
                  onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
         </div>
 
-        <!-- formation lap: label then dropdown -->
         <div style="display: flex; align-items: center; gap: 6px;">
           <label for="formationLapSelect" style="font-size: 14px; white-space: nowrap;">formation lap:</label>
           <select id="formationLapSelect" onchange="onFormationLapChange()"
@@ -332,7 +442,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
           </select>
         </div>
 
-        <!-- multiclass: label+icon together (no space), then checkbox -->
         <div style="display: flex; align-items: center; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 0;"><span style="font-size: 14px; color: var(--text-color); white-space: nowrap;">multiclass safety margin</span><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0; width: 220px;">This option adds one extra lap to the race. Recommended when you are not racing in the fastest class in a multiclass race.</span></span></div>
           <input type="checkbox" id="multiclassCheckbox" class="multiclass-cb"
@@ -462,7 +571,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
       <tr><td>total race time:</td><td colspan="3" style="text-align:center;"><span id="totalRaceTime"></span></td></tr>
     </table>
 
-    <!-- Pitstop panel: toggle + table, sized to content -->
     <div class="pitstop-panel">
       <div class="pitstop-mode-toggle" id="pitstopModeToggleContainer" style="display: none;">
         <span id="standardLabel" class="toggle-labels active">standard</span>
@@ -484,6 +592,75 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 <script>
   var zusatzFaktor = 0.3;
 
+  // ─── LAP TIME NORMALIZATION ──────────────────────────────────────────
+  function normalizeLapTimeInput(input) {
+    if (!input || input.trim() === '') return null;
+    var matches = input.match(/\d+/g);
+    if (!matches) return null;
+    var nums = matches.map(Number);
+    var minutes = 0, seconds = 0, millis = 0;
+    if (matches.length === 1) {
+      var totalSec = nums[0];
+      minutes = Math.floor(totalSec / 60);
+      seconds = Math.floor(totalSec % 60);
+      millis = Math.round((totalSec % 1) * 1000);
+    } else if (matches.length === 2) {
+      minutes = nums[0];
+      seconds = nums[1];
+      millis = 0;
+    } else {
+      minutes = nums[0];
+      seconds = nums[1];
+      var thirdStr = matches[2];
+      if (thirdStr.length === 1) {
+        millis = nums[2] * 100;
+      } else {
+        var millisStr = thirdStr.slice(0, 3);
+        millis = parseInt(millisStr, 10);
+        if (isNaN(millis)) millis = 0;
+      }
+    }
+    seconds = Math.min(59, Math.max(0, seconds));
+    millis = Math.min(999, Math.max(0, millis));
+    var mm = String(minutes).padStart(2, '0');
+    var ss = String(seconds).padStart(2, '0');
+    var mmm = String(millis).padStart(3, '0');
+    return mm + ':' + ss + '.' + mmm;
+  }
+
+  function umwandelnInSekunden(s) {
+    var normalized = normalizeLapTimeInput(s);
+    if (!normalized) return NaN;
+    var parts = normalized.split(':');
+    var minutes = parseInt(parts[0]);
+    var secParts = parts[1].split('.');
+    var seconds = parseInt(secParts[0]);
+    var millis = parseInt(secParts[1] || '0');
+    return minutes * 60 + seconds + millis / 1000;
+  }
+
+  function formatiereRundenzeit(rz) {
+    var m = Math.floor(rz/60), s = Math.floor(rz%60), ms = Math.round((rz%1)*1000);
+    return ('0'+m).slice(-2)+':'+('0'+s).slice(-2)+'.'+('00'+ms).slice(-3);
+  }
+
+  // Auto-format lap time input on blur
+  document.addEventListener('DOMContentLoaded', function() {
+    var rundenzeitInput = document.getElementById('rundenzeit');
+    if (rundenzeitInput) {
+      rundenzeitInput.addEventListener('blur', function() {
+        var val = this.value.trim();
+        if (val === '') return;
+        var norm = normalizeLapTimeInput(val);
+        if (norm) {
+          this.value = norm;
+        }
+      });
+    }
+  });
+
+  // ─── REST OF FUNCTIONS ──────────────────────────────────────────────
+
   function getFormationFuel(verbrauch) {
     var val = document.getElementById('formationLapSelect').value;
     if (val === 'short') return verbrauch * 0.5;
@@ -501,7 +678,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     if (typeof umami !== 'undefined') umami.track(checked ? 'multiclass-safety-on' : 'multiclass-safety-off');
     berechnen();
     calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   }
 
   function onFormationLapChange() {
@@ -509,47 +686,48 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     if (typeof umami !== 'undefined') umami.track('formation-lap-' + val);
     berechnen();
     calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   }
 
   function erhoeheRundenzeit(step) {
     var v = document.getElementById('rundenzeit').value;
     if (!v) return;
-    document.getElementById('rundenzeit').value = formatiereRundenzeit(umwandelnInSekunden(v) + step);
+    var sec = umwandelnInSekunden(v);
+    if (isNaN(sec)) return;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(sec + step);
     berechnen(); calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   }
   function verringereRundenzeit(step) {
     var v = document.getElementById('rundenzeit').value;
     if (!v) return;
-    document.getElementById('rundenzeit').value = formatiereRundenzeit(umwandelnInSekunden(v) - step);
+    var sec = umwandelnInSekunden(v);
+    if (isNaN(sec)) return;
+    document.getElementById('rundenzeit').value = formatiereRundenzeit(sec - step);
     berechnen(); calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   }
   function erhoeheVerbrauch(step) {
     var v = document.getElementById('verbrauch').value;
     if (!v) return;
     document.getElementById('verbrauch').value = (parseFloat(v.replace(',','.')) + step).toFixed(2);
     berechnen(); calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   }
   function verringereVerbrauch(step) {
     var v = document.getElementById('verbrauch').value;
     if (!v) return;
     document.getElementById('verbrauch').value = (parseFloat(v.replace(',','.')) - step).toFixed(2);
     berechnen(); calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
-  }
-
-  function formatiereRundenzeit(rz) {
-    var m = Math.floor(rz/60), s = Math.floor(rz%60), ms = Math.round((rz%1)*1000);
-    return ('0'+m).slice(-2)+':'+('0'+s).slice(-2)+'.'+('00'+ms).slice(-3);
+    saveInputs();
   }
 
   function berechnen() {
     var rzInput = document.getElementById('rundenzeit').value;
-    var rundenzeit;
-    try { rundenzeit = umwandelnInSekunden(rzInput); } catch(e) { rundenzeit = NaN; }
+    var rundenzeit = umwandelnInSekunden(rzInput);
+    if (isNaN(rundenzeit)) {
+      return;
+    }
     var verbrauch = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
     var formationFuel = getFormationFuel(verbrauch);
     var extraLap      = getExtraLap();
@@ -557,23 +735,33 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     for (var i = 1; i <= 5; i++) {
       var renndauer = parseFloat(document.getElementById('renndauer'+i).value);
       var ergebnis = (!isNaN(renndauer) && renndauer !== '') ? renndauer * 60 / rundenzeit : null;
-      var aufRunden = ergebnis !== null ? Math.ceil(ergebnis) + extraLap : null;
+      
+      var baseRounded = ergebnis !== null ? Math.ceil(ergebnis) : null;
+      var aufRunden = baseRounded !== null ? baseRounded + extraLap : null;
+      
       var unrFuel = aufRunden !== null ? (aufRunden * verbrauch) + zusatzFaktor + formationFuel : null;
       var fuel = unrFuel !== null ? Math.ceil(unrFuel) : null;
 
-      document.getElementById('ergebnis'+i).textContent = ergebnis !== null ? ergebnis.toFixed(2) : '';
-      document.getElementById('aufgerundeteRunden'+i).textContent = aufRunden !== null ? aufRunden : '';
+      var lapsDisplay = aufRunden !== null ? aufRunden : '';
+      if (aufRunden !== null && baseRounded !== null && ergebnis !== null && (baseRounded - ergebnis) < 0.1) {
+        lapsDisplay += ' (' + (aufRunden + 1) + ')';
+      }
+      document.getElementById('aufgerundeteRunden'+i).textContent = lapsDisplay;
+
       document.getElementById('unroundedFuel'+i).textContent = unrFuel !== null ? unrFuel.toFixed(2) : '';
-      document.getElementById('unroundedFuel'+i+'-zusatz').textContent = '';
       document.getElementById('fuel'+i).textContent = fuel !== null ? fuel : '';
+      
+      document.getElementById('unroundedFuel'+i+'-zusatz').textContent = '';
       document.getElementById('fuel'+i+'-zusatz').textContent = '';
 
-      if (aufRunden !== null && (aufRunden - ergebnis) < 0.1) {
-        document.getElementById('aufgerundeteRunden'+i).textContent = aufRunden + ' (' + (aufRunden+1) + ')';
-        var unrExtra = ((aufRunden+1) * verbrauch) + zusatzFaktor + formationFuel;
+      if (aufRunden !== null && baseRounded !== null && ergebnis !== null && (baseRounded - ergebnis) < 0.1) {
+        var extraLaps = aufRunden + 1;
+        var unrExtra = (extraLaps * verbrauch) + zusatzFaktor + formationFuel;
         document.getElementById('unroundedFuel'+i+'-zusatz').textContent = '(' + unrExtra.toFixed(2) + ')';
         document.getElementById('fuel'+i+'-zusatz').textContent = '(' + Math.ceil(unrExtra) + ')';
       }
+
+      document.getElementById('ergebnis'+i).textContent = ergebnis !== null ? ergebnis.toFixed(2) : '';
     }
 
     for (var i = 1; i <= 5; i++) {
@@ -610,12 +798,11 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 
     if (maxFuelCapacity === null || raceLength === null || isNaN(verbrauch)) return;
 
-    var rundenzeit = NaN;
-    try { rundenzeit = umwandelnInSekunden(document.getElementById('rundenzeit').value); } catch(e) {}
+    var rundenzeit = umwandelnInSekunden(document.getElementById('rundenzeit').value);
+    if (isNaN(rundenzeit)) return;
 
     var totalLaps;
     if (unit === 'minutes') {
-      if (isNaN(rundenzeit)) return;
       totalLaps = (raceLength * 60) / rundenzeit;
     } else {
       totalLaps = raceLength;
@@ -670,48 +857,33 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     }
   }
 
-  // ── FIXED renderWindowMode ───────────────────────────────────────────────
-  // Bug: non-last stops calculated fuelNeeded using all remaining race laps,
-  // producing values just below maxFuelCapacity instead of correctly showing "full".
-  // Fix: non-last stops always fill to full (canAdd = maxFuelCapacity - remainingFuel).
-  //      Only the last stop gets the exact amount needed to finish.
-  //      "full" check uses canAdd (physical tank limit) not maxFuelCapacity.
   function renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
     var t = document.getElementById('pitstopWindowTable');
     t.innerHTML = '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
 
     for (var i = 1; i <= totalPitstops; i++) {
-      // late  = last lap at which you can pit (if later you run dry)
-      // early = earliest lap at which pitting still leaves enough fuel for all remaining stints
       var late  = firstStintMaxLaps + (i - 1) * maxLapsPerTank;
       var early = Math.max(1, totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank);
 
-      // Fuel remaining in tank when arriving at the late boundary
       var remainingFuel;
       if (i === 1) {
-        // Started with full tank; formation fuel + race laps burned before this stop
         remainingFuel = maxFuelCapacity - formationFuel - (late * verbrauch);
       } else {
-        // Previous stop filled to full; drove exactly maxLapsPerTank laps since
         remainingFuel = maxFuelCapacity - (maxLapsPerTank * verbrauch);
       }
       if (remainingFuel < 0) remainingFuel = 0;
 
-      // Physical maximum that fits in the tank right now
       var canAdd = maxFuelCapacity - remainingFuel;
 
       var fuelToAdd;
       if (i < totalPitstops) {
-        // Not the last stop: fill to full so the next stint has maximum range
         fuelToAdd = canAdd;
       } else {
-        // Last stop: add only what's needed to reach the finish with buffer
         var lapsLeft = totalLapsRounded - late;
         fuelToAdd = (lapsLeft * verbrauch) + zusatzFaktor - remainingFuel;
         if (fuelToAdd < 0) fuelToAdd = 0;
       }
 
-      // Show "full" only when fuelToAdd fills the tank to the brim
       var display = (fuelToAdd >= canAdd) ? 'full' : fuelToAdd.toFixed(2);
       var row = document.createElement('tr');
       row.innerHTML = '<td>'+i+'</td><td>'+early+' - '+late+'</td><td>'+display+'</td>';
@@ -725,13 +897,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     for (var i = 1; i <= totalPitstops; i++) {
       pitLaps.push(Math.round(totalLapsRounded * i / numStints));
     }
-    var stintLengths = [];
-    for (var i = 0; i < numStints; i++) {
-      var start = (i === 0) ? 0 : pitLaps[i-1];
-      var end   = (i < totalPitstops) ? pitLaps[i] : totalLapsRounded;
-      stintLengths.push(end - start);
-    }
-
     var totalFuelNeeded = (totalLapsRounded * verbrauch) + formationFuel + zusatzFaktor;
     var totalFuelToAdd  = totalFuelNeeded - maxFuelCapacity;
     if (totalFuelToAdd < 0) totalFuelToAdd = 0;
@@ -755,11 +920,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     document.getElementById('enduLabel').classList.toggle('active', tog.checked);
   }
 
-  function umwandelnInSekunden(s) {
-    var parts = s.split(':');
-    var sp2 = parts[1].split('.');
-    return parseInt(parts[0])*60 + parseInt(sp2[0]) + parseInt(sp2[1])/1000;
-  }
   function berechneRacetime(laps, rz) {
     var t = laps*rz, h = Math.floor(t/3600), m = Math.floor((t%3600)/60), s = Math.floor(t%60);
     return ('0'+h).slice(-2)+':'+('0'+m).slice(-2)+':'+('0'+s).slice(-2);
@@ -780,34 +940,54 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     if (typeof umami !== 'undefined') umami.track('toggle-dark-mode');
     document.getElementById('darkModeIcon').src = isDark ? './docs/assets/dn_w.png' : './docs/assets/dn.png';
     document.getElementById('twitchIcon').src   = isDark ? './docs/assets/twitch_dark.png' : './docs/assets/twitch.png';
+    document.getElementById('shareIcon').src    = isDark ? './docs/assets/share_dark.png' : './docs/assets/share.png';
+    document.getElementById('memoryIcon').src   = isDark ? './docs/assets/memory_dark.png' : './docs/assets/memory.png';
   }
 
   function saveInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
       localStorage.setItem(el.id, el.value);
     });
-    localStorage.setItem('saveInputsCheckbox', document.getElementById('saveInputsCheckbox').checked);
+    localStorage.setItem('modeToggle', document.getElementById('modeToggle').checked);
     localStorage.setItem('multiclassCheckbox', document.getElementById('multiclassCheckbox').checked);
+    localStorage.setItem('pitstopModeToggle', document.getElementById('pitstopModeToggle').checked);
   }
+
   function restoreInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
       var v = localStorage.getItem(el.id);
       if (v !== null) el.value = v;
     });
+    var mode = localStorage.getItem('modeToggle');
+    if (mode !== null) document.getElementById('modeToggle').checked = (mode === 'true');
+    var mc = localStorage.getItem('multiclassCheckbox');
+    if (mc !== null) document.getElementById('multiclassCheckbox').checked = (mc === 'true');
+    var pm = localStorage.getItem('pitstopModeToggle');
+    if (pm !== null) document.getElementById('pitstopModeToggle').checked = (pm === 'true');
   }
+
   function clearInputs() {
     document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
       el.value = ''; localStorage.removeItem(el.id);
     });
+    document.querySelectorAll('select').forEach(function(el) {
+      el.value = ''; localStorage.removeItem(el.id);
+    });
+    document.getElementById('modeToggle').checked = false;
+    localStorage.removeItem('modeToggle');
+    document.getElementById('multiclassCheckbox').checked = false;
+    document.body.classList.remove('multiclass-active');
+    localStorage.removeItem('multiclassCheckbox');
+    document.getElementById('pitstopModeToggle').checked = false;
+    localStorage.removeItem('pitstopModeToggle');
     document.getElementById('fuelBuffer').value = 0.3;
     localStorage.removeItem('fuelBuffer');
     document.getElementById('formationLapSelect').value = 'no';
     localStorage.removeItem('formationLapSelect');
-    document.getElementById('multiclassCheckbox').checked = false;
-    document.body.classList.remove('multiclass-active');
-    localStorage.removeItem('multiclassCheckbox');
     resetAllTablesAndResults();
+    toggleMode();
   }
+
   function resetAllTablesAndResults() {
     for (var i = 1; i <= 5; i++) {
       ['ergebnis','aufgerundeteRunden','unroundedFuel','fuel','unroundedSetFuel','setFuel','setRaceTime'].forEach(function(id) {
@@ -830,22 +1010,204 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
       '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
   }
 
+  // ─── SHARE & PRESET FUNCTIONS ──────────────────────────────────────────
+
+  function collectInputs() {
+    var data = {};
+    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
+      if (el.id) data[el.id] = el.value;
+    });
+    document.querySelectorAll('select').forEach(function(el) {
+      if (el.id) data[el.id] = el.value;
+    });
+    document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
+      if (el.id) data[el.id] = el.checked ? 'true' : 'false';
+    });
+    return data;
+  }
+
+  function applyInputs(data) {
+    for (var key in data) {
+      var el = document.getElementById(key);
+      if (!el) continue;
+      if (el.type === 'checkbox') {
+        el.checked = (data[key] === 'true');
+      } else if (el.tagName === 'SELECT') {
+        el.value = data[key];
+      } else {
+        el.value = data[key];
+      }
+    }
+  }
+
+  function getCurrentUrlWithParams() {
+    var data = collectInputs();
+    var params = new URLSearchParams();
+    for (var key in data) {
+      params.set(key, data[key]);
+    }
+    var url = window.location.origin + window.location.pathname;
+    var query = params.toString();
+    return query ? url + '?' + query : url;
+  }
+
+  function shareLink(event) {
+    if (event) event.preventDefault();
+    var url = getCurrentUrlWithParams();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function() {
+        showCopyNotification('Link copied to clipboard!');
+      }).catch(function() {
+        fallbackCopy(url);
+      });
+    } else {
+      fallbackCopy(url);
+    }
+    if (typeof umami !== 'undefined') umami.track('share-link');
+  }
+
+  function fallbackCopy(text) {
+    var textarea = document.createElement('textarea');
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      showCopyNotification('Link copied to clipboard!');
+    } catch (e) {
+      showCopyNotification('Could not copy link. Please copy manually.');
+    }
+    document.body.removeChild(textarea);
+  }
+
+  function showCopyNotification(msg) {
+    var notif = document.getElementById('copyNotification');
+    notif.textContent = msg;
+    notif.classList.add('show');
+    setTimeout(function() { notif.classList.remove('show'); }, 2500);
+  }
+
+  // ─── PRESET DROPDOWN ──────────────────────────────────────────────────
+
+  function togglePresetDropdown(event) {
+    if (event) event.preventDefault();
+    var dropdown = document.getElementById('presetDropdown');
+    var isOpen = dropdown.style.display === 'block';
+    if (isOpen) {
+      closePresetDropdown();
+      if (typeof umami !== 'undefined') umami.track('close-preset-dropdown');
+    } else {
+      dropdown.style.display = 'block';
+      renderPresetRows();
+      document.addEventListener('click', outsideClickHandler);
+      if (typeof umami !== 'undefined') umami.track('open-preset-dropdown');
+    }
+  }
+
+  function closePresetDropdown() {
+    document.getElementById('presetDropdown').style.display = 'none';
+    document.removeEventListener('click', outsideClickHandler);
+  }
+
+  function outsideClickHandler(e) {
+    var dropdown = document.getElementById('presetDropdown');
+    var icon = document.getElementById('memoryIcon');
+    if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
+      closePresetDropdown();
+    }
+  }
+
+  function renderPresetRows() {
+    var container = document.getElementById('presetRows');
+    var html = '';
+    for (var i = 1; i <= 5; i++) {
+      var label = localStorage.getItem('preset_' + i + '_label') || 'M' + i;
+      html += '<div class="preset-row">';
+      html += '<button class="save-btn" onclick="savePreset('+i+'); return false;">save</button>';
+      html += '<input type="text" id="presetLabel_'+i+'" value="'+label+'" placeholder="M'+i+'">';
+      html += '<button class="load-btn" onclick="loadPreset('+i+'); return false;">load</button>';
+      html += '</div>';
+    }
+    container.innerHTML = html;
+  }
+
+  function savePreset(index) {
+    var labelInput = document.getElementById('presetLabel_'+index);
+    var label = labelInput ? labelInput.value.trim() : 'M'+index;
+    if (!label) label = 'M'+index;
+    var data = collectInputs();
+    localStorage.setItem('preset_' + index + '_label', label);
+    localStorage.setItem('preset_' + index + '_data', JSON.stringify(data));
+    labelInput.value = label;
+    closePresetDropdown();
+    showCopyNotification('saved values to ' + label);
+    if (typeof umami !== 'undefined') umami.track('save-preset-' + index);
+  }
+
+  function loadPreset(index) {
+    var dataStr = localStorage.getItem('preset_' + index + '_data');
+    if (!dataStr) {
+      showCopyNotification('No preset saved for M' + index);
+      return;
+    }
+    try {
+      var data = JSON.parse(dataStr);
+      applyInputs(data);
+      toggleMode();
+      onMulticlassChange();
+      closePresetDropdown();
+      var label = localStorage.getItem('preset_' + index + '_label') || 'M' + index;
+      showCopyNotification('loaded values from ' + label);
+      if (typeof umami !== 'undefined') umami.track('load-preset-' + index);
+    } catch(e) {
+      showCopyNotification('Error loading preset.');
+    }
+  }
+
+  // ─── URL PARAM LOADING ──────────────────────────────────────────────
+
+  function loadFromURL() {
+    var params = new URLSearchParams(window.location.search);
+    var hasParams = false;
+    var data = {};
+    for (var pair of params.entries()) {
+      data[pair[0]] = pair[1];
+      hasParams = true;
+    }
+    if (!hasParams) return false;
+    applyInputs(data);
+    toggleMode();
+    onMulticlassChange();
+    return true;
+  }
+
+  // ─── EVENT LISTENERS ─────────────────────────────────────────────────
+
   document.getElementById('fuelBuffer').addEventListener('input', function() {
     zusatzFaktor = Math.max(0, parseFloat(this.value.replace(',','.')) || 0);
     berechnen(); calculatePitstopWindow();
+    saveInputs();
   });
-  document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
+
+  document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
     el.addEventListener('input', function() {
-      if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+      saveInputs();
+    });
+    el.addEventListener('change', function() {
+      saveInputs();
     });
   });
-  document.getElementById('saveInputsCheckbox').addEventListener('change', function() {
-    if (this.checked) saveInputs(); else localStorage.removeItem('saveInputsCheckbox');
+
+  document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
+    el.addEventListener('change', function() {
+      saveInputs();
+    });
   });
+
   document.getElementById('unit').addEventListener('change', function() {
     if (typeof umami !== 'undefined') umami.track('unit-' + this.value);
     calculatePitstopWindow();
-    if (document.getElementById('saveInputsCheckbox').checked) saveInputs();
+    saveInputs();
   });
 
   document.addEventListener('DOMContentLoaded', function() {
@@ -855,17 +1217,32 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
       document.body.classList.add('dark-mode');
       document.getElementById('darkModeIcon').src = './docs/assets/dn_w.png';
       document.getElementById('twitchIcon').src   = './docs/assets/twitch_dark.png';
+      document.getElementById('shareIcon').src    = './docs/assets/share_dark.png';
+      document.getElementById('memoryIcon').src   = './docs/assets/memory_dark.png';
+    } else {
+      document.getElementById('shareIcon').src    = './docs/assets/share.png';
+      document.getElementById('memoryIcon').src   = './docs/assets/memory.png';
     }
+
     var modeToggle = document.getElementById('modeToggle');
     document.getElementById(modeToggle.checked ? 'enduLabel' : 'sprintLabel').classList.add('active');
-    if (localStorage.getItem('saveInputsCheckbox') === 'true') {
-      document.getElementById('saveInputsCheckbox').checked = true;
+
+    var rundenzeitInput = document.getElementById('rundenzeit');
+    if (rundenzeitInput && rundenzeitInput.value) {
+      var norm = normalizeLapTimeInput(rundenzeitInput.value);
+      if (norm) rundenzeitInput.value = norm;
+    }
+
+    var loadedFromURL = loadFromURL();
+    if (!loadedFromURL) {
       restoreInputs();
       zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
-    }
-    if (localStorage.getItem('multiclassCheckbox') === 'true') {
-      document.getElementById('multiclassCheckbox').checked = true;
-      document.body.classList.add('multiclass-active');
+      if (document.getElementById('multiclassCheckbox').checked) {
+        document.body.classList.add('multiclass-active');
+      }
+      toggleMode();
+      berechnen();
+      calculatePitstopWindow();
     }
   });
 </script>
