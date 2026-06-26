@@ -1008,6 +1008,8 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     document.getElementById('equalStintsLabel').classList.remove('active');
     document.getElementById('pitstopWindowTable').innerHTML =
       '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
+    // 🆕 Warnmeldung ausblenden, da keine Werte mehr da sind
+    document.getElementById('hinweisText').style.display = 'none';
   }
 
   // ─── SHARE & PRESET FUNCTIONS ──────────────────────────────────────────
