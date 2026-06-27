@@ -945,18 +945,27 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
   }
 
   function saveInputs() {
-    document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
-      localStorage.setItem(el.id, el.value);
+    // Nur die relevanten Inputs speichern (wie collectInputs, aber ohne Checkboxen, die separat gespeichert werden)
+    var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
+                       'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
+                       'formationLapSelect','unit'];
+    relevantIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) localStorage.setItem(id, el.value);
     });
+    // Checkboxen separat
     localStorage.setItem('modeToggle', document.getElementById('modeToggle').checked);
     localStorage.setItem('multiclassCheckbox', document.getElementById('multiclassCheckbox').checked);
     localStorage.setItem('pitstopModeToggle', document.getElementById('pitstopModeToggle').checked);
   }
 
   function restoreInputs() {
-    document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
-      var v = localStorage.getItem(el.id);
-      if (v !== null) el.value = v;
+    var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
+                       'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
+                       'formationLapSelect','unit'];
+    relevantIds.forEach(function(id) {
+      var v = localStorage.getItem(id);
+      if (v !== null) document.getElementById(id).value = v;
     });
     var mode = localStorage.getItem('modeToggle');
     if (mode !== null) document.getElementById('modeToggle').checked = (mode === 'true');
@@ -967,12 +976,19 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
   }
 
   function clearInputs() {
-    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
-      el.value = ''; localStorage.removeItem(el.id);
+    // Alle relevanten Felder leeren
+    var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
+                       'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength'];
+    relevantIds.forEach(function(id) {
+      document.getElementById(id).value = '';
+      localStorage.removeItem(id);
     });
-    document.querySelectorAll('select').forEach(function(el) {
-      el.value = ''; localStorage.removeItem(el.id);
-    });
+    // Selects zurücksetzen
+    document.getElementById('formationLapSelect').value = 'no';
+    localStorage.removeItem('formationLapSelect');
+    document.getElementById('unit').value = 'minutes';
+    localStorage.removeItem('unit');
+    // Checkboxen
     document.getElementById('modeToggle').checked = false;
     localStorage.removeItem('modeToggle');
     document.getElementById('multiclassCheckbox').checked = false;
@@ -980,10 +996,9 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     localStorage.removeItem('multiclassCheckbox');
     document.getElementById('pitstopModeToggle').checked = false;
     localStorage.removeItem('pitstopModeToggle');
+    // Fuel buffer default
     document.getElementById('fuelBuffer').value = 0.3;
     localStorage.removeItem('fuelBuffer');
-    document.getElementById('formationLapSelect').value = 'no';
-    localStorage.removeItem('formationLapSelect');
     resetAllTablesAndResults();
     toggleMode();
   }
@@ -1008,7 +1023,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     document.getElementById('equalStintsLabel').classList.remove('active');
     document.getElementById('pitstopWindowTable').innerHTML =
       '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
-    // 🆕 Warnmeldung ausblenden, da keine Werte mehr da sind
+    // Warnmeldung ausblenden
     document.getElementById('hinweisText').style.display = 'none';
   }
 
@@ -1016,14 +1031,23 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 
   function collectInputs() {
     var data = {};
-    document.querySelectorAll('input[type="text"], input[type="number"]').forEach(function(el) {
-      if (el.id) data[el.id] = el.value;
+    // Alle relevanten Felder sammeln, aber NICHT die presetLabel_* Felder
+    var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
+                       'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
+                       'formationLapSelect','unit'];
+    relevantIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        data[id] = el.value;
+      }
     });
-    document.querySelectorAll('select').forEach(function(el) {
-      if (el.id) data[el.id] = el.value;
-    });
-    document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
-      if (el.id) data[el.id] = el.checked ? 'true' : 'false';
+    // Checkboxen
+    var checkboxes = ['modeToggle','multiclassCheckbox','pitstopModeToggle'];
+    checkboxes.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        data[id] = el.checked ? 'true' : 'false';
+      }
     });
     return data;
   }
@@ -1137,7 +1161,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     var labelInput = document.getElementById('presetLabel_'+index);
     var label = labelInput ? labelInput.value.trim() : 'M'+index;
     if (!label) label = 'M'+index;
-    var data = collectInputs();
+    var data = collectInputs();  // nur relevante Felder
     localStorage.setItem('preset_' + index + '_label', label);
     localStorage.setItem('preset_' + index + '_data', JSON.stringify(data));
     labelInput.value = label;
@@ -1191,19 +1215,20 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     saveInputs();
   });
 
-  document.querySelectorAll('input[type="text"], input[type="number"], select').forEach(function(el) {
-    el.addEventListener('input', function() {
-      saveInputs();
-    });
-    el.addEventListener('change', function() {
-      saveInputs();
-    });
+  // Änderungen an relevanten Feldern speichern
+  var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
+                     'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
+                     'formationLapSelect','unit'];
+  relevantIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', function() { saveInputs(); });
+      el.addEventListener('change', function() { saveInputs(); });
+    }
   });
-
+  // Checkboxen
   document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
-    el.addEventListener('change', function() {
-      saveInputs();
-    });
+    el.addEventListener('change', function() { saveInputs(); });
   });
 
   document.getElementById('unit').addEventListener('change', function() {
