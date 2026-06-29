@@ -744,6 +744,8 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
   var totalLapsRounded = 0;
   var staticTableData = [];
   var savedWindowModeLaps = null; // {laps: [...], fuelOverrides: [...]} – persists across mode switches
+  var trackedLapSliders  = new Set();
+  var trackedFuelSliders = new Set();
 
   // ─── LAP TIME NORMALIZATION ──────────────────────────────────────────
   function normalizeLapTimeInput(input) {
@@ -1262,7 +1264,13 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
           finalStintEl.textContent = 'final stint: ' + finalLaps + ' laps' + finalStintTimePart;
           finalStintEl.style.display = 'block';
         }
-        if (typeof umami !== 'undefined') umami.track('pitstop-slider-change');
+      });
+      lapSlider.addEventListener('change', function() {
+        var idx = parseInt(this.dataset.index);
+        if (!trackedLapSliders.has(idx)) {
+          trackedLapSliders.add(idx);
+          if (typeof umami !== 'undefined') umami.track('pitstop-slider-change');
+        }
       });
       lapRow.appendChild(lapSlider);
 
@@ -1301,7 +1309,13 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
           updateFuelSliderInfo(idx);
           drawFuelGraph();
           renderStaticPitstopTable();
-          if (typeof umami !== 'undefined') umami.track('fuel-slider-change');
+        });
+        fuelSlider.addEventListener('change', function() {
+          var idx = parseInt(this.dataset.index);
+          if (!trackedFuelSliders.has(idx)) {
+            trackedFuelSliders.add(idx);
+            if (typeof umami !== 'undefined') umami.track('fuel-slider-change');
+          }
         });
         fuelRow.appendChild(fuelSlider);
 
