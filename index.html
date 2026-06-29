@@ -151,15 +151,30 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 .pitstop-mode-toggle { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
 
-#pitstopWindowTable th { font-size: 14px; font-weight: normal; padding: 6px; }
 #pitstopWindowTable {
   outline: 1px solid var(--border-color); border-collapse: collapse;
   margin-bottom: 20px; border-radius: 4px; overflow: hidden;
   width: auto;
 }
 #pitstopWindowTable th, #pitstopWindowTable td {
-  border: 1px solid var(--border-color); border-spacing: 0; font-size: 14px; text-align: center;
+  border: 1px solid var(--border-color); border-spacing: 0; font-size: 13px; text-align: center;
+  padding: 4px 6px; line-height: 1.2; white-space: nowrap;
 }
+#pitstopWindowTable th { font-size: 11px; font-weight: normal; }
+
+/* Segmented mode selector */
+.pit-mode-selector { display: none; margin-bottom: 8px; }
+.pit-mode-selector button {
+  padding: 4px 10px; font-size: 12px; background-color: #e0e0e0;
+  color: #444; border: 1px solid #bbb; border-radius: 0; cursor: pointer;
+}
+.pit-mode-selector button:first-child { border-radius: 4px 0 0 4px; }
+.pit-mode-selector button:last-child { border-radius: 0 4px 4px 0; }
+.pit-mode-selector button:hover { background-color: #c8c8c8; }
+.pit-mode-selector button.active { background-color: #088F90; color: #fff; border-color: #088F90; }
+.dark-mode .pit-mode-selector button { background-color: #3c3c3c; color: #ddd; border-color: #666; }
+.dark-mode .pit-mode-selector button:hover { background-color: #505050; }
+.dark-mode .pit-mode-selector button.active { background-color: #088F90; color: #fff; border-color: #088F90; }
 
 /* Field sizes */
 #maxFuelCapacity { width: 55px; }
@@ -213,7 +228,13 @@ body.multiclass-active #timedRaceTable .fuel-ergebnis:not(.markiert) { color: #F
 body.multiclass-active [id^="aufgerundeteRunden"] { color: #FD8700; }
 body.multiclass-active #totalLapsRounded { color: #FD8700; }
 body.multiclass-active #totalFuelNeededRounded { color: #FD8700; }
-body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
+/* standard/custom: "pit lap" = col 3, "fuel to add" = col 4 */
+body.multiclass-active #pitstopWindowTable:not(.mode-equal) td:nth-child(2) { color: #FD8700; }
+body.multiclass-active #pitstopWindowTable:not(.mode-equal) td:nth-child(3) { color: #FD8700; }
+body.multiclass-active #pitstopWindowTable:not(.mode-equal) td:nth-child(4) { color: #FD8700; }
+/* equal stints: "pit lap" = col 2, "fuel to add" = col 3 */
+body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(2) { color: #FD8700; }
+body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #FD8700; }
 
 /* --- PRESET DROPDOWN & NOTIFICATION --- */
 #presetDropdown {
@@ -332,6 +353,126 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
   border: 5px solid transparent;
   border-bottom-color: var(--tooltip-bg);
 }
+
+/* ---- Graph & Slider ---- */
+#graphContainer {
+  margin-top: 20px;
+  display: none;
+  border-top: 1px solid var(--border-color);
+  padding-top: 20px;
+}
+#graphContainer.visible { display: block; }
+
+#fuelGraphCanvas {
+  width: 100%;
+  height: 200px;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+#sliderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+#sliderContainer.hidden { display: none; }
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.slider-row label {
+  font-size: 14px;
+  min-width: 60px;
+}
+.slider-row input[type="range"] {
+  width: 120px;
+  flex: 0 0 auto;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+.slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #088F90;
+  cursor: pointer;
+}
+.slider-row .slider-info {
+  font-size: 13px;
+  white-space: nowrap;
+  min-width: 280px;
+  text-align: left;
+  flex-shrink: 0;
+}
+.dark-mode .slider-row input[type="range"]::-webkit-slider-thumb {
+  background: #3a9b9f;
+}
+
+/* Pitstop slider group (lap + fuel sliders together) */
+.pitstop-slider-group {
+  margin-bottom: 6px;
+}
+.pitstop-slider-group .slider-row {
+  margin-bottom: 1px;
+}
+
+/* Fuel amount slider row */
+.fuel-slider-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 2px;
+}
+.fuel-slider-row label {
+  font-size: 13px;
+  min-width: 60px;
+  color: var(--label-color);
+  text-align: right;
+}
+.fuel-slider-row input[type="range"] {
+  width: 120px;
+  flex: 0 0 auto;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border-color);
+  border-radius: 3px;
+  outline: none;
+}
+.fuel-slider-row input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #b05010;
+  cursor: pointer;
+}
+.dark-mode .fuel-slider-row input[type="range"]::-webkit-slider-thumb {
+  background: #e07030;
+}
+.fuel-slider-row .fuel-slider-info {
+  font-size: 12px;
+  color: var(--label-color);
+  white-space: nowrap;
+}
+
+#finalStintDisplay {
+  font-size: 13px;
+  margin-top: 12px;
+}
   </style>
 
   <script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
@@ -434,7 +575,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 
         <div style="display: flex; align-items: center; gap: 6px;">
           <label for="formationLapSelect" style="font-size: 14px; white-space: nowrap;">formation lap:</label>
-          <select id="formationLapSelect" onchange="onFormationLapChange()"
+          <select id="formationLapSelect" tabindex="-1" onchange="onFormationLapChange()"
                   style="font-size: 13px; padding: 4px; height: 30px; width: 70px; border: 1px solid #ccc; border-radius: 4px;">
             <option value="no">no</option>
             <option value="short">short</option>
@@ -444,7 +585,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 
         <div style="display: flex; align-items: center; gap: 6px;">
           <div style="display: flex; align-items: center; gap: 0;"><span style="font-size: 14px; color: var(--text-color); white-space: nowrap;">multiclass safety margin</span><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0; width: 220px;">This option adds one extra lap to the race. Recommended when you are not racing in the fastest class in a multiclass race.</span></span></div>
-          <input type="checkbox" id="multiclassCheckbox" class="multiclass-cb"
+          <input type="checkbox" id="multiclassCheckbox" class="multiclass-cb" tabindex="-1"
                  onchange="onMulticlassChange()">
         </div>
 
@@ -572,18 +713,23 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     </table>
 
     <div class="pitstop-panel">
-      <div class="pitstop-mode-toggle" id="pitstopModeToggleContainer" style="display: none;">
-        <span id="standardLabel" class="toggle-labels active">standard</span>
-        <label class="toggle-switch">
-          <input type="checkbox" id="pitstopModeToggle" onchange="togglePitstopMode()">
-          <span class="slider"></span>
-        </label>
-        <span id="equalStintsLabel" class="toggle-labels">equal stints</span>
+      <div class="pit-mode-selector" id="pitstopModeContainer">
+        <button id="modeBtn_standard" onclick="setPitstopMode('standard')" class="active">standard</button>
+        <button id="modeBtn_equal" onclick="setPitstopMode('equal')">equal stints</button>
+        <button id="modeBtn_custom" onclick="setPitstopMode('custom')">custom</button>
       </div>
       <table id="pitstopWindowTable">
-        <tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>
+        <tr><th>pit<br>stop</th><th>pit window<br>(laps)</th><th>pit<br>lap</th><th>fuel to<br>add</th></tr>
       </table>
+      <button id="toggleGraphBtn" style="display: none; margin-top: 6px;" onclick="toggleGraph()">show planner</button>
     </div>
+  </div>
+
+  <!-- Graph Container -->
+  <div id="graphContainer">
+    <canvas id="fuelGraphCanvas" width="560" height="200"></canvas>
+    <div id="sliderContainer"></div>
+    <div id="finalStintDisplay"></div>
   </div>
 </div>
 
@@ -591,6 +737,13 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
 
 <script>
   var zusatzFaktor = 0.3;
+  var pitstopData = [];
+  var pitstopMode = 'standard';
+  var graphVisible = false;
+  var maxLapsPerTank = 0;
+  var totalLapsRounded = 0;
+  var staticTableData = [];
+  var savedWindowModeLaps = null; // {laps: [...], fuelOverrides: [...]} – persists across mode switches
 
   // ─── LAP TIME NORMALIZATION ──────────────────────────────────────────
   function normalizeLapTimeInput(input) {
@@ -644,7 +797,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     return ('0'+m).slice(-2)+':'+('0'+s).slice(-2)+'.'+('00'+ms).slice(-3);
   }
 
-  // Auto-format lap time input on blur
   document.addEventListener('DOMContentLoaded', function() {
     var rundenzeitInput = document.getElementById('rundenzeit');
     if (rundenzeitInput) {
@@ -654,6 +806,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
         var norm = normalizeLapTimeInput(val);
         if (norm) {
           this.value = norm;
+          saveInputs();
         }
       });
     }
@@ -781,13 +934,38 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     document.getElementById('hinweisText').style.display = hat ? 'block' : 'none';
   }
 
-  function togglePitstopMode() {
-    var tog = document.getElementById('pitstopModeToggle');
-    document.getElementById('standardLabel').classList.toggle('active', !tog.checked);
-    document.getElementById('equalStintsLabel').classList.toggle('active', tog.checked);
-    if (typeof umami !== 'undefined') umami.track(tog.checked ? 'switch-to-equal-stints' : 'switch-to-standard');
+  function setPitstopMode(mode) {
+    var isReset = (mode === pitstopMode);
+
+    if (isReset) {
+      // Clicking the already-active mode button: reset to defaults (only standard/custom are relevant)
+      savedWindowModeLaps = null;
+      if (typeof umami !== 'undefined') umami.track('pitstop-slider-reset-' + mode);
+    } else {
+      // Switching to a different mode: save current pit lap/fuel positions if in a window mode
+      if ((pitstopMode === 'standard' || pitstopMode === 'custom') && pitstopData.length > 0) {
+        savedWindowModeLaps = {
+          laps: pitstopData.map(function(d) { return d.currentLap; }),
+          fuelOverrides: pitstopData.map(function(d) { return d.customFuelOverride; })
+        };
+      }
+      pitstopMode = mode;
+      updateModeButtons();
+      if (typeof umami !== 'undefined') umami.track('pitstop-mode-' + mode);
+    }
+
     calculatePitstopWindow();
+    saveInputs();
   }
+
+  function updateModeButtons() {
+    ['standard', 'equal', 'custom'].forEach(function(m) {
+      var btn = document.getElementById('modeBtn_' + m);
+      if (btn) btn.classList.toggle('active', m === pitstopMode);
+    });
+  }
+
+  // ─── PITSTOP CALCULATION ────────────────────────────────────────────
 
   function calculatePitstopWindow() {
     var maxFuelCapacity = validateAndParseInput(document.getElementById('maxFuelCapacity'));
@@ -809,9 +987,9 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     }
 
     var extraLap         = getExtraLap();
-    var totalLapsRounded = Math.ceil(totalLaps) + extraLap;
+    totalLapsRounded = Math.ceil(totalLaps) + extraLap;
     var maxLapsPerTankExact = (maxFuelCapacity - zusatzFaktor) / verbrauch;
-    var maxLapsPerTank      = Math.floor(maxLapsPerTankExact);
+    maxLapsPerTank = Math.floor(maxLapsPerTankExact);
 
     var firstStintMaxLaps   = Math.floor((maxFuelCapacity - formationFuel - zusatzFaktor) / verbrauch);
 
@@ -832,19 +1010,81 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     document.getElementById('stintTime').textContent     = !isNaN(rundenzeit) ? formatRaceTime(maxLapsPerTank * rundenzeit) : '';
     document.getElementById('totalRaceTime').textContent = !isNaN(rundenzeit) ? formatRaceTime(totalLapsRounded * rundenzeit) : '';
 
-    var toggleContainer = document.getElementById('pitstopModeToggleContainer');
-    toggleContainer.style.display = (totalPitstops > 1) ? 'flex' : 'none';
+    var modeContainer = document.getElementById('pitstopModeContainer');
+    modeContainer.style.display = (totalPitstops > 1) ? 'flex' : 'none';
 
-    var pitstopModeToggle = document.getElementById('pitstopModeToggle');
     if (totalPitstops <= 1) {
-      pitstopModeToggle.checked = false;
-      document.getElementById('standardLabel').classList.add('active');
-      document.getElementById('equalStintsLabel').classList.remove('active');
+      pitstopMode = 'standard';
+      savedWindowModeLaps = null;
+      updateModeButtons();
     }
 
-    var isEqualMode = pitstopModeToggle.checked && totalPitstops > 1;
-    if (isEqualMode) renderEqualStints(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel);
-    else             renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel);
+    var effectiveMode = (totalPitstops > 1) ? pitstopMode : 'standard';
+    var isEqualMode  = (effectiveMode === 'equal');
+    var isCustomMode = (effectiveMode === 'custom');
+
+    pitstopData = [];
+    if (totalPitstops > 0) {
+      if (isEqualMode) {
+        buildEqualStintsData(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel);
+      } else {
+        buildWindowModeData(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel);
+        // Restore saved pit lap positions when switching between standard/custom modes
+        if (savedWindowModeLaps && savedWindowModeLaps.laps.length === pitstopData.length) {
+          for (var j = 0; j < pitstopData.length; j++) {
+            var savedLap = savedWindowModeLaps.laps[j];
+            if (savedLap >= pitstopData[j].windowStart && savedLap <= pitstopData[j].windowEnd) {
+              pitstopData[j].currentLap = savedLap;
+            }
+            // Restore fuel overrides only in custom mode
+            if (effectiveMode === 'custom' && savedWindowModeLaps.fuelOverrides) {
+              pitstopData[j].customFuelOverride = savedWindowModeLaps.fuelOverrides[j];
+            }
+          }
+          adjustAllSliders(0);
+        }
+        // Properly compute fuel amounts (handles customFuelOverride, fuelAfterStop, min/max)
+        recalcFuelFrom(0);
+      }
+    }
+
+    staticTableData = [];
+    if (pitstopData.length > 0) {
+      for (var i = 0; i < pitstopData.length; i++) {
+        staticTableData.push({
+          windowStart: pitstopData[i].windowStart,
+          windowEnd: pitstopData[i].windowEnd,
+          pitLap: pitstopData[i].currentLap,
+          mode: effectiveMode
+        });
+      }
+    }
+
+    renderStaticPitstopTable();
+    updatePitstopSliders(effectiveMode);
+    drawFuelGraph();
+
+    var finalStintEl = document.getElementById('finalStintDisplay');
+    if (!isEqualMode && pitstopData.length > 0) {
+      var lastStopLap = pitstopData[pitstopData.length-1].currentLap;
+      var finalLaps = totalLapsRounded - lastStopLap;
+      var finalStintTimePart = !isNaN(rundenzeit) ? ' - stint time: ' + formatRaceTime(finalLaps * rundenzeit) : '';
+      finalStintEl.textContent = 'final stint: ' + finalLaps + ' laps' + finalStintTimePart;
+      finalStintEl.style.display = 'block';
+    } else {
+      finalStintEl.textContent = '';
+      finalStintEl.style.display = 'none';
+    }
+
+    var btn = document.getElementById('toggleGraphBtn');
+    if (pitstopData.length > 0) {
+      btn.style.display = 'inline-block';
+      btn.textContent = graphVisible ? 'hide planner' : 'show planner';
+    } else {
+      btn.style.display = 'none';
+      document.getElementById('graphContainer').classList.remove('visible');
+      graphVisible = false;
+    }
 
     var equalStintTimeRow = document.getElementById('equalStintTimeRow');
     if (isEqualMode && !isNaN(rundenzeit)) {
@@ -857,41 +1097,27 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     }
   }
 
-  function renderWindowMode(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
-    var t = document.getElementById('pitstopWindowTable');
-    t.innerHTML = '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
-
+  function buildWindowModeData(totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
     for (var i = 1; i <= totalPitstops; i++) {
       var late  = firstStintMaxLaps + (i - 1) * maxLapsPerTank;
+      late = Math.min(late, totalLapsRounded - 1);
       var early = Math.max(1, totalLapsRounded - (totalPitstops - i + 1) * maxLapsPerTank);
-
-      var remainingFuel;
-      if (i === 1) {
-        remainingFuel = maxFuelCapacity - formationFuel - (late * verbrauch);
-      } else {
-        remainingFuel = maxFuelCapacity - (maxLapsPerTank * verbrauch);
-      }
-      if (remainingFuel < 0) remainingFuel = 0;
-
-      var canAdd = maxFuelCapacity - remainingFuel;
-
-      var fuelToAdd;
-      if (i < totalPitstops) {
-        fuelToAdd = canAdd;
-      } else {
-        var lapsLeft = totalLapsRounded - late;
-        fuelToAdd = (lapsLeft * verbrauch) + zusatzFaktor - remainingFuel;
-        if (fuelToAdd < 0) fuelToAdd = 0;
-      }
-
-      var display = (fuelToAdd >= canAdd) ? 'full' : fuelToAdd.toFixed(2);
-      var row = document.createElement('tr');
-      row.innerHTML = '<td>'+i+'</td><td>'+early+' - '+late+'</td><td>'+display+'</td>';
-      t.appendChild(row);
+      if (early > late) early = late;
+      var defaultLap = late;
+      pitstopData.push({
+        windowStart: early,
+        windowEnd: late,
+        currentLap: defaultLap,
+        fuelToAdd: 0,          // will be computed by recalcFuelFrom(0)
+        fuelAfterStop: 0,
+        minFuelToAdd: 0,
+        maxFuelToAdd: 0,
+        customFuelOverride: null  // null = fill to full (default)
+      });
     }
   }
 
-  function renderEqualStints(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel) {
+  function buildEqualStintsData(totalLapsRounded, totalPitstops, verbrauch, maxFuelCapacity, formationFuel) {
     var numStints = totalPitstops + 1;
     var pitLaps = [];
     for (var i = 1; i <= totalPitstops; i++) {
@@ -902,15 +1128,530 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     if (totalFuelToAdd < 0) totalFuelToAdd = 0;
     var fuelPerStop = totalFuelToAdd / totalPitstops;
 
-    var t = document.getElementById('pitstopWindowTable');
-    t.innerHTML = '<tr><th>pitstop</th><th>pit on lap</th><th>fuel to add</th></tr>';
     for (var i = 0; i < totalPitstops; i++) {
-      var display = (fuelPerStop >= maxFuelCapacity) ? 'full' : fuelPerStop.toFixed(2);
-      var row = document.createElement('tr');
-      row.innerHTML = '<td>'+(i+1)+'</td><td>'+pitLaps[i]+'</td><td>'+display+'</td>';
-      t.appendChild(row);
+      var lap = pitLaps[i];
+      if (lap >= totalLapsRounded) lap = totalLapsRounded - 1;
+      var windowStart = Math.max(1, lap - 2);
+      var windowEnd = Math.min(totalLapsRounded - 1, lap + 2);
+      if (windowStart > windowEnd) { windowStart = windowEnd; }
+      var fuelAdd = computeFuelToAddEqual(i+1, lap, totalLapsRounded, verbrauch, maxFuelCapacity, formationFuel, totalPitstops);
+      pitstopData.push({
+        windowStart: windowStart,
+        windowEnd: windowEnd,
+        currentLap: lap,
+        fuelToAdd: fuelAdd
+      });
     }
   }
+
+  function computeFuelToAdd(stopIndex, stopLap, totalLapsRounded, totalPitstops, maxLapsPerTank, firstStintMaxLaps, verbrauch, maxFuelCapacity, formationFuel) {
+    var previousLap = 0;
+    if (stopIndex > 1) {
+      previousLap = pitstopData[stopIndex-2].currentLap;
+    }
+    var fuelAtStart = (stopIndex === 1) ? maxFuelCapacity - formationFuel : maxFuelCapacity;
+    var lapsDriven = stopLap - previousLap;
+    var remainingFuel = fuelAtStart - lapsDriven * verbrauch;
+    if (remainingFuel < 0) remainingFuel = 0;
+
+    if (stopIndex < totalPitstops) {
+      var fuelToAdd = maxFuelCapacity - remainingFuel;
+      return Math.max(0, fuelToAdd);
+    } else {
+      var lapsToEnd = totalLapsRounded - stopLap;
+      var fuelNeeded = lapsToEnd * verbrauch + zusatzFaktor;
+      var fuelToAdd = fuelNeeded - remainingFuel;
+      return Math.max(0, fuelToAdd);
+    }
+  }
+
+  function computeFuelToAddEqual(stopIndex, stopLap, totalLapsRounded, verbrauch, maxFuelCapacity, formationFuel, totalPitstops) {
+    var totalFuelNeeded = (totalLapsRounded * verbrauch) + formationFuel + zusatzFaktor;
+    var totalFuelToAdd  = totalFuelNeeded - maxFuelCapacity;
+    if (totalFuelToAdd < 0) totalFuelToAdd = 0;
+    return totalFuelToAdd / totalPitstops;
+  }
+
+  // ─── RENDER STATIC PITSTOP TABLE ───────────────────────────────────
+
+  function renderStaticPitstopTable() {
+    var t = document.getElementById('pitstopWindowTable');
+    var isEqualRender = (pitstopMode === 'equal');
+    // Drive the CSS multiclass-orange rules via a class on the table
+    t.classList.toggle('mode-equal', isEqualRender);
+    var headerHtml = isEqualRender
+      ? '<tr><th>pit<br>stop</th><th>pit<br>lap</th><th>fuel to<br>add</th></tr>'
+      : '<tr><th>pit<br>stop</th><th>pit window<br>(laps)</th><th>pit<br>lap</th><th>fuel to<br>add</th></tr>';
+    if (pitstopData.length === 0) {
+      t.innerHTML = headerHtml;
+      return;
+    }
+    var html = headerHtml;
+    for (var i = 0; i < pitstopData.length; i++) {
+      var d = pitstopData[i];
+      html += '<tr><td>' + (i + 1) + '</td>';
+      if (!isEqualRender) {
+        html += '<td>' + d.windowStart + ' - ' + d.windowEnd + '</td>';
+      }
+      html += '<td>' + d.currentLap + '</td>';
+      var fuelDisplay = d.fuelToAdd.toFixed(2);
+      if (!isEqualRender && i < pitstopData.length - 1 && d.maxFuelToAdd !== undefined &&
+          Math.abs(d.fuelToAdd - d.maxFuelToAdd) < 0.005) {
+        fuelDisplay += ' (full)';
+      }
+      html += '<td>' + fuelDisplay + '</td></tr>';
+    }
+    t.innerHTML = html;
+  }
+
+  // ─── SLIDER MANAGEMENT ──────────────────────────────────────────────
+
+  function updatePitstopSliders(mode) {
+    var container = document.getElementById('sliderContainer');
+    container.innerHTML = '';
+    if (mode === 'equal' || pitstopData.length === 0) {
+      container.classList.add('hidden');
+      return;
+    }
+    container.classList.remove('hidden');
+
+    var showFuelSliders = (mode === 'custom');
+
+    for (var i = 0; i < pitstopData.length; i++) {
+      var d = pitstopData[i];
+      var isLastStop = (i === pitstopData.length - 1);
+
+      var group = document.createElement('div');
+      group.className = 'pitstop-slider-group';
+
+      // ── LAP SLIDER ROW ──
+      var lapRow = document.createElement('div');
+      lapRow.className = 'slider-row';
+
+      var label = document.createElement('label');
+      label.textContent = 'pitstop ' + (i + 1);
+      lapRow.appendChild(label);
+
+      var lapSlider = document.createElement('input');
+      lapSlider.type = 'range';
+      lapSlider.min  = d.windowStart;
+      lapSlider.max  = d.windowEnd;
+      lapSlider.value = d.currentLap;
+      lapSlider.step  = 1;
+      lapSlider.dataset.index = i;
+      lapSlider.dataset.role  = 'lap';
+      lapSlider.addEventListener('input', function() {
+        var idx    = parseInt(this.dataset.index);
+        var newVal = parseInt(this.value);
+        newVal = Math.max(pitstopData[idx].windowStart, Math.min(pitstopData[idx].windowEnd, newVal));
+        pitstopData[idx].currentLap = newVal;
+
+        adjustAllSliders(idx);
+        syncAllSliders();
+        recalcFuelFrom(0);
+        if (pitstopMode === 'custom') syncFuelSliders(0);
+        drawFuelGraph();
+        renderStaticPitstopTable();
+
+        var finalStintEl = document.getElementById('finalStintDisplay');
+        if (pitstopData.length > 0) {
+          var lastStopLap = pitstopData[pitstopData.length - 1].currentLap;
+          var finalLaps   = totalLapsRounded - lastStopLap;
+          var rz = umwandelnInSekunden(document.getElementById('rundenzeit').value);
+          var finalStintTimePart = !isNaN(rz) ? ' - stint time: ' + formatRaceTime(finalLaps * rz) : '';
+          finalStintEl.textContent = 'final stint: ' + finalLaps + ' laps' + finalStintTimePart;
+          finalStintEl.style.display = 'block';
+        }
+        if (typeof umami !== 'undefined') umami.track('pitstop-slider-change');
+      });
+      lapRow.appendChild(lapSlider);
+
+      var lapInfo = document.createElement('span');
+      lapInfo.className = 'slider-info';
+      lapInfo.id = 'sliderInfo_' + i;
+      updateSliderInfo(i, lapInfo);
+      lapRow.appendChild(lapInfo);
+
+      group.appendChild(lapRow);
+
+      // ── FUEL SLIDER ROW (only for custom mode, non-last stops) ──
+      if (showFuelSliders && !isLastStop) {
+        var fuelRow = document.createElement('div');
+        fuelRow.className = 'fuel-slider-row';
+        fuelRow.id = 'fuelRow_' + i;
+
+        var fuelLabel = document.createElement('label');
+        fuelLabel.textContent = 'refuel:';
+        fuelRow.appendChild(fuelLabel);
+
+        var fuelSlider = document.createElement('input');
+        fuelSlider.type  = 'range';
+        fuelSlider.min   = parseFloat(d.minFuelToAdd.toFixed(2));
+        fuelSlider.max   = parseFloat(d.maxFuelToAdd.toFixed(2));
+        fuelSlider.value = parseFloat(d.fuelToAdd.toFixed(2));
+        fuelSlider.step  = 0.01;
+        fuelSlider.dataset.index = i;
+        fuelSlider.id = 'fuelSlider_' + i;
+        fuelSlider.addEventListener('input', function() {
+          var idx    = parseInt(this.dataset.index);
+          var newVal = parseFloat(this.value);
+          pitstopData[idx].customFuelOverride = newVal;
+          recalcFuelFrom(idx);
+          syncFuelSliders(idx + 1);
+          updateFuelSliderInfo(idx);
+          drawFuelGraph();
+          renderStaticPitstopTable();
+          if (typeof umami !== 'undefined') umami.track('fuel-slider-change');
+        });
+        fuelRow.appendChild(fuelSlider);
+
+        var fuelInfo = document.createElement('span');
+        fuelInfo.className = 'fuel-slider-info';
+        fuelInfo.id = 'fuelInfo_' + i;
+        updateFuelSliderInfo(i, fuelInfo);
+        fuelRow.appendChild(fuelInfo);
+
+        group.appendChild(fuelRow);
+      }
+
+      container.appendChild(group);
+    }
+
+    // Re-sync fuel slider DOM attributes after all elements are in the DOM.
+    // Some browsers mis-render the thumb position when value/min/max are set
+    // before the element is attached; this forces a correct re-render.
+    if (showFuelSliders) syncFuelSliders(0);
+  }
+
+  // Sync fuel slider DOM attributes (min/max/value) from pitstopData, from fromIdx forward
+  function syncFuelSliders(fromIdx) {
+    for (var k = fromIdx; k < pitstopData.length - 1; k++) {
+      var sl = document.getElementById('fuelSlider_' + k);
+      if (!sl) continue;
+      var d = pitstopData[k];
+      sl.min   = parseFloat(d.minFuelToAdd.toFixed(2));
+      sl.max   = parseFloat(d.maxFuelToAdd.toFixed(2));
+      sl.value = parseFloat(d.fuelToAdd.toFixed(2));
+      updateFuelSliderInfo(k);
+    }
+    // Also update last stop's lap info (fuel amount may have changed)
+    var lastIdx = pitstopData.length - 1;
+    if (lastIdx >= 0) {
+      var infoEl = document.getElementById('sliderInfo_' + lastIdx);
+      if (infoEl) updateSliderInfo(lastIdx, infoEl);
+    }
+  }
+
+  // Update the fuel slider info text for a given stop index
+  function updateFuelSliderInfo(idx, el) {
+    if (!el) el = document.getElementById('fuelInfo_' + idx);
+    if (!el) return;
+    var d = pitstopData[idx];
+    var isAtMax = (Math.abs(d.fuelToAdd - d.maxFuelToAdd) < 0.005);
+    var text = d.fuelToAdd.toFixed(2);
+    if (isAtMax) {
+      text += ' (full)';
+    }
+    text += '  [min: ' + d.minFuelToAdd.toFixed(2) + ' / max: ' + d.maxFuelToAdd.toFixed(2) + ']';
+    el.textContent = text;
+  }
+
+  function adjustAllSliders(changedIdx) {
+    for (var i = changedIdx; i < pitstopData.length - 1; i++) {
+      var current = pitstopData[i].currentLap;
+      var next = pitstopData[i+1];
+      var minNext = current + 1;
+      var maxNext = current + maxLapsPerTank;
+      if (next.currentLap < minNext) {
+        next.currentLap = minNext;
+      } else if (next.currentLap > maxNext) {
+        next.currentLap = maxNext;
+      }
+      next.currentLap = Math.max(next.windowStart, Math.min(next.windowEnd, next.currentLap));
+    }
+    for (var i = changedIdx; i > 0; i--) {
+      var current = pitstopData[i].currentLap;
+      var prev = pitstopData[i-1];
+      var minPrev = current - maxLapsPerTank;
+      var maxPrev = current - 1;
+      if (prev.currentLap < minPrev) {
+        prev.currentLap = minPrev;
+      } else if (prev.currentLap > maxPrev) {
+        prev.currentLap = maxPrev;
+      }
+      prev.currentLap = Math.max(prev.windowStart, Math.min(prev.windowEnd, prev.currentLap));
+    }
+    for (var iter = 0; iter < 3; iter++) {
+      var changed = false;
+      for (var i = 0; i < pitstopData.length - 1; i++) {
+        var cur = pitstopData[i].currentLap;
+        var nxt = pitstopData[i+1];
+        var minN = cur + 1;
+        var maxN = cur + maxLapsPerTank;
+        var old = nxt.currentLap;
+        if (nxt.currentLap < minN) {
+          nxt.currentLap = minN;
+          changed = true;
+        } else if (nxt.currentLap > maxN) {
+          nxt.currentLap = maxN;
+          changed = true;
+        }
+        nxt.currentLap = Math.max(nxt.windowStart, Math.min(nxt.windowEnd, nxt.currentLap));
+        if (nxt.currentLap !== old) changed = true;
+      }
+      for (var i = pitstopData.length - 1; i > 0; i--) {
+        var cur = pitstopData[i].currentLap;
+        var prv = pitstopData[i-1];
+        var minP = cur - maxLapsPerTank;
+        var maxP = cur - 1;
+        var old = prv.currentLap;
+        if (prv.currentLap < minP) {
+          prv.currentLap = minP;
+          changed = true;
+        } else if (prv.currentLap > maxP) {
+          prv.currentLap = maxP;
+          changed = true;
+        }
+        prv.currentLap = Math.max(prv.windowStart, Math.min(prv.windowEnd, prv.currentLap));
+        if (prv.currentLap !== old) changed = true;
+      }
+      if (!changed) break;
+    }
+  }
+
+  function syncAllSliders() {
+    for (var i = 0; i < pitstopData.length; i++) {
+      // Only select lap sliders (not fuel sliders) via data-role attribute
+      var slider = document.querySelector('#sliderContainer input[data-role="lap"][data-index="' + i + '"]');
+      if (slider) {
+        slider.value = pitstopData[i].currentLap;
+        slider.min   = pitstopData[i].windowStart;
+        slider.max   = pitstopData[i].windowEnd;
+      }
+    }
+  }
+
+  function updateSliderInfo(idx, el) {
+    if (!el) el = document.getElementById('sliderInfo_' + idx);
+    if (!el) return;
+    var d = pitstopData[idx];
+    var previousLap = (idx === 0) ? 0 : pitstopData[idx - 1].currentLap;
+    var stintLaps   = d.currentLap - previousLap;
+    var rundenzeit  = umwandelnInSekunden(document.getElementById('rundenzeit').value);
+    var stintTimePart = !isNaN(rundenzeit) ? ' - stint time: ' + formatRaceTime(stintLaps * rundenzeit) : '';
+    el.textContent = 'pit lap: ' + d.currentLap + ' - stint: ' + stintLaps + ' laps' + stintTimePart + ' - fuel: ' + d.fuelToAdd.toFixed(2);
+  }
+
+  function recalcFuelFrom(startIdx) {
+    var totalLaps = parseInt(document.getElementById('totalLapsRounded').textContent);
+    var verbrauch  = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
+    var maxFuelCapacity = parseFloat(document.getElementById('maxFuelCapacity').value.replace(',','.'));
+    var formationFuel = getFormationFuel(verbrauch);
+
+    // Determine fuel level entering the first stop we recalc from
+    var fuelLevel;
+    if (startIdx === 0) {
+      fuelLevel = maxFuelCapacity - formationFuel;
+    } else {
+      fuelLevel = (pitstopData[startIdx - 1].fuelAfterStop !== undefined)
+                  ? pitstopData[startIdx - 1].fuelAfterStop
+                  : maxFuelCapacity;
+    }
+
+    for (var i = startIdx; i < pitstopData.length; i++) {
+      var prevLap  = (i === 0) ? 0 : pitstopData[i - 1].currentLap;
+      var stopLap  = pitstopData[i].currentLap;
+      var lapsDriven = stopLap - prevLap;
+      var fuelBefore = fuelLevel - lapsDriven * verbrauch;
+      if (fuelBefore < 0) fuelBefore = 0;
+
+      var isLastStop = (i === pitstopData.length - 1);
+
+      if (!isLastStop) {
+        var nextStopLap  = pitstopData[i + 1].currentLap;
+        var lapsToNext   = nextStopLap - stopLap;
+        var maxFuelToAdd = Math.max(0, maxFuelCapacity - fuelBefore);
+        // minimum: just enough so fuel doesn't go below fuel buffer at the next stop
+        var minFuelToAdd = Math.max(0, lapsToNext * verbrauch + zusatzFaktor - fuelBefore);
+
+        pitstopData[i].minFuelToAdd = minFuelToAdd;
+        pitstopData[i].maxFuelToAdd = maxFuelToAdd;
+
+        var override = pitstopData[i].customFuelOverride;
+        var fuelToAdd;
+        if (override === null || override === undefined) {
+          fuelToAdd = maxFuelToAdd; // fill to full (default)
+        } else {
+          // clamp to valid range
+          fuelToAdd = Math.max(minFuelToAdd, Math.min(maxFuelToAdd, override));
+          pitstopData[i].customFuelOverride = fuelToAdd; // store clamped value
+        }
+        pitstopData[i].fuelToAdd    = fuelToAdd;
+        pitstopData[i].fuelAfterStop = fuelBefore + fuelToAdd;
+      } else {
+        // Last stop: always exactly what is needed for the remaining laps + buffer
+        var lapsToEnd  = totalLaps - stopLap;
+        var fuelNeeded = lapsToEnd * verbrauch + zusatzFaktor;
+        var fuelToAdd  = Math.max(0, fuelNeeded - fuelBefore);
+        pitstopData[i].fuelToAdd     = fuelToAdd;
+        pitstopData[i].fuelAfterStop = fuelBefore + fuelToAdd;
+        pitstopData[i].minFuelToAdd  = fuelToAdd;
+        pitstopData[i].maxFuelToAdd  = fuelToAdd;
+      }
+
+      fuelLevel = pitstopData[i].fuelAfterStop;
+    }
+
+    // Update DOM info spans
+    for (var k = startIdx; k < pitstopData.length; k++) {
+      var infoEl = document.getElementById('sliderInfo_' + k);
+      if (infoEl) updateSliderInfo(k, infoEl);
+    }
+  }
+
+  // ─── GRAPH DRAWING ─────────────────────────────────────────────────
+
+  function drawFuelGraph() {
+    var canvas = document.getElementById('fuelGraphCanvas');
+    var ctx = canvas.getContext('2d');
+    var width = canvas.width, height = canvas.height;
+    ctx.clearRect(0, 0, width, height);
+
+    if (pitstopData.length === 0) {
+      ctx.fillStyle = '#888';
+      ctx.font = '14px Arial';
+      ctx.textAlign = 'center';
+      ctx.fillText('No pitstops required', width/2, height/2);
+      return;
+    }
+
+    var totalLapsRounded = parseInt(document.getElementById('totalLapsRounded').textContent);
+    var verbrauch = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
+    var maxFuelCapacity = parseFloat(document.getElementById('maxFuelCapacity').value.replace(',','.'));
+    var formationFuel = getFormationFuel(verbrauch);
+
+    var points = [];
+    var fuel = maxFuelCapacity - formationFuel;
+    var currentLap = 0;
+    var stopIdx = 0;
+    while (currentLap <= totalLapsRounded) {
+      var nextStopLap = (stopIdx < pitstopData.length) ? pitstopData[stopIdx].currentLap : Infinity;
+      if (currentLap < nextStopLap) {
+        var lapsToNext = Math.min(nextStopLap, totalLapsRounded) - currentLap;
+        var fuelAtEnd = fuel - lapsToNext * verbrauch;
+        if (fuelAtEnd < 0) fuelAtEnd = 0;
+        points.push({x: currentLap, y: fuel});
+        currentLap = Math.min(nextStopLap, totalLapsRounded);
+        fuel = fuelAtEnd;
+        points.push({x: currentLap, y: fuel});
+        if (currentLap >= totalLapsRounded) break;
+        if (stopIdx < pitstopData.length && currentLap === nextStopLap) {
+          var fuelAdd = pitstopData[stopIdx].fuelToAdd;
+          fuel = Math.min(maxFuelCapacity, fuel + fuelAdd);
+          points.push({x: currentLap, y: fuel});
+          stopIdx++;
+        }
+      }
+    }
+
+    var padding = { top: 20, bottom: 30, left: 40, right: 20 };
+    var plotWidth = width - padding.left - padding.right;
+    var plotHeight = height - padding.top - padding.bottom;
+    var maxFuel = maxFuelCapacity;
+    var minFuel = 0;
+
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 1;
+    ctx.font = '10px Arial';
+    ctx.fillStyle = '#888';
+    ctx.textAlign = 'center';
+    ctx.beginPath();
+    ctx.moveTo(padding.left, height - padding.bottom);
+    ctx.lineTo(width - padding.right, height - padding.bottom);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(padding.left, padding.top);
+    ctx.lineTo(padding.left, height - padding.bottom);
+    ctx.stroke();
+
+    // X‑Achsen‑Labels: reguläre Schritte plus die letzte Runde
+    var step = Math.max(1, Math.round(totalLapsRounded / 10));
+    var labelsAdded = {};
+    for (var x = 0; x <= totalLapsRounded; x += step) {
+      var xPos = padding.left + (x / totalLapsRounded) * plotWidth;
+      ctx.fillText(x, xPos, height - padding.bottom + 15);
+      labelsAdded[x] = true;
+    }
+    // Letzte Runde immer anzeigen, falls noch nicht vorhanden
+    var lastLap = totalLapsRounded;
+    if (!labelsAdded[lastLap]) {
+      var xPos = padding.left + (lastLap / totalLapsRounded) * plotWidth;
+      ctx.fillText(lastLap, xPos, height - padding.bottom + 15);
+    }
+
+    var yStep = Math.max(1, Math.round(maxFuel / 5));
+    for (var y = 0; y <= maxFuel; y += yStep) {
+      var yPos = height - padding.bottom - (y / maxFuel) * plotHeight;
+      ctx.fillText(y.toFixed(1), padding.left - 25, yPos + 4);
+    }
+
+    if (points.length > 1) {
+      ctx.beginPath();
+      ctx.strokeStyle = '#088F90';
+      ctx.lineWidth = 2;
+      for (var i = 0; i < points.length; i++) {
+        var px = padding.left + (points[i].x / totalLapsRounded) * plotWidth;
+        var py = height - padding.bottom - (points[i].y / maxFuel) * plotHeight;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      for (var i = 0; i < pitstopData.length; i++) {
+        var stopLap = pitstopData[i].currentLap;
+        var px = padding.left + (stopLap / totalLapsRounded) * plotWidth;
+        var fuelAfter = 0;
+        for (var j = 0; j < points.length; j++) {
+          if (points[j].x === stopLap) {
+            fuelAfter = points[j].y;
+            break;
+          }
+        }
+        var py = height - padding.bottom - (fuelAfter / maxFuel) * plotHeight;
+        ctx.beginPath();
+        ctx.arc(px, py, 4, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ff6600';
+        ctx.fill();
+        ctx.strokeStyle = '#ff6600';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3,3]);
+        ctx.beginPath();
+        ctx.moveTo(px, padding.top);
+        ctx.lineTo(px, height - padding.bottom);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    }
+  }
+
+  // ─── TOGGLE GRAPH ──────────────────────────────────────────────────
+
+  function toggleGraph() {
+    var container = document.getElementById('graphContainer');
+    container.classList.toggle('visible');
+    graphVisible = container.classList.contains('visible');
+    document.getElementById('toggleGraphBtn').textContent = graphVisible ? 'hide planner' : 'show planner';
+    if (graphVisible) {
+      drawFuelGraph();
+      for (var i = 0; i < pitstopData.length; i++) {
+        var infoEl = document.getElementById('sliderInfo_' + i);
+        if (infoEl) updateSliderInfo(i, infoEl);
+      }
+    }
+    if (typeof umami !== 'undefined') umami.track(graphVisible ? 'show-planner' : 'hide-planner');
+  }
+
+  // ─── OTHER FUNCTIONS ──────────────────────────────────────────────
 
   function toggleMode() {
     var tog = document.getElementById('modeToggle');
@@ -945,7 +1686,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
   }
 
   function saveInputs() {
-    // Nur die relevanten Inputs speichern (wie collectInputs, aber ohne Checkboxen, die separat gespeichert werden)
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
                        'formationLapSelect','unit'];
@@ -953,10 +1693,9 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
       var el = document.getElementById(id);
       if (el) localStorage.setItem(id, el.value);
     });
-    // Checkboxen separat
     localStorage.setItem('modeToggle', document.getElementById('modeToggle').checked);
     localStorage.setItem('multiclassCheckbox', document.getElementById('multiclassCheckbox').checked);
-    localStorage.setItem('pitstopModeToggle', document.getElementById('pitstopModeToggle').checked);
+    localStorage.setItem('pitstopMode', pitstopMode);
   }
 
   function restoreInputs() {
@@ -971,32 +1710,32 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     if (mode !== null) document.getElementById('modeToggle').checked = (mode === 'true');
     var mc = localStorage.getItem('multiclassCheckbox');
     if (mc !== null) document.getElementById('multiclassCheckbox').checked = (mc === 'true');
-    var pm = localStorage.getItem('pitstopModeToggle');
-    if (pm !== null) document.getElementById('pitstopModeToggle').checked = (pm === 'true');
+    var pm = localStorage.getItem('pitstopMode');
+    if (pm !== null && ['standard', 'equal', 'custom'].indexOf(pm) >= 0) {
+      pitstopMode = pm;
+      updateModeButtons();
+    }
   }
 
   function clearInputs() {
-    // Alle relevanten Felder leeren
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength'];
     relevantIds.forEach(function(id) {
       document.getElementById(id).value = '';
       localStorage.removeItem(id);
     });
-    // Selects zurücksetzen
     document.getElementById('formationLapSelect').value = 'no';
     localStorage.removeItem('formationLapSelect');
     document.getElementById('unit').value = 'minutes';
     localStorage.removeItem('unit');
-    // Checkboxen
     document.getElementById('modeToggle').checked = false;
     localStorage.removeItem('modeToggle');
     document.getElementById('multiclassCheckbox').checked = false;
     document.body.classList.remove('multiclass-active');
     localStorage.removeItem('multiclassCheckbox');
-    document.getElementById('pitstopModeToggle').checked = false;
-    localStorage.removeItem('pitstopModeToggle');
-    // Fuel buffer default
+    pitstopMode = 'standard';
+    updateModeButtons();
+    localStorage.removeItem('pitstopMode');
     document.getElementById('fuelBuffer').value = 0.3;
     localStorage.removeItem('fuelBuffer');
     resetAllTablesAndResults();
@@ -1017,21 +1756,27 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     ['totalLapsExact','totalLapsRounded','totalFuelNeededExact','totalFuelNeededRounded',
      'totalPitstopsExact','totalPitstopsRounded','maxLapsPerTankExact','maxLapsPerTankRounded','totalRaceTime'
     ].forEach(function(id) { document.getElementById(id).textContent = ''; });
-    document.getElementById('pitstopModeToggleContainer').style.display = 'none';
-    document.getElementById('pitstopModeToggle').checked = false;
-    document.getElementById('standardLabel').classList.add('active');
-    document.getElementById('equalStintsLabel').classList.remove('active');
+    document.getElementById('pitstopModeContainer').style.display = 'none';
+    pitstopMode = 'standard';
+    savedWindowModeLaps = null;
+    updateModeButtons();
     document.getElementById('pitstopWindowTable').innerHTML =
-      '<tr><th>pitstop</th><th>pit window (laps)</th><th>fuel to add</th></tr>';
-    // Warnmeldung ausblenden
+      '<tr><th>pit<br>stop</th><th>pit window<br>(laps)</th><th>pit<br>lap</th><th>fuel to<br>add</th></tr>';
     document.getElementById('hinweisText').style.display = 'none';
+    document.getElementById('toggleGraphBtn').style.display = 'none';
+    document.getElementById('graphContainer').classList.remove('visible');
+    graphVisible = false;
+    pitstopData = [];
+    staticTableData = [];
+    document.getElementById('sliderContainer').innerHTML = '';
+    document.getElementById('finalStintDisplay').textContent = '';
+    document.getElementById('finalStintDisplay').style.display = 'none';
   }
 
   // ─── SHARE & PRESET FUNCTIONS ──────────────────────────────────────────
 
   function collectInputs() {
     var data = {};
-    // Alle relevanten Felder sammeln, aber NICHT die presetLabel_* Felder
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
                        'formationLapSelect','unit'];
@@ -1041,19 +1786,26 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
         data[id] = el.value;
       }
     });
-    // Checkboxen
-    var checkboxes = ['modeToggle','multiclassCheckbox','pitstopModeToggle'];
+    var checkboxes = ['modeToggle','multiclassCheckbox'];
     checkboxes.forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
         data[id] = el.checked ? 'true' : 'false';
       }
     });
+    data['pitstopMode'] = pitstopMode;
     return data;
   }
 
   function applyInputs(data) {
     for (var key in data) {
+      if (key === 'pitstopMode') {
+        if (['standard', 'equal', 'custom'].indexOf(data[key]) >= 0) {
+          pitstopMode = data[key];
+          updateModeButtons();
+        }
+        continue;
+      }
       var el = document.getElementById(key);
       if (!el) continue;
       if (el.type === 'checkbox') {
@@ -1161,7 +1913,7 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     var labelInput = document.getElementById('presetLabel_'+index);
     var label = labelInput ? labelInput.value.trim() : 'M'+index;
     if (!label) label = 'M'+index;
-    var data = collectInputs();  // nur relevante Felder
+    var data = collectInputs();
     localStorage.setItem('preset_' + index + '_label', label);
     localStorage.setItem('preset_' + index + '_data', JSON.stringify(data));
     labelInput.value = label;
@@ -1215,7 +1967,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     saveInputs();
   });
 
-  // Änderungen an relevanten Feldern speichern
   var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                      'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
                      'formationLapSelect','unit'];
@@ -1226,7 +1977,6 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
       el.addEventListener('change', function() { saveInputs(); });
     }
   });
-  // Checkboxen
   document.querySelectorAll('input[type="checkbox"]').forEach(function(el) {
     el.addEventListener('change', function() { saveInputs(); });
   });
@@ -1263,6 +2013,11 @@ body.multiclass-active #pitstopWindowTable td:nth-child(3) { color: #FD8700; }
     var loadedFromURL = loadFromURL();
     if (!loadedFromURL) {
       restoreInputs();
+      var rzRestore = document.getElementById('rundenzeit');
+      if (rzRestore && rzRestore.value) {
+        var normRestore = normalizeLapTimeInput(rzRestore.value);
+        if (normRestore) rzRestore.value = normRestore;
+      }
       zusatzFaktor = parseFloat(document.getElementById('fuelBuffer').value) || 0.3;
       if (document.getElementById('multiclassCheckbox').checked) {
         document.body.classList.add('multiclass-active');
