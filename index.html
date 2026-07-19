@@ -27,7 +27,7 @@ body { font-family: Arial, sans-serif; background-color: var(--background-color)
 #timedRaceTable td:nth-child(7) { background-color: var(--special-column-bg-timed); }
 #fixedLapsTable td:nth-child(4) { background-color: var(--special-column-bg-fixed); }
 
-.container { max-width: 560px; margin: 0 auto; }
+.container { max-width: 560px; margin: 0 auto; padding-bottom: 40px; }
 h1 { font-size: 24px; margin-bottom: 20px; color: var(--header-color); }
 h2 { font-size: 18px; margin-bottom: 10px; }
 label { font-size: 16px; }
@@ -190,7 +190,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 .info-icon .tooltip-text, .info-icon .tooltip-text2 {
   visibility: hidden; width: 230px; background-color: #222; color: #fff;
   text-align: center; border-radius: 4px; padding: 4px; position: absolute;
-  z-index: 1; opacity: 0; transition: opacity 0.15s, visibility 0.15s; font-size: 11px; line-height: 1.4;
+  z-index: 999; opacity: 0; transition: opacity 0.15s, visibility 0.15s; font-size: 11px; line-height: 1.4;
+  pointer-events: none;
 }
 .info-icon .tooltip-text { top: 300%; left: -205px; }
 .info-icon .tooltip-text2 { bottom: 110%; left: -210px; }
@@ -473,6 +474,18 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
   font-size: 13px;
   margin-top: 12px;
 }
+
+#equalStintsSummary {
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+}
+#equalStintsSummary div {
+  margin-bottom: 4px;
+}
+#equalStintsSummary div:last-child {
+  margin-bottom: 0;
+}
   </style>
 
   <script async src="https://umami-o5zv.vercel.app/script.js" data-website-id="73223052-2960-4eb7-aad7-763ae8dd828a"></script>
@@ -488,7 +501,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
       <a href="#" onclick="togglePresetDropdown(event); return false;">
         <img src="./docs/assets/memory.png" alt="Memory" width="22" height="22" id="memoryIcon">
       </a>
-      <span class="tooltip">save/load presets</span>
+      <span class="tooltip">save/load calculations</span>
     </span>
     <!-- Share -->
     <span class="icon-wrapper">
@@ -567,7 +580,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
       <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 10px; margin-top: 8px;">
 
         <div style="display: flex; align-items: center; gap: 6px;">
-          <div style="display: flex; align-items: center; gap: 0;"><label for="fuelBuffer" style="font-size: 14px; white-space: nowrap;">fuel buffer:</label><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0;">additional fuel to account for.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span></span></div>
+          <div style="display: flex; align-items: center; gap: 0;"><label for="fuelBuffer" style="font-size: 14px; white-space: nowrap;">fuel buffer:</label><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0;">minimum fuel that should remain in the tank.<br>this acts as a safety reserve before pit stops and at the end of the race.<br>use at least 0.3 when calculating in liters,<br>use at least 0.1 when calculating in gallons</span></span></div>
           <input type="number" tabindex="-1" id="fuelBuffer" name="fuelBuffer" value="0.3" step="0.1" min="0"
                  style="width: 55px; height: 30px; padding: 4px; text-align: center; margin-right: 0;"
                  onchange="if (this.value != '0.3' && typeof umami !== 'undefined') { umami.track('adjust-fuel-buffer'); }">
@@ -580,11 +593,19 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
             <option value="no">no</option>
             <option value="short">short</option>
             <option value="full">full</option>
+            <option value="custom">custom</option>
           </select>
         </div>
 
+        <div style="display: none; align-items: center; gap: 6px;" id="formationLapCustomRow">
+          <label for="formationLapCustom" style="font-size: 14px; white-space: nowrap;">formation lap<br>consumption:</label>
+          <input type="number" tabindex="-1" id="formationLapCustom" name="formationLapCustom" value="1.0" step="0.1" min="0"
+                 style="width: 55px; height: 30px; padding: 4px; text-align: center; margin-right: 0;"
+                 onchange="if (this.value != '1.0' && typeof umami !== 'undefined') { umami.track('adjust-formation-lap-custom'); }">
+        </div>
+
         <div style="display: flex; align-items: center; gap: 6px;">
-          <div style="display: flex; align-items: center; gap: 0;"><span style="font-size: 14px; color: var(--text-color); white-space: nowrap;">multiclass safety margin</span><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0; width: 220px;">This option adds one extra lap to the race. Recommended when you are not racing in the fastest class in a multiclass race.</span></span></div>
+          <div style="display: flex; align-items: center; gap: 0;"><span style="font-size: 14px; color: var(--text-color); white-space: nowrap;">multiclass safety margin</span><span class="info-icon">&#9432;<span class="tooltip-text2" style="bottom: 140%; left: auto; right: 0; width: 220px;">this option adds one extra lap to the race. recommended when you are not racing in the fastest class in a multiclass race.</span></span></div>
           <input type="checkbox" id="multiclassCheckbox" class="multiclass-cb" tabindex="-1"
                  onchange="onMulticlassChange()">
         </div>
@@ -729,6 +750,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
   <div id="graphContainer">
     <canvas id="fuelGraphCanvas" width="560" height="200"></canvas>
     <div id="sliderContainer"></div>
+    <div id="equalStintsSummary"></div>
     <div id="finalStintDisplay"></div>
   </div>
 </div>
@@ -820,7 +842,16 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     var val = document.getElementById('formationLapSelect').value;
     if (val === 'short') return verbrauch * 0.5;
     if (val === 'full')  return verbrauch * 0.9;
+    if (val === 'custom') {
+      var custom = parseFloat(document.getElementById('formationLapCustom').value.replace(',','.'));
+      return isNaN(custom) ? 0 : custom;
+    }
     return 0;
+  }
+
+  function syncFormationLapCustomVisibility() {
+    var val = document.getElementById('formationLapSelect').value;
+    document.getElementById('formationLapCustomRow').style.display = (val === 'custom') ? 'flex' : 'none';
   }
 
   function getExtraLap() {
@@ -838,6 +869,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
 
   function onFormationLapChange() {
     var val = document.getElementById('formationLapSelect').value;
+    syncFormationLapCustomVisibility();
     if (typeof umami !== 'undefined') umami.track('formation-lap-' + val);
     berechnen();
     calculatePitstopWindow();
@@ -1077,6 +1109,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
       finalStintEl.textContent = '';
       finalStintEl.style.display = 'none';
     }
+    renderEqualStintsSummary(effectiveMode);
 
     var btn = document.getElementById('toggleGraphBtn');
     if (pitstopData.length > 0) {
@@ -1456,6 +1489,31 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     el.textContent = 'pit lap: ' + d.currentLap + ' - stint: ' + stintLaps + ' laps' + stintTimePart + ' - fuel: ' + d.fuelToAdd.toFixed(2);
   }
 
+  function renderEqualStintsSummary(mode) {
+    var el = document.getElementById('equalStintsSummary');
+    if (!el) return;
+    if (mode !== 'equal' || pitstopData.length === 0) {
+      el.innerHTML = '';
+      el.style.display = 'none';
+      return;
+    }
+    var rundenzeit = umwandelnInSekunden(document.getElementById('rundenzeit').value);
+    var html = '';
+    for (var i = 0; i < pitstopData.length; i++) {
+      var d = pitstopData[i];
+      var previousLap = (i === 0) ? 0 : pitstopData[i - 1].currentLap;
+      var stintLaps   = d.currentLap - previousLap;
+      var stintTimePart = !isNaN(rundenzeit) ? ' - stint time: ' + formatRaceTime(stintLaps * rundenzeit) : '';
+      html += '<div>pitstop ' + (i + 1) + ' - pit lap: ' + d.currentLap + ' - stint: ' + stintLaps + ' laps' + stintTimePart + ' - fuel: ' + d.fuelToAdd.toFixed(2) + '</div>';
+    }
+    var lastStopLap = pitstopData[pitstopData.length - 1].currentLap;
+    var finalLaps   = totalLapsRounded - lastStopLap;
+    var finalStintTimePart = !isNaN(rundenzeit) ? ' - stint time: ' + formatRaceTime(finalLaps * rundenzeit) : '';
+    html += '<div>final stint: ' + finalLaps + ' laps' + finalStintTimePart + '</div>';
+    el.innerHTML = html;
+    el.style.display = 'block';
+  }
+
   function recalcFuelFrom(startIdx) {
     var totalLaps = parseInt(document.getElementById('totalLapsRounded').textContent);
     var verbrauch  = parseFloat(document.getElementById('verbrauch').value.replace(',','.'));
@@ -1655,6 +1713,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     container.classList.toggle('visible');
     graphVisible = container.classList.contains('visible');
     document.getElementById('toggleGraphBtn').textContent = graphVisible ? 'hide planner' : 'show planner';
+    localStorage.setItem('graphVisible', graphVisible ? 'true' : 'false');
     if (graphVisible) {
       drawFuelGraph();
       for (var i = 0; i < pitstopData.length; i++) {
@@ -1664,6 +1723,27 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     }
     if (typeof umami !== 'undefined') umami.track(graphVisible ? 'show-planner' : 'hide-planner');
   }
+
+  function setGraphVisibility(visible) {
+    var container = document.getElementById('graphContainer');
+    if (visible && pitstopData.length > 0) {
+      container.classList.add('visible');
+      graphVisible = true;
+    } else {
+      container.classList.remove('visible');
+      graphVisible = false;
+    }
+    document.getElementById('toggleGraphBtn').textContent = graphVisible ? 'hide planner' : 'show planner';
+    localStorage.setItem('graphVisible', graphVisible ? 'true' : 'false');
+    if (graphVisible) {
+      drawFuelGraph();
+      for (var i = 0; i < pitstopData.length; i++) {
+        var infoEl = document.getElementById('sliderInfo_' + i);
+        if (infoEl) updateSliderInfo(i, infoEl);
+      }
+    }
+  }
+
 
   // ─── OTHER FUNCTIONS ──────────────────────────────────────────────
 
@@ -1702,7 +1782,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
   function saveInputs() {
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
-                       'formationLapSelect','unit'];
+                       'formationLapSelect','formationLapCustom','unit'];
     relevantIds.forEach(function(id) {
       var el = document.getElementById(id);
       if (el) localStorage.setItem(id, el.value);
@@ -1715,11 +1795,12 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
   function restoreInputs() {
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
-                       'formationLapSelect','unit'];
+                       'formationLapSelect','formationLapCustom','unit'];
     relevantIds.forEach(function(id) {
       var v = localStorage.getItem(id);
       if (v !== null) document.getElementById(id).value = v;
     });
+    syncFormationLapCustomVisibility();
     var mode = localStorage.getItem('modeToggle');
     if (mode !== null) document.getElementById('modeToggle').checked = (mode === 'true');
     var mc = localStorage.getItem('multiclassCheckbox');
@@ -1740,6 +1821,9 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     });
     document.getElementById('formationLapSelect').value = 'no';
     localStorage.removeItem('formationLapSelect');
+    document.getElementById('formationLapCustom').value = '1.0';
+    localStorage.removeItem('formationLapCustom');
+    syncFormationLapCustomVisibility();
     document.getElementById('unit').value = 'minutes';
     localStorage.removeItem('unit');
     document.getElementById('modeToggle').checked = false;
@@ -1780,11 +1864,14 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     document.getElementById('toggleGraphBtn').style.display = 'none';
     document.getElementById('graphContainer').classList.remove('visible');
     graphVisible = false;
+    localStorage.removeItem('graphVisible');
     pitstopData = [];
     staticTableData = [];
     document.getElementById('sliderContainer').innerHTML = '';
     document.getElementById('finalStintDisplay').textContent = '';
     document.getElementById('finalStintDisplay').style.display = 'none';
+    document.getElementById('equalStintsSummary').innerHTML = '';
+    document.getElementById('equalStintsSummary').style.display = 'none';
   }
 
   // ─── SHARE & PRESET FUNCTIONS ──────────────────────────────────────────
@@ -1793,7 +1880,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     var data = {};
     var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                        'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
-                       'formationLapSelect','unit'];
+                       'formationLapSelect','formationLapCustom','unit'];
     relevantIds.forEach(function(id) {
       var el = document.getElementById(id);
       if (el) {
@@ -1808,6 +1895,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
       }
     });
     data['pitstopMode'] = pitstopMode;
+    data['graphVisible'] = graphVisible ? 'true' : 'false';
     return data;
   }
 
@@ -1830,6 +1918,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
         el.value = data[key];
       }
     }
+    zusatzFaktor = Math.max(0, parseFloat(document.getElementById('fuelBuffer').value.replace(',','.')) || 0);    
   }
 
   function getCurrentUrlWithParams() {
@@ -1945,8 +2034,10 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     try {
       var data = JSON.parse(dataStr);
       applyInputs(data);
+      syncFormationLapCustomVisibility();
       toggleMode();
       onMulticlassChange();
+      setGraphVisibility(data.graphVisible === 'true');
       closePresetDropdown();
       var label = localStorage.getItem('preset_' + index + '_label') || 'M' + index;
       showCopyNotification('loaded values from ' + label);
@@ -1968,8 +2059,10 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     }
     if (!hasParams) return false;
     applyInputs(data);
+    syncFormationLapCustomVisibility();
     toggleMode();
     onMulticlassChange();
+    setGraphVisibility(data.graphVisible === 'true');
     return true;
   }
 
@@ -1981,9 +2074,14 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
     saveInputs();
   });
 
+  document.getElementById('formationLapCustom').addEventListener('input', function() {
+    berechnen(); calculatePitstopWindow();
+    saveInputs();
+  });
+
   var relevantIds = ['rundenzeit','verbrauch','fuelBuffer','renndauer1','renndauer2','renndauer3','renndauer4','renndauer5',
                      'setLaps1','setLaps2','setLaps3','setLaps4','setLaps5','maxFuelCapacity','raceLength',
-                     'formationLapSelect','unit'];
+                     'formationLapSelect','formationLapCustom','unit'];
   relevantIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) {
@@ -2039,6 +2137,7 @@ body.multiclass-active #pitstopWindowTable.mode-equal td:nth-child(3) { color: #
       toggleMode();
       berechnen();
       calculatePitstopWindow();
+      setGraphVisibility(localStorage.getItem('graphVisible') === 'true');
     }
   });
 </script>
